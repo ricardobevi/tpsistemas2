@@ -1,0 +1,1192 @@
+******************
+* 1 INTRODUCCIÓN *
+******************
+
+
+1.1 ¿Qué es la cuenta de superusuario (root) y para qué se utiliza?
+
+	Se lo llama Usuario principal o administrador. Es la cuenta con máximas
+	posibilidades de administracion y permisos para un usuario en Unix.
+
+1.2 Ingresar al sistema como superusuario (root), y realizar los siguientes pasos:
+
+	1.2.1. adduser <apellido> (reemplazar <apellido> por el suyo).
+
+		root@facus:~# adduser darano
+		Añadiendo el usuario «darano» ...
+		Añadiendo el nuevo grupo `darano' (1002) ...
+		Añadiendo el nuevo usuario «daranox (1001) con grupo zdarano» ...
+		Creando el directorio personal «/home/darano» ...
+		Copiando los ficheros desde `/etc/skel' ...
+		Enter new UNIX password: 
+		Retype new UNIX password: 
+		passwd: password updated successfully
+		Changing the user information for darano
+		Enter the new value, or press ENTER for the default
+			Full Name []: Facundo Nahuel D'Arano
+			Room Number []: 
+			Work Phone []: 
+			Home Phone []: 
+			Other []: 
+		¿Es correcta la información? [S/n] S
+
+
+	1.2.2. passwd <apellido> (Ingrese una contraseña (password) a su elección).
+
+		root@facus:~# passwd darano
+		Enter new UNIX password: 
+		Retype new UNIX password: 
+		passwd: password updated successfully
+
+	1.3 Indique claramente qué efectuaron estos comandos, e indique qué archivo/s fueron 
+	    modificados (Dentro del directorio /etc).
+
+		Se modificaron:
+		-rw-r-----  1 root shadow    1161 2010-04-22 12:46 shadow
+		-rw-r--r--  1 root root      1619 2010-04-22 12:41 passwd
+		-rw-r--r--  1 root root       911 2010-04-22 12:40 group
+	
+
+	1.4 Luego ejecute “cat /etc/passwd | more” y haga lo mismo con los otros archivos 
+	    que se modificaron. Analice y comente lo visto.
+
+                root@Facus:/home/facus# cat /etc/passwd | more
+                [...]
+                darano:x:1001:1002:Facundo Nahuel D'Arano,,,:/home/darano:/bin/bash
+                [...]
+                
+                root@Facus:/home/facus# cat /etc/shadow | more
+                [...]
+                darano:$6$KZ4RZoba$Kw0EV/m2V3P.VBpKkqW.gnbdyJiaUzk6j6Ylsf3/1P6nRUMn4E0TFfow/KGbM47WTwysSqOGmYhCT18MR4eK/
+0:14726:0:99999:7:::
+                [...]
+                
+                root@Facus:/home/facus# cat /etc/group |more
+                [...]
+                darano:x:1002:
+                [...]
+
+                Analisis:
+                
+                Al crear un usuario se agrega al archivo /etc/passwd una linea con sus datos. En
+                esta linea se especifica el nombre de usuario, nombre real, a que grupos pertenece,
+                su directorio de trabajo, el numero de usuario y el shell por defecto.
+                
+                En el archivo /etc/shadow se guardan los datos referentes a la contraseña y otros
+                datos de cuenta. Se guarda el nombre de usuario, la contraseña encriptada, el número
+                de días (desde el 1/1/1970) de la última actualización de la contraseña, cada cuanto
+                tiempo debería ser cambiada la contraseña (en días, 0 quiere decir en cualquier
+                momento), cada cuanto tiempo debe ser cambiada la contraseña (esto es obligatorio,
+                no sugestivo, 99999 indica infinito) y demas datos.
+                
+                En el archivo /etc/group se agrega un grupo con el nombre del usuario al cual el 
+                nuevo usuario pertenece por defecto. En este archivo se especifica el nombre y 
+                el numero del grupo.
+                
+        1.5. ¿En qué directorio se encuentran los comandos utilizados en los puntos 1.2.1, 1.2.2,
+             1.2.3, 1.3, y 1.4?
+
+
+Para saber donde estan los comandos uso "whereis comando"
+
+                root@Facus:/home/facus# whereis adduser
+                adduser:/usr/sbin/adduser   
+                       	/etc/adduser.conf 
+                        /usr/share/adduser  
+                        /usr/share/man/man8/adduser.8.gz
+
+
+                root@Facus:/usr/share/adduser# whereis passwd
+                passwd: /usr/bin/passwd 
+                        /etc/passwd 
+                        /usr/share/man/man5/passwd.5.gz 
+                        /usr/share/man/man1/passwd.1.gz 
+                        /usr/share/man/man1/passwd.1ssl.gz
+
+                root@Facus:/home/facus# whereis ls
+                ls: /bin/ls 
+                    /usr/share/man/man1/ls.1.gz
+
+
+                root@Facus:/home/facus# whereis cat
+                cat: /bin/cat 
+                     /usr/share/man/man1/cat.1.gz
+
+
+                Los comandos "cat" y "ls" se encuentran en "/bin". El comando "passwd" se encuentra
+                en "/usr/bin" y el comando "addusr" en "/usr/sbin".
+                
+                
+***********
+* 2 AYUDA *
+***********
+
+                2.1.1 Ingrese a info y responda:
+                        2.1.1.1 ¿Cómo se llama el nodo raíz de Info?.
+                                Se llama "Top".
+                                
+                        2.1.1.3 ¿Qué sucedió?.
+                                Da una explicación como usar el comando cp y sus opciones/parámetros.
+                                
+                        2.1.1.4 ¿Cómo se llama este nodo?.
+                                El nodo se llama "cp invocation".
+                                
+                        2.1.1.5 ¿Cuál es el próximo nodo?.
+                                El Próximo nodo es "dd invocation".
+                                
+                        2.1.1.6 ¿Cómo puedo moverme al próximo nodo?.
+                                Para ir al próximo nodo pulso la tecla 'N'.
+                                
+                        2.1.1.7 ¿Cómo puedo moverme al nodo anterior?.
+                                Para ir al nodo anterior pulso la tecla 'P'.
+                
+
+               2.1.2 Presione la tecla 'u'.
+                       2.1.2.1 ¿Qué sucedió?.
+                                Se movió un nodo mas arriba.
+                                
+                       2.1.2.2 ¿En qué nodo se encuentra?.
+                                En el nodo "Basic operations".
+                                
+               2.1.3 Repita el punto 2.1.2. hasta que llegue a la raíz de Info.
+                       2.1.3.1 ¿Con qué tecla puedo volver directamente a este nodo?.
+                                Con la tecla 't'.
+                       
+                       2.1.3.2 ¿Cuál es el método directo para acceder al nodo cp?.
+                                Presiono la tecla 'g' (go to) y escribo "cp invocation", esto me
+                                lleva directamente a ese nodo.
+
+               2.1.4 ¿Cómo puedo buscar una palabra clave dentro de un nodo?.
+                        Presionando la tecla 's' (search).
+                        
+               2.1.5 ¿Cómo puedo buscar la siguiente palabra clave, buscada anteriormente?.
+                        Se vuelve a presionar la tecla 's' y a continuación 'enter', así busca la
+                        siguiente ocurrencia.
+               
+               2.1.6 ¿Cómo puedo salir de Info?
+                        Presionando la tecla 'q'.
+                        
+                        
+        2.2. MAN: man es un programa que formatea y muestra la páginas del manual.
+
+                2.2.1 ¿Cuál es la diferencia entre man e info?
+                
+                        La diferencia es la forma de organizar la información. Mientras que 'man'
+                        tiene una página por cada comando/programa sin que estas esten enlazadas
+                        entre si, 'info' contiene un arbol que organiza las páginas con la
+                        información de cada comando y las enlaza entre si.
+                
+                2.2.2 ¿Cómo puedo ver la información de un determinado comando?
+                        Para ver la información de un determinado comando escribo:
+                        $ man comando
+                
+                2.2.3 ¿Cómo puedo buscar una palabra clave dentro de la página del manual?
+                        Para buscar en man escribo la barra '/' y a continuación el texto que deseo
+                        encontrar.
+                
+                2.2.4 ¿Cómo puedo salir?
+                        Para salir presiono la tecla 'q'.
+                
+                2.2.5 ¿Cómo hago para buscar una palabra clave determinada en todas las páginas 
+                      del manual?
+                        Para buscar en todas las paginas del manual:
+                        $ man -K <palabra a buscar>
+                      
+                2.2.6 ¿Qué es lo sucede al realizar lo siguiente?
+                       2.2.6.1 man
+                                root@Facus:/home/facus# man
+                                ¿Qué página de manual desea?
+                                
+                       2.2.6.2 man man
+                                Muestra la ayuda del comando 'man'.
+                       
+                       2.2.6.3 man cp
+                                Muestra la ayuda del comando 'cp'.
+                       
+                       2.2.6.4 man printf
+                                Muestra la ayuda del comando 'printf'.
+                                
+                       2.2.6.5 man fprintf
+                                Muestra la página del manual del programador de linux que hace
+                                referencia a las funciones printf,  fprintf, sprintf, snprintf,
+                                vprintf, vfprintf, vsprintf, vsnprintf.
+                                
+                       2.2.6.6 man sprintf
+                                Idem 'man fprintf'.
+                                
+                       2.2.6.7 man cd
+                                Dice que no existe la página del manual.
+                                
+                       2.2.6.8 man 3 printf
+                                Muestra la página del manual del programador de linux que hace
+                                referencia a las funciones printf,  fprintf, sprintf, snprintf,
+                                vprintf, vfprintf, vsprintf, vsnprintf.
+                       
+                2.2.7 Del punto anterior, responder:
+                       2.2.7.1 Al invocar man junto con fprintf y sprintf muestra la misma página.
+                       ¿Porqué no muestra la misma página al invocarlo con printf?.
+                       
+                               Porque fprintf y sprintf son funciones del lenguage C, mientras que
+                               printf es tanto una función de C como un comando de consola, por lo
+                               que presenta ambiguedad.
+                               
+                       2.2.7.2 ¿Cómo puedo invocar al man para ver directamente la función printf
+                               del lenguaje C?.
+                               
+                               Accediendo directamente a la página 3 del manual de printf:
+                               
+                               $ man 3 printf
+                      
+        2.3 HELP: help es la ayuda que ofrece el shell de GNU/LINUX para utilizar sus comandos.
+                2.3.1 ¿Cuál es la diferencia entre help e info?.
+                      La diferencia es la cantidad de información que presentan y la forma de
+                      organizarla. Help suele dar un poco de informacion, justo para que sirve el
+                      programa, y los parametros que se le pueden pasar. Mientras que Info muestra
+                      mucha más informción y más detallada, además de estar organizada y enlazada en
+                      una estructura de nodos.
+                
+                2.3.2 ¿Cuál es la diferencial entre help y man?.
+                      La diferencia es la cantidad de información que muestran. Help muestra una
+                      poca cantidad de información, como una guía rápida, mientras que man detalla
+                      cada parámetro y función del comando o programa.
+                      
+                2.3.3 ¿Qué sucede al invocar al help?.
+                      Help imprime en la consola una breve descripción de el comando.
+                
+                2.3.4 ¿Cómo puedo ver la información de un determinado comando?.
+                      Se ingresa en consola:
+                      $ help <comando>
+                      
+        2.4.   whereis
+                2.4.1 ¿Qué sucede al utilizar el comando whereis cd?
+                        No muestra nada.
+                        
+                2.4.2 ¿Qué es la información que se muestra por pantalla al ejecutar el punto
+                       anterior?
+                       
+                       ric@ric-laptop:~$ whereis cd
+                       cd:
+
+                2.4.3 ¿Qué ocurre si se ejecuta whereis * sobre un directorio?
+                       Muestra la ubicación de los binarios y las páginas del manual para cada
+                       archivo dentro del directorio.
+                
+                2.4.4 ¿Cuál es la diferencia entre whereis y find?
+                        La diferencia es en que directorios buscan. Whereis busca en ciertos
+                        directorios predeterminados mientras que find busca recursiva desde el 
+                        directorio especificado la expreción que queramos.
+
+        2.5.   whatis
+                2.5.1 ¿Qué sucede al utilizar el comando whatis cd?
+                2.5.2 Si el resultado del punto anterios fue la leyenda “cd: nothing appopiate”, 
+                      utilice el comando /usr/sbin/makewhatis, y responda los siguientes puntos:
+                    2.5.2.1 ¿Qué realizó la sentencia anterior?
+                    2.5.2.2 Reintente el punto anterior.
+            
+                2.5.3 Cambie al directorio /bin, y ejecute el comando whatis * ¿Qué ocurrió?
+                        Mostró las descripciones de todos los comandos dentro del directorio /bin.
+                
+                2.5.4 Utilice el comando apropos passwd y whatis passwd. Enumere las diferencias
+                      encontradas en el resultado de cada uno de los comandos.
+                
+                        ric@ric-laptop:~$ apropos passwd
+                        chgpasswd (8)        - update group passwords in batch mode
+                        chpasswd (8)         - update passwords in batch mode
+                        fgetpwent_r (3)      - get passwd file entry reentrantly
+                        getpwent_r (3)       - get passwd file entry reentrantly
+                        gpasswd (1)          - administer the /etc/group and /etc/gshadow files
+                        htpasswd (1)         - Manage user files for basic authentication
+                        lppasswd (1)         - add, change, or delete digest passwords.
+                        mkpasswd (1)         - Overfeatured front end to crypt(3)
+                        mksmbpasswd (8)      - formats a /etc/passwd entry for a smbpasswd file
+                        pam_localuser (8)    - require users to be listed in /etc/passwd
+                        passwd (1)           - change user password
+                        passwd (1ssl)        - compute password hashes
+                        passwd (5)           - the password file
+                        passwd2des (3)       - RFS password encryption
+                        smbpasswd (5)        - The Samba encrypted password file
+                        smbpasswd (8)        - change a user's SMB password
+                        update-passwd (8)    - safely update /etc/passwd, /etc/shadow and /etc/group
+                        
+                        ric@ric-laptop:~$ whatis passwd
+                        passwd (1ssl)        - compute password hashes
+                        passwd (1)           - change user password
+                        passwd (5)           - the password file
+
+                        La diferencia entre apropos y whatis es la forma de buscar. Ambos buscan en
+                        las páginas del manual e imprimen las descripciones de estas, pero apropos
+                        busca en todas las páginas y descripciones la expreción mientras que whatis
+                        busca solo las paginas del manual con ese nombre.
+
+************************
+* 3 TECLADO/TERMINALES *
+************************
+
+        3.1 ¿Qué sucede si tecleo cat /e <tab> p <tab>? (donde tab es la tecla tabulación).
+            Presione <tab> nuevamente ¿Qué pasó ahora?
+            
+                La tecla tab autocompleto cuando no había ambiguedades en el caso de /e<tab>, el
+                único directorio que empieza con 'e' del directorio raiz es 'etc', ahora, cuando
+                en 'etc' queremos que autocomplete solamente anteponiendo la 'p', encuentra varios
+                resultados que los muestra en pantalla.
+            
+        3.2 ¿Qué sucede si tecleo cat /e <tab> pas <tab>?
+        
+                Lo autocompleta con 'cat /etc/passwd'.
+        
+        3.3 En este punto analizaremos las distintas terminales que hay en un sistema GNU/Linux. 
+            Ejecute los siguientes comandos e indique cuál fue el resultado:
+                3.3.1 who
+                        ric@ric-laptop:~$ who
+                        ric      tty7         2010-04-26 23:31 (:0)
+                        ric      pts/0        2010-04-27 08:41 (:0.0)
+                
+                3.3.2 Presione la tecla <alt>, y sin soltarla presione cualquiera de las teclas de
+                      función. En la pantalla debería aparecer el login del sistema, de lo 
+                      contrario, ejecute el paso nuevamente presionando otra tecla de función. Si ya 
+                      tiene el login del sistema vuelva a conectarse.
+                3.3.3 Ejecute nuevamente el comando who. ¿Qué diferencias encuentra con la primera 
+                      vez que lo ejecutó?
+                      
+                        La direfencia es la cantidad de veces que aparezco logueado y las
+                        terminales en las que aparezco. Ahora me muestra logueado en las 
+                        terminales tty1 y tty2.
+                      
+                3.3.4 Ejecute el comando who am i ¿qué muestra?, ¿Qué diferencias tiene con el 
+                      comando ejecutado en el punto anterior?
+                      
+                      facus@Facus:/$ who am i
+                      facus    pts/3        2010-04-22 17:05 (:0.0)
+                      
+                      Me muestra en que terminal estoy logueado. La diferencia es la cantidad de
+                      información que me preoporciona, en este caso solo de la terminal actual
+                      donde estoy logueado, en en caso de poner solo 'who' me muestra todos los
+                      usuarios y todas las terminales.
+                      
+                3.3.5 Repita el paso 3.3.2 y el 3.3.3 hasta que no encuentre ninguna sesión para 
+                      abrir.
+                3.3.6 Una vez terminado el punto anterior, Ud. se encontrará sesionado en el sistema 
+                      como mínimo seis veces. Lo que acaba de hacer es abrir seis terminales 
+                      virtuales (que podrían ser usadas por distintos usuarios, con diferentes 
+                      perfiles), en la misma máquina. Así como existen terminales virtuales dentro
+                      del mismo equipo, si Ud. cuenta con una red, o con terminales tipo serie,
+                      podría abrir tantas sesiones de trabajo como Ud. quiera o necesite. Investigue
+                      e indique cómo se denominan los distintos tipos de terminales, y cuáles son
+                      los archivos que las representan (tip: busque en el directorio /dev).
+
+                        
+*****************
+* 4 DIRECTORIOS *
+*****************
+
+        4.1 ¿Para qué se usa el comando cd?. Ejecute las siguientes variantes de cd e indique cuál
+            fue el resultado obtenido:
+                4.1.1 cd /
+                        Se mueve al directorio raiz.
+                4.1.2 cd
+                        Se mueve al directorio home del usuario.
+                4.1.3 cd /etc
+                        Se mueve al directorio '/etc'
+                4.1.4 cd..
+                        Tira error, comando no encontrado.
+                4.1.5 cd ..
+                        Se mueve al directorio superior
+                
+        4.2 Bash sobre directorios:
+                4.2.1 ¿Cuál/es son las diferencias entre el path absoluto y el path relativo?
+                        
+                        El path absoluto es respecto al nodo raiz (ruta completa) mientras el path
+                        relativo es a partir del directorio actual.
+                        
+                4.2.2 ¿Qué es lo que realizan las siguientes operaciones?
+                        4.2.2.1 cd ~
+                                Mueve al directorio home del usuario.
+                        4.2.2.2 cd -
+                                Mueve al directorio anterior.
+                4.2.3 ¿Cuál es la diferencia entre cd .. y cd ~-?
+                        La diferencia es hacia donde mueven el directorio de trabajo actual. Mientras
+                        que 'cd ..' mueve al directorio superior, 'cd -' mueve al directorio
+                        anterior antes de la última invocacion al comando 'cd'.
+        
+        4.3 Operaciones con directorios:
+                4.3.1 ¿Con qué comando se puede crear un directorio?.
+                        mkdir
+                        
+                4.3.2 ¿Con qué comando se puede borrar un directorio?.
+                        rmdir
+                        
+                4.3.3 ¿Qué sucede sí el directorio no está vacío?.
+                        Si no esta vacio nos avisa y no realiza acción alguna.
+                        
+                4.3.4 ¿Cómo puedo salvar la situación anterior? (Sin borrar uno a uno los archivos
+                      existentes).
+                        Usando el comando 'rm' con la opción recursiva '-R' así:
+                        
+                        $ rm -R <directorio a borrar>
+                                            
+        4.4 ¿Qué significa la expresión ./ cuando se utiliza delante de un archivo? ¿Para que sirve?
+        
+                La expresión './' hace referencia al directorio de trabajo actual. Sirve para no
+                tener que escribir toda la ruta hacia un archivo ejecutable y para usar rutas
+                relativas en lugar de absolutas.
+        
+        4.5 ¿Cómo puede moverse entre directorios sin utilizar el PATH completo?
+        
+                Dentro de cada directorio hay dos ficheros especiales: el '.' y el '..'. Haciendo
+                referencia al fichero '..' puedo moverme al directorio superior en el arbol, así
+                navegar por los distintos directorios.
+        
+        4.6 ¿Cual es el contenido de los siguientes directorios que confirman la estructura de
+            cualquier sistema operativo GNU/Linux:?
+                4.6.1 /boot
+                        Archivos estáticos de cargador de arranque e imagen del kernel.
+
+                4.6.2 /dev
+                        Archivos de dispositivos.
+                        
+                4.6.3 /bin
+                        Binarios de comandos básicos.
+                
+                4.6.4 /etc
+                        Archivos de configuración del sistema.
+                        
+                4.6.5 /usr
+                        Contiene información que se comparte pero como solo lectura.
+                
+                4.6.6 /sbin
+                        Binarios del sistema esenciales.
+
+                4.6.7 /root
+                        Directorio principal del usuario administrador.
+                        
+                4.6.8 /etc/rc.d (y todos los que están adentro)
+                        Scripts invocados por init al momento de arrancar.
+                
+                4.6.9 /proc
+                         Sistema de archivos virtual de informacion de procesos y del kernel.
+                         
+                4.6.10 /mnt
+                        Punto de montaje de particiones.
+                
+                4.6.11 /usr/bin
+                        La mayoría de los comandos de usuario.
+                
+                4.6.12 /usr/sbin
+                        Binarios de sistema estándar no-esenciales.
+                        
+                4.6.13 /var
+                        La mayoría de los comandos de usuario
+                
+                4.6.14 /usr/man (y todos los que están adentro)
+                        Páginas del manual.
+                        
+                        /man1            Programas para usuarios.
+                        /man2            Llamadas al sistema.
+                        /man3            Subrutinas y funciones de librería
+                        /man4            Dispositivos.
+                        /man5            Formato de archivos
+                        /man6            Juegos.
+                        /man7            Misceláneas.
+                        /man8            Administración del Sistema.
+                        /man9            Funciones y variables internas del kernel.
+
+                        
+                4.6.15 /opt
+                        Paquetes opcionales de aplicaciones.
+                
+                4.6.16 /tmp
+                        Archivos temporales.
+
+
+**************
+* 5 ARCHIVOS *
+**************
+
+        5.1 ¿Qué hacen los siguientes comandos?
+                5.1.1 cp
+                        Copia archivos de forma local.
+                
+                5.1.2 mv
+                        Mueve archivos de forma local.
+                
+                5.1.3 rm
+                        Borra archivos.
+                
+                5.1.4 rcp
+                        Copia archivos en forma remota.
+                        
+                5.1.5 rsh
+                        Se conecta a un shell de una máquina remota.
+                
+                5.1.6 scp
+                        Copia archivos en forma remota.
+                
+                5.1.7 ssh
+                        Se conecta a un shell de una máquina remota.
+                
+        5.2 Para cada comando del punto anterior realice un ejemplo, e indique qué realizó.
+                
+                Para los ejemplos creo 2 archivos vacios usando touch y una carpeta.
+                
+                ric@ric-laptop:~/Sistemas2/TP1$ touch arch1
+                ric@ric-laptop:~/Sistemas2/TP1$ touch arch2
+                ric@ric-laptop:~/Sistemas2/TP1$ mkdir carpeta
+                ric@ric-laptop:~/Sistemas2/TP1$ ls
+                arch1  arch2  carpeta
+
+                
+                5.2.1 cp
+                        ric@ric-laptop:~/Sistemas2/TP1$ cp ./arch1 ./carpeta/
+                        ric@ric-laptop:~/Sistemas2/TP1$ ls
+                        arch1  arch2  carpeta
+                        ric@ric-laptop:~/Sistemas2/TP1$ ls ./carpeta/
+                        arch1
+                        
+                        Copio 'arch1' a 'carpeta'. 'arch1' sigue existiendo en el directorio actual.
+                
+                5.2.2 mv
+                        ric@ric-laptop:~/Sistemas2/TP1$ ls
+                        arch1  arch2  carpeta
+                        ric@ric-laptop:~/Sistemas2/TP1$ ls ./carpeta/
+                        arch1
+                        ric@ric-laptop:~/Sistemas2/TP1$ mv arch2 ./carpeta/
+                        ric@ric-laptop:~/Sistemas2/TP1$ ls
+                        arch1  carpeta
+                        ric@ric-laptop:~/Sistemas2/TP1$ ls ./carpeta/
+                        arch1  arch2
+                        
+                        Muevo 'arch2' a 'carpeta'. 'arch2' se borra del directorio actual.
+
+                
+                5.2.3 rm
+                        ric@ric-laptop:~/Sistemas2/TP1$ ls
+                        arch1  carpeta
+                        ric@ric-laptop:~/Sistemas2/TP1$ rm arch1
+                        ric@ric-laptop:~/Sistemas2/TP1$ ls
+                        carpeta
+                        ric@ric-laptop:~/Sistemas2/TP1$ rmdir carpeta/
+                        rmdir: No se pudo eliminar «carpeta/»: El directorio no está vacío
+                        ric@ric-laptop:~/Sistemas2/TP1$ rm -R carpeta/
+                        ric@ric-laptop:~/Sistemas2/TP1$ ls
+
+                        
+                        Borro 'arch1' y el directorio 'carpeta' que al no estar vacío no puede 
+                        eliminarce con 'rmdir', por eso se usa 'rm -R'.
+                
+                5.2.4 rcp
+                        ric@ric-laptop:~/Sistemas2/TP1$ touch arch1
+                        ric@ric-laptop:~/Sistemas2/TP1$ rcp arch1 localhost:/home/ric/Documentos/
+                        The authenticity of host 'localhost (::1)' can't be established.
+                        RSA key fingerprint is 0a:9b:02:37:82:0e:cf:53:f4:d8:10:80:7c:18:40:7d.
+                        Are you sure you want to continue connecting (yes/no)? yes
+                        Warning: Permanently added 'localhost' (RSA) to the list of known hosts.
+                        ric@localhost's password: 
+                        arch1                                        100%    0     0.0KB/s   00:00   
+                        
+                        Si bien no es una copia remota porque copie el archivo a mi propia máquina
+                        el concepto se entiende. En lugar de 'localhost' puede ser cualquier equipo
+                        de la red, incluso una dirección IP. Este ejemplo crea un archivo llamado
+                        'arch1' y lo copia remotamente al equipo llamado 'localhost' en la ruta
+                        '/home/ric/Documentos/'.
+                        
+                5.2.5 rsh
+                        ric@ric-laptop:~/Sistemas2/TP1$ ssh ric@localhost
+                        ric@localhost's password: 
+                        Linux ric-laptop 2.6.31-20-generic #58-Ubuntu SMP Fri Mar 12 04:38:19 
+                        UTC 2010 x86_64
+
+                        To access official Ubuntu documentation, please visit:
+                        http://help.ubuntu.com/
+
+                        Pueden actualizarse 0 paquetes.
+                        0 actualizaciones son de seguridad.
+
+                        ric@ric-laptop:~$ who
+                        ric      tty7         2010-04-26 23:31 (:0)
+                        ric      pts/0        2010-04-27 08:41 (:0.0)
+                        ric      pts/1        2010-04-28 11:13 (localhost)
+
+
+                        'rsh' y 'ssh' son identicos. Me conecto remotamente a un shell (en realidad
+                        es mi propio equipo, pero podría ser uno remoto) como el usuario 'ric'.
+                
+                5.2.6 scp
+                        Idem 'rcp'.
+                
+                5.2.7 ssh
+                        Idem 'rsh'
+        
+        5.3 ¿Con qué comando puedo concatenar el contenido de dos archivos?.
+                Con el comando 'cat', así:
+                
+                $ cat txt1 txt2
+                
+                Y si deseo guardar la concatenación en un archivo:
+                
+                $ cat txt1 txt2 > txt3
+        
+                5.3.1 ¿Se puede usar ese comando para otra cosa?.
+                        Se puede utilizar para ver el contenido de un archivo de texto.
+        
+        5.4 Haga un ls –l /dev
+                5.4.1 ¿Qué significa el primer carácter?
+                        El primer caracter especifica el tipo de archivo o directorio.
+                                               
+                5.4.2 ¿Cuáles son todos los posibles valores que puede contener ese campo y 
+                      que significa cada uno?
+                      
+                        Puede tomar 2 valores posibles:
+
+                        'l' - Link simbólico.
+                        'd' - Directorio.
+                        'b' - Dispositivo por bloques.
+                        'c' - Dispositivo por caracteres (ej: consolas).
+                        'p' - Pipe con nombre.
+                        's' - Socket
+                        '-' - si es un archivo ordinario.
+                      
+        5.5 ¿Para qué sirve el comando touch? ¿qué utilidad le encuentra?
+                El comando 'touch' se utiliza para cambiar la fecha de modificación o apertura de los
+                archivos.
+                
+                Puede ser útil para mantener "actualizados" archivos de importancia o para cambiar la
+                fecha de los trabajos prácticos ;).
+                
+                También es usado para crear archivos vacios.
+
+**************
+* 6 PERMISOS *
+**************
+
+        6.1. Teniendo en cuenta el ls –l anterior, ¿indique que son los siguientes 9 caracteres?
+             (sin considerar el primero sobre el que ya respondió anteriormente)
+             
+                Son los permisos del propietario, grupo y el resto del mundo.
+             
+        6.2. ¿qué significan cada caracter? ¿cómo están agrupados?
+        
+                El formato consiste de 10 caracteres, el primero es el tipo de archivo, los
+                3 siguientes son los permisos de propietario, los siguientes 3 permisos de
+                grupo y los ultimos 3 los permisos de el resto de los usuarios. Ejemplo: 
+
+                -rw-r--r-- 1 facus facus  8 2010-04-22 18:25 texto1.txt
+
+                Esto nos dice que el propietario tiene permisos de lectura y escritura,
+                mientras el grupo y el resto del mundo tiene permisos de solo lectura. Ahí
+                también nos indica que el archivo pertenece al usuario 'facus' y al grupo
+                'facus'.
+                
+                El significado de las letras es:
+
+                r read
+                w write
+                x execute
+        
+        6.3. ¿Cómo se asignan los permisos? (detalle los comandos).
+                Se asignan con el comando 'chmod'. El uso es el siguiente:
+                
+                $ chmod <permisos> <fichero>
+                
+                También se puede cambiar el owner con el comando 'chown' así:
+                
+                $ chown <propietario> <fichero>
+                
+                Y el grupo usando 'chown' o 'chgrp', así:
+                
+                $ chown <propietario>:<grupo> <fichero>
+                
+                O
+                
+                $chgrp <grupo> <fichero>
+        
+        6.4. ¿Qué son el owner, y el group de un archivo?. ¿Se pueden cambiar?.
+                El owner es el propietario del archivo, generalmente su creador. El group es el
+                grupo de personas al cual pertenece el archivo, es util para definir, por ejemplo
+                que los miembros del grupo 'docentes' tienen permisos de lectura sobre las carpetas
+                de los alumnos.
+                
+                Se puede cambiar el owner con el comando 'chown' así:
+                
+                $ chown <propietario> <fichero>
+                
+                Siempre y cuando uno sea el propietario o root.
+        
+        6.5. Intente cambiar los permisos de un archivo perteneciente al root (sesionado como
+             usuario). Explique qué sucedió.
+             
+                ric@ric-laptop:/dev$ ls -l | grep sda1
+                brw-rw----  1 root disk      8,   1 2010-04-26 20:30 sda1
+                ric@ric-laptop:/dev$ chmod 777 sda1
+                chmod: cambiando los permisos de «sda1»: Operación no permitida
+                
+                Al no ser el propietario del archivo no puedo cambiarle los permisos.
+             
+        6.6. Explique la forma de cambiar los permisos con valores en octal.
+                Para cambiar los valores en forma octal hay que tener en cuenta que los permisos
+                se dividen en tres sectores de tres bit, estos son rwx y dependiendo si en ellos
+                esta permitido o no realizar dicha accion, se encuentra un 1 o un 0. Por lo tanto,
+                si deseo cambiar los permisos utilizando el modo octal, simplemente debo escribir
+                el numero octal del conjunto de bit correspondientes para cada grupo:
+
+                000  ---   0
+                001  --x   1
+                010  -w-   2
+                011  -wx   3
+                100  r--   4
+                101  r-x   5
+                110  rw-   6
+                111  rwx   7
+
+                Ejemplo: 755  (- wrx -rx -rx) el dueño puede realizar cualquier accion, el grupo y
+                el resto del mundo solo pueden leer y ejecutar este archivo.
+        
+        6.7. ¿Cuál es el significado de los permisos en los directorios (se debe indicar que indica
+              una r, una w, y una x)?
+
+                'r' - Permiso para ver los archivos dentro del directorio. Esto no signifca que
+                      leer los archivos, solo podré ver los nombres de los archivos, sus permisos,
+                      dueño y grupo. Para leer el archivo, debo tener permisos de lectura para ese
+                      archivo particular.
+                      
+                'w' - Escritura dentro de la carpeta. Puedo crear archivos dentro de la carpeta y
+                      modificar los que tenga permisos para hacerlo.
+                      
+                'x' - Ejecución dentro de la carpeta. Puedo ejecutar binarios dentro de la carpeta,
+                      siempre y cuando tenga permisos de ejecución sobre ese archivo.
+
+
+*************
+* 7 FILTROS *
+*************
+        7.1 ¿Cuál es la diferencia de los comandos more, less y cat?. De un ejemplo de cada uno.
+                
+                La diferencia entre estos comandos es la forma en que se los muestra y recorre en la
+                consola,las caracteristicas de ellos son:
+
+                'cat'  imprime el archivo entero en consola.
+
+                'less' abre el archivo entero en consola permitiendo recorrerlo.
+
+                'more' en cambio abre el archivo en consola y lo va imprimiendo a medida que uno va
+                       tocando una tecla, no permite recorrerlo.
+        
+        7.2 ¿Cuál es la diferencia entre tail y head?.
+        
+                La diferencia entre tail y head es que tail muestra el final del archivo (la cola)
+                en cambio head muestra el encabezado (principio o cabeza) del archivo.
+        
+        7.3 ¿Para qué sirve el comando wc y que indican los parámetros –c –l –w? 
+             (Proponga ejemplos de uso)
+             
+                Muestra el número de nuevas líneas, palabras y bytes para cada FICHERO, y una
+                línea con el total si se especifica más de un FICHERO. Si no se especifica
+                ningún FICHERO, o si FICHERO es -, lee la entrada estándar.
+
+                -c  muestra el número de bytes
+                -l  muestra el número de líneas
+                -w  imprime el número de palabras
+                  
+                Ejemplo:
+                
+                ric@ric-laptop:/etc$ wc /etc/fstab 
+                10  79 541 /etc/fstab
+             
+        7.4 ¿Qué es lo que realiza el comando uniq?.
+                El comando uniq descarta u omite las lineas repetidas de la entrada indicada y envia 
+                a la salida designada.
+        
+        7.5 ¿Qué es lo que realiza el comando grep?.
+                El comando grep imprime en pantalla las lineas que contengan una expresion regular 
+                que se le envia como parametro.
+        
+                7.5.1 ¿Para qué sirve?
+                        Sirve para realizar filtros de busqueda,seleccion o de algun otro tipo.
+                
+                7.5.2 ¿Qué hace la siguiente línea?: grep root /etc/passwd
+                        ric@ric-laptop:~$ grep root /etc/passwd
+                        root:x:0:0:root:/root:/bin/bash
+                        
+                        Me muestra la linea que contiene 'root' del archivo '/etc/passwd'.
+                
+                7.5.3 ¿Qué diferencias encuentra entre la ejecución de los siguientes
+                       comandos?:
+                        7.5.3.1 grep r /etc/passwd
+                                ric@ric-laptop:~$ grep r /etc/passwd
+                                root:x:0:0:root:/root:/bin/bash
+                                daemon:x:1:1:daemon:/usr/sbin:/bin/sh
+                                games:x:5:60:games:/usr/games:/bin/sh
+                                man:x:6:12:man:/var/cache/man:/bin/sh
+                                [...]
+                                
+                                Muestra todas las lineas que contengan la letra 'r' del archivo
+                                /etc/passwd.
+
+                        
+                        7.5.3.2 grep ^r /etc/passwd
+                                ric@ric-laptop:~$ grep ^r /etc/passwd
+                                root:x:0:0:root:/root:/bin/bash
+                                
+                                Muestra las lineas que empiecen con la letra 'r' del archivo
+                                /etc/passwd.
+
+                        7.5.3.3 grep r$ /etc/passwd
+                                No muestra nada.
+                                
+
+********
+* 8 VI *
+********
+     
+        8.1 Ejecute la siguiente instrucción: vi $HOME/prueba.txt ¿Qué sucedió?. Ahora ejecute todos
+            los pasos detallados a continuación.
+                Al escribir vi $HOME/prueba.txt se creo y abrio un archivo de texto plano con el
+                editor de texto vi.
+            
+                8.1.1 Escriba la siguiente frase: “Este es el archivo prueba.txt de <nombre y
+                      apellido>”
+                8.1.2 ¿Qué tuvo que hacer para poder escribir la frase?
+                        Para poder escribir debi presionar la tecla 'i' y escribir lo pedido,
+                        terminando con ENTER o ESC.
+                        
+                8.1.3 Guarde el archivo, y salga del editor. ¿Qué comando utilizó?
+                        Para salir y guardar el archivo utilice ':wq' (write and quit)
+                
+                8.1.4 Ingrese nuevamente al archivo.
+                8.1.5 Incorpore al inicio del archivo el siguiente párrafo (los acentos puede ser
+                      evitados):
+                        “Sistemas de Computación II
+                        Comisión de los días <día de cursada>
+                        Trabajo Práctico 1
+                        Alumno: <su nombre aquí>
+                        Matrícula: <su matrícula aquí>
+                        Documento: <su documento aquí>”
+                8.1.6 Describa todos los pasos que tuvo que realizar.
+                        Para escribir el texto pedido, utilice los siguientes comandos:
+
+                        i	ingresar texto en cursor
+                        I	ingresar texto en principio de linea
+                        dd      eliminar
+                        y$      copiar hasta fin de linea
+                        p	pegar
+                        R	reemplazar
+                        u	deshacer
+                        
+                        Comence insertando texto con i, luego al tener que insertar texto antes de
+                        este utilice el comando I, debido a mal tipeo, cometi errores que tuve que
+                        solucionar con los comandos dd, R y u. Finalmente para no escribir dos veces
+                        mi nombre y apellido utilice y$ para copiar y p para pegar mis datos.
+                
+                8.1.7 Guarde el archivo y continúe la edición. ¿Qué comandos utilizó?
+                        Para guardar y continuar utilice ':w' (write)
+                
+                8.1.8 Borre la línea de “Matrícula”. Indique por lo menos dos formas de realizarlo.
+                
+                        Para eliminar la linea matricula se pueden utilizar los siguientes comandos:
+
+                        x     borrar caracter bajo el cursor
+                        dd    borrar línea, queda guardada 
+                        D     borrar desde cursor a fin de línea 
+                        dw    borrar desde cursor a fin de palabra 
+                        d$    borrar desde cursor a fin de línea
+                        d0    borrar desde cursor a principio de línea
+                
+                8.1.9 Invierta el orden de las líneas “Comisión y TP”. No está permitido
+                      rescribirlas. ¿Qué comandos utilizó?
+                      
+                      Para invertir el orden de comision y tp utilice el comando y$ para copiar el
+                      texto de comision, al final de tp presione a para insertar despues del
+                      cursor, cree una nueva linea presionando ENTER y ESC para salir de modo
+                      insertar, una vez alli presione p para pegar el texto copiado y para
+                      finalizar, posicionando el cursor sobre la linea comision original,
+                      presione dd.
+                      
+                8.1.10 Ubíquese en la línea 2 (dos) del archivo. No está permitido usar las teclas
+                       del cursor, ni el mouse. ¿Qué comando utilizó?
+                       
+                       Para moverme a la linea 2 presione ':2', de no ser asi pude haber utilizado
+                       los comandos de movimiento h j k l.
+                       
+                8.1.11 Marque para copiar las líneas 2, 3, y 4 (todas juntas, no de a una a la vez).
+                       ¿Cómo lo realizó?
+                       Me posiciono en la linea 2 y tecleo 'y3y', esto copia 3 lineas.
+                       
+                       
+                8.1.12 Ubíquese al final del archivo (sin usar las teclas del cursor), y pegue dos
+                       veces el contenido del buffer. ¿Qué comando usó?
+                       
+                       Para ubicarme al final del archivo tecleo ':$', luego preciono '2p' para pegar
+                       dos veces el contenido del buffer.
+                       
+                8.1.13 Deshaga uno de los copiados. No está permitido borrar línea por línea, ni
+                       caracter a caracter. ¿Qué comando usó?
+                       
+                       Me posiciono 3 lineas arriba de lo que quiero borrar y tecleo 'd3d', eso borra
+                       3 lineas.
+                       
+                8.1.14 ¿Cómo busco la palabra “Documento”? ¿Cómo busco la segunda ocurrencia de una
+                       palabra?
+                       
+                       Para buscar la palabra documento es cuestion de escribir /Documento y
+                       presionar ENTER, si deseo ver la proxima ocurrencia presiono 'n' y de desear
+                       ver la anterior ocurrencia presiono 'N'.
+                       
+                8.1.15 ¿Cómo puedo reemplazar la palabra “Documento” por “Documento:” (sin borrar, o
+                       realizar el reemplazo a mano)?
+                       
+                       Para buscar y reemplazar se utiliza el siguiente comando:
+
+                       :<desde>,<hasta>s/<buscar>/<reemplazar>/g
+
+                       Donde desde y hasta indican las posiciones donde se desea buscar y
+                       reemplazar,s implica sustituir, buscar la cadena buscanda y reemplazar la
+                       cadena por la q se sustituira, g indica que el alcance el global.
+                       
+                8.1.16 Guarde el archivo y salga.
+                8.1.17 Ejecutar "vi buscar_reemplazar" e introducir el texto:
+                1/5/2003 ------------- listo
+                1/5/2004 ------------- listo
+                1/5/2005 ------------- listo
+                1/5/2006 ------------- listo
+                1/5/2007 ------------- listo
+                1/5/2008 ------------- listo
+                1/5/2009 ------------- listo
+                1/5/2010 ------------- No listo
+                8.1.18 Ejecutar ":%s/\/3\//Marzo/g ¿Que paso al ejecutar esto?
+                        No encuentra el patrón \/3\/.
+                
+                8.1.19 Si observa el resultado de lo anterior, el cambio fue erróneo, modifique la
+                       sentencia para que funcione correctamente.
+                       Cambio por \/5\/ y Marzo por Mayo y agrego espacios.
+                       
+                       :%s/\/5\// Mayo /g
+                       
+                8.1.20 Modifique la fecha para que en lugar del 1 sea el 15. Indique que comandos
+                       uso para realizarlo.
+                       
+                       :%s/1\//15\//g
+                       
+                8.1.21 ¿Indique si existe alguna forma de hacer un buscar y reemplazar pero que
+                       antes de realizar la substitución pregunte?.
+                       
+                       Si, agregando la letra 'c' al final del comando de reemplazo, así:
+                       
+                       :%s/1\//15\//gc
+
+
+***********
+* 9 DISCO *
+***********
+
+        9.1 ¿Para qué se utiliza el comando mount?. ¿Todos los usuarios lo pueden ejecutar el
+         comando con algunos o todos los parámetros?. En caso de que su respuesta sea negativa,
+         ¿indique cuál /es si?.
+         
+                El comando mount se utiliza para montar dispositivos de almacenamiento. Los usuarios
+                solo pueden montar unidades para las que tengan permisos, esto se declara en el
+                archivo /etc/fstab.
+         
+        9.2 Transfiera el archivo a un disquete (el mismo que utilizará para entregar el trabajo
+            práctico, ya que éste archivo es parte de la entrega).
+                9.2.1 Indique al menos dos formas de realizarlo.
+                        Una vez montado puede copiarce con el comando 'cp' o moverce con el comando
+                        'mv' a la carpeta donde se encuentra montada la unidad.
+                
+        9.3 ¿Recordó desmontar el disquete en todas las oportunidades que lo uso, y antes de
+            retirarlo verdad?.
+                9.3.1 ¿Qué problemas se pueden generar por no realizarlo?.
+                        Puede que haya datos que no terminen de escribirce. Ademas que el recurso
+                        quedaría en nuestro poder por tiempo indefinido, las buenas practicas para
+                        un sistema multiusuario requieren devolver los recursos cuando se dejan de
+                        utilizar.
+                
+                9.3.2  Repita el punto 1 de éste trabajo práctico, creando un usuario cualquiera 
+                (si Ud. se encuentra en el Lab 67, no puede continuar con éste punto).
+                9.3.3 Cambie de terminal virtual a otra, si se encuentra sesionada salga, e ingrese
+                con el usuario creado en el punto anterior.
+                9.3.4 Intente desmontar el disquete. ¿Pudo?. Si su respuesta es negativa lo mismo
+                pasará en el laboratorio si Ud. se retira de trabajar sin desmontar la disquetera, y
+                el próximo usuario la quiere utilizar. Por ese motivo en el laboratorio al hacer el
+                logout del sistema se ejecuta un script que verifica si la disquetera está montada.
+                En caso de estarlo, la desmonta, y además envía un alerta administrativo a los
+                administradores de la red. Al tercer alerta administrativo que se genere se le
+                bloqueará la cuenta por un período de 15 días.
+                9.3.5 ¿De qué manera nombra el sistema a cada unidad de disco?
+                        Las unidades IDE, tienen el prefijo 'hd', seguido de una letra del abecedario
+                        que indica los diferentes discos. Luego le sigue un número que hace
+                        referencia al número de partición.
+
+                        Ejemplos:
+                        
+                        hda -> disco 1
+                          hda1 -> particion 1 disco 1
+                          hda2
+                        hdb
+                          hdb1
+                        hdc
+                        
+                        Para las unidades SATA es igual, solo que el prefijo es 'sd'.
+                
+                9.3.6 ¿Cómo identifica Ud. a qué unidad se hace referencia?
+                        hda -> Maestro canal IDE 1
+                                hda1: Particion primaria 1 en /dev/hda
+                                hda2: Particion primaria 2 en /dev/hda
+                                hda3: Particion primaria 3 en /dev/hda
+                                hda4: Particion primaria 4 en /dev/hda
+                                hda5: Particion extendida 1 en /dev/hda
+                                hda6: Particion extendida 2 en /dev/hda
+                                [...]
+                        hdb -> Esclavo canal IDE 1
+                        hdc -> Maestro canal IDE 2
+                        hdd -> Esclavo canal IDE 2
+                
+                9.3.7 ¿Podría Ud. indicar en que unidad y partición se encuentra instalado el 
+                      GNU/Linux en su computadora? ¿Qué comandos o archivos de información utilizó?
+                        ric@ric-laptop:~$ head -1 /etc/mtab
+                        /dev/sda2 / ext4 rw,errors=remount-ro 0 0
+                        
+                        Uso el archivo /etc/mtab cuya primera linea me indica donde esta montado
+                        el directorio raiz.
+
+
+***************************
+* 10 VARIABLES DE ENTORNO *
+***************************
+
+        10.1 ¿Qué son las variables de entorno y para qué sirven?.
+                Las variables de entorno son contenedores temporales de datos 
+                que vive durante la sesion del usuario. Sirven para guardar temporalmente 
+                informacion acerca de la sesion actual y del sistema.
+        
+                10.1.1 Escriba el contenido y explique el significado de las siguientes variables:
+                
+                HOME = /home/ric
+                Es el directorio hogar del usuario actual.
+                
+                LOGNAME = ric
+                Es el nombre con el que se loguea el usuario actual.
+                
+                PATH = /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games
+                Son los directorios donde se buscan los binarios de los programas a ejecutar.
+                
+                HOSTNAME  = ric-laptop
+                Es el nombre del equipo donde se esta trabajando.
+                
+                IFS = " "
+                Es el caracter de separador de campos, por defecto un espacio.
+                
+                10.1.2 ¿Qué comando usó para ver el contenido de las variables del punto anterior?
+                        Se uso el comando 'echo'.
+                
+                10.1.3 Cree una variable de entorno HOLA que contenga el mensaje “Hola mundo”.
+                        ric@ric-laptop:~$ HOLA="hola mundo"
+                        ric@ric-laptop:~$ echo $HOLA
+                        hola mundo
+                
+                10.1.4 ¿Cuál es el uso que le da el sistema a la variable PATH? ¿Qué ocurre si
+                       intenta ejecutar un comando que no se encuentra ubicado en alguno de los
+                       directorios que contiene la variable? ¿Cómo lo soluciona?
+                       
+                       La variable PATH indica donde buscar los comandos tipeados en consola. Si el
+                       comando no se encuentra en ninguna de las rutas mencionadas, indica que el
+                       comando no ha sido encontrada. Puede solucionarce agregando otra ruta a la
+                       variable PATH.
+                       
+                10.1.5 ¿Por qué existen las variables PS1 y PS2? ¿Qué es un comando multilínea?
+                        PS1 es la variable que indica como es el prompt del sistema. PS2 especifica
+                        el caracter al principio de una linea de un comando multilinea.
+                        
+                        Un comando multilinea es aquel que por su longitud o simple comodidad se 
+                        elije expresarlo en varias lineas. Ejemplo:
+                        
+                        ric@ric-laptop:~$ echo $HOME \
+                        > $LOGNAME \
+                        > $PATH \
+                        > $HOSTNAME \
+                        > $IFS
+                        
+
+*******************
+* 11 PLACA DE RED *
+*******************
+
+        11.1. ¿Para que sirve el comando ifconfig y en que directorio se encuentra?
+                ifconfig sirve para configurar las distintas interfaces con el mundo exterior del
+                equipo. Se encuentra en /sbin/ifconfig.
+        
+        11.2. ¿Qué IP o IP’s tiene asignada la computadora?
+                ric@ric-laptop:~$ ifconfig
+                eth0      Link encap:Ethernet  direcciónHW e0:cb:4e:b2:76:7e  
+                          Direc. inet:192.168.1.3  Difus.:192.168.1.255  Másc:255.255.255.0
+                          Dirección inet6: fe80::e2cb:4eff:feb2:767e/64 Alcance:Enlace
+                          ACTIVO DIFUSIÓN FUNCIONANDO MULTICAST  MTU:1500  Métrica:1
+                          Paquetes RX:231311 errores:0 perdidos:0 overruns:0 frame:0
+                          Paquetes TX:196453 errores:0 perdidos:0 overruns:0 carrier:9
+                          colisiones:0 long.colaTX:1000 
+                          Bytes RX:166560490 (166.5 MB)  TX bytes:26749976 (26.7 MB)
+                          Interrupción:27 
+
+                lo        Link encap:Bucle local  
+                          Direc. inet:127.0.0.1  Másc:255.0.0.0
+                          Dirección inet6: ::1/128 Alcance:Anfitrión
+                          ACTIVO LOOPBACK FUNCIONANDO  MTU:16436  Métrica:1
+                          Paquetes RX:21606 errores:0 perdidos:0 overruns:0 frame:0
+                          Paquetes TX:21606 errores:0 perdidos:0 overruns:0 carrier:0
+                          colisiones:0 long.colaTX:0 
+                          Bytes RX:3001294 (3.0 MB)  TX bytes:3001294 (3.0 MB)
+
+                La computadora tiene asignada la dirección 192.168.1.3
+        
+        11.3. ¿Qué es el adaptador lo y para que se utiliza?
+                El adaptador 'lo' es el adaptador local y sirve para establecer conexiónes dentro
+                de la misma computadora.
+        
+        11.4. ¿Cuál es la salida del comando ping -c4 (ip del eth0)?
+                ric@ric-laptop:~$ ping -c4 192.168.1.3
+                PING 192.168.1.3 (192.168.1.3) 56(84) bytes of data.
+                64 bytes from 192.168.1.3: icmp_seq=1 ttl=64 time=0.071 ms
+                64 bytes from 192.168.1.3: icmp_seq=2 ttl=64 time=0.043 ms
+                64 bytes from 192.168.1.3: icmp_seq=3 ttl=64 time=0.063 ms
+                64 bytes from 192.168.1.3: icmp_seq=4 ttl=64 time=0.059 ms
+
+                --- 192.168.1.3 ping statistics ---
+                4 packets transmitted, 4 received, 0% packet loss, time 2997ms
+                rtt min/avg/max/mdev = 0.043/0.059/0.071/0.010 ms
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

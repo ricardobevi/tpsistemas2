@@ -1,0 +1,142 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[spanish,activeacute]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[pdftex]{color,graphicx}
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{float}
+\usepackage{color}
+
+
+\floatstyle{ruled}
+\newfloat{code}{hbt}{lop}
+\floatname{code}{Codigo}
+
+\lstset{
+language=bash,                  % choose the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+numbers=left,                   % where to put the line-numbers
+numberstyle=\footnotesize,      % the size of the fonts that are used for the line-numbers
+stepnumber=1,                   % the step between two line-numbers. If it's 1 each line will be numbered
+numbersep=5pt,                  % how far the line-numbers are from the code
+backgroundcolor=\color{white},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=tb,			% adds a frame around the code
+tabsize=2,			% sets default tabsize to 2 spaces
+captionpos=b,			% sets the caption-position to bottom
+breaklines=true,		% sets automatic line breaking
+breakatwhitespace=false,  	% sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)},         % if you want to add a comment within your code
+keywordstyle=\color{black},
+stringstyle=\ttfamily,
+numberstyle=\tiny,
+extendedchars=true,
+frameround=tftf,
+inputencoding=latin1,
+numberblanklines=false,
+keepspaces=true
+}
+
+
+\newcommand{\tp}{Trabajo Pr\'actico N$^{\circ}$\numtp}
+\newcommand{\?}{?`}
+
+
+\pagestyle{fancy}
+\renewcommand{\sectionmark}[1]{\markright{#1}{}}
+\lhead{\includegraphics[width=7mm,height=7mm]{\logo} \materia}
+\chead{}
+\rhead{\nomtp}
+\lfoot{\rightmark}
+\cfoot{}
+\rfoot{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\renewcommand{\headheight}{24pt}
+
+
+\renewcommand{\theenumii}{\arabic{enumii}}
+\renewcommand{\labelenumii}{\theenumi.\theenumii}
+\renewcommand{\theenumiii}{\arabic{enumiii}}
+\renewcommand{\labelenumiii}{\theenumi.\theenumii.\theenumiii}
+
+
+\begin{document}
+\include{car-tp2}
+\setcounter{page}{1}
+\pagenumbering{roman}
+\tableofcontents
+\newpage
+\setcounter{page}{1}
+\pagenumbering{arabic}
+
+\section{Ejercicio 1}
+\subsection[Punto A]{\?Cu'al es el objetivo del script?}
+El objetivo es listar los usuarios del grupo ``user'' en consola.
+
+\subsection[Punto B]{\?Cu'al es el objetivo de la primera l'inea de cualquier script escrito para los sistemas
+operativos de la familia UNIX? Ejemplifique al menos 3 diferentes l'ineas y \?qu'e indicar'ian
+en cada caso?}
+
+El objetivo de la primer l'inea de los script para los sistemas de la familia UNIX indica el interprete con el cual debe ejecutar el script
+
+\subsection[Punto C]{Comente el c'odigo del script. No es aceptable poner la descripci'on de cada uno de
+los comandos, se debe realizar comentarios que ayuden a leer el script en forma m'as
+r'apida y facilitar la compresi'on de la finalidad del mismo.}
+
+\lstinputlisting[title=Punto 1]{../codigo/Punto1.sh}
+
+\subsection[Punto D]{\?Es un shell script? \?Por qu'e?}
+
+Si, es un shell script. Podemos distinguirlo por varias caracteristicas:
+
+\begin{itemize}
+ \item La primer linea del archivo es ``\#!/bin/bash'', lo que indica que el script debe ser leido con el interprete bash.
+ \item Las lineas siguientes describen una serie de comandos que pueden ser ejecutados por un interprete.
+\end{itemize}
+
+Adem'as, en caso de tener extenci'on (lo cual no es obligatorio en UNIX) esta puede ser ``.sh'', lo que identificar'ia al archivo como un script.
+
+\subsection[Punto E]{Proponga un ejemplo de uso.}
+
+\begin{lstlisting}[title=Ejemplo de uso]
+$./Practica1.sh
+ric
+\end{lstlisting}
+
+Se puede tambien cambiar el grupo al cual hace refencia el script, pudiendo conocer los usuarios miembros de otros grupos.
+
+\subsection[Punto F]{Supongamos que tiene que controlar la ejecuci'on paso a paso y el contenido de
+las variables del script, \?qu'e comando utilizar'ia? (Tip: vea el comando set y sus
+par'ametros -x, -v, -e, -u).}
+
+
+
+\begin{description}
+ \item [-x] Imprime los comandos y sus argumentos antes de ser ejecutados.
+ \item [-v] Imprime las lineas del shell mientras son leidas.
+ \item [-e] Termina la ejecuci'on del shell si alguno de los comandos da error a la salida.
+ \item [-u] Muestra un mensaje de error si el script intenta usar una variable que no esta seteada.
+\end{description}
+
+\subsection[Punto G]{Explique y ejemplifique el uso de las estructuras if test y for, mostrando distintas
+formas de uso.}
+
+
+
+\subsection[Punto H]{Explique qu'e es un par'ametro, c'omo se pasan par'ametros a los script, c'omo se
+los maneja dentro del script. \?Qu'e pasa si tengo m'as de 10 par'ametros en un script, c'omo
+puedo acceder ellos?}
+
+\section{Ejercicio 2}
+
+Luego de hacer los puntos a, b y c el script modificado queda as'i:
+
+\lstinputlisting[title=Punto 2]{../codigo/Punto2.sh}
+
+
+\end{document} 
