@@ -6,23 +6,14 @@
 # Entrega: Primer Entrega
 #
 # Grupo N° 63
-# D'Aranno, Facundo
-# Bevilacqua, Ricardo
-#
-#
+# Acha Erica          33.515.479
+# D`Aranno Facundo    34.842.320
+# Moure Pablo         32.031.459
+# Bevilacqua Ricardo  34.304.983
 
 if [ $# -ge 5 ]
 then
-    echo -e "ERROR: Parametros incorrectos.
-         \n`basename $0` Version 1.0
-         \nCambia permisos a subdirectorios y archivos dentro de directorio.
-         \nUSO: `basename $0` [opciones...] permisos [directorio]
-         \nOPCIONES
-         \n     -M           Cambia permisos si fue modificado en el mes actual.
-         \n     -X <tamaño>  Cambia permisos si el archivo supera el tamaño.
-         \n     -C <cadena>  Cambia permisos si el nombre contiene la cadena.
-         \n     -G <grupo>   Cambia permisos si el archivo pertenece al grupo.
-         \n     -?           Muestra la ayuda."
+
 
 fi
 
@@ -59,15 +50,16 @@ case $1 in
         archivos=`find $directorio -group $grp`
         ;;
         
-     -?) echo -e "`basename $0` Version 1.0
-         \nCambia permisos a subdirectorios y archivos dentro de directorio.
-         \nUSO: `basename $0` [opciones...] permisos [directorio]
-         \nOPCIONES
-         \n     -M           Cambia permisos si fue modificado en el mes actual.
-         \n     -X <tamaño>  Cambia permisos si el archivo supera el tamaño.
-         \n     -C <cadena>  Cambia permisos si el nombre contiene la cadena.
-         \n     -G <grupo>   Cambia permisos si el archivo pertenece al grupo.
-         \n     -?           Muestra la ayuda."
+     -?)    echo -e "ERROR: Parametros incorrectos."
+            echo  "`basename $0` Version 1.0"
+            echo  "Cambia permisos a subdirectorios y archivos dentro de directorio."
+            echo  "USO: `basename $0` [opciones...] permisos [directorio]"
+            echo  "OPCIONES"
+            echo  "-M           Cambia permisos si fue modificado en el mes actual."
+            echo  "-X <tamano>  Cambia permisos si el archivo supera el tamano."
+            echo  "-C <cadena>  Cambia permisos si el nombre contiene la cadena."
+            echo  "-G <grupo>   Cambia permisos si el archivo pertenece al grupo."
+            echo  "-?           Muestra la ayuda."
                 
          exit 0
         ;;

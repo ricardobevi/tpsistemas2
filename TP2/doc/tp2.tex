@@ -114,7 +114,7 @@ Se puede tambien cambiar el grupo al cual hace refencia el script, pudiendo cono
 las variables del script, \?qu'e comando utilizar'ia? (Tip: vea el comando set y sus
 par'ametros -x, -v, -e, -u).}
 
-
+Utilizar'ia el comando sed que cambia los par'ametros de ejecucion del bash. Sus opciones son las siguientes:
 
 \begin{description}
  \item [-x] Imprime los comandos y sus argumentos antes de ser ejecutados.
@@ -126,11 +126,63 @@ par'ametros -x, -v, -e, -u).}
 \subsection[Punto G]{Explique y ejemplifique el uso de las estructuras if test y for, mostrando distintas
 formas de uso.}
 
+\subsubsection{if test}  
+
+Ejecuta comandos basado en una condici'on .
+
+La estructura de la condicion if es:
+\begin{lstlisting}
+if test ( expresion ) then
+...
+fi
+\end{lstlisting}
+
+Ejemplo:
+
+\begin{lstlisting}
+#comprueba que se envien solo dos parametros y lo informa
+
+  if test $# -eq 2
+  then
+          echo "se recibieron dos parametros "
+  else
+          echo "no se recibieron exactamente dos parametros "
+  fi
+\end{lstlisting}
+
+\subsubsection{for}
+Es una estructura de iteraci'on.
+
+Ejemplo:
+
+\begin{lstlisting}
+#imprime todos los parametros recividos
+
+  for i in $*
+  do
+          echo $i
+  done
+\end{lstlisting}
+
 
 
 \subsection[Punto H]{Explique qu'e es un par'ametro, c'omo se pasan par'ametros a los script, c'omo se
 los maneja dentro del script. \?Qu'e pasa si tengo m'as de 10 par'ametros en un script, c'omo
 puedo acceder ellos?}
+
+Un parametro en una cadena que se le envia como dato al script en su llamada, escribiendo estas a continuacion del nombre 
+de este, separadas por un espacio ( o la expresion indicada en la variable \$IFS ).
+Los scripts reciben los parámetros que le pasa la shell como variables nombradas de la forma \$1, \$2, ..., \$n. 
+Para saber cuantos parametros hemos recibido se puede utilizar el símbolo \$\#.
+
+Si se envian mas de diez parametros ( contando a \$0 , el nombre del script, como uno de estos ) no podremos acceder de la forma 
+ya mensionada para ello deberemos utilizar el comando shift, este desplazara los parametros a la izquierda cuantas veces se 
+le espeficique, por lo que en realidad no recibiremos mas de los parametros convencionales, sino que perderemos los primeros para poder 
+acceder a los antes no podiamos, de esta forma si realizamos un shift, el \$1 lo perderiamos y en su lugar tendremos el 
+valor que antes se ubicaba en \$2, de esta forma el parametro \$9 contendra un parametro al que antes no podiamos acceder.
+
+Sn m'etodo muy utilizado es acceder siempre a la variable \$1 y mediante una iteracion ir realizando 
+un shift para recorrer todos los parametros.
 
 \section{Ejercicio 2}
 
@@ -138,5 +190,16 @@ Luego de hacer los puntos a, b y c el script modificado queda as'i:
 
 \lstinputlisting[title=Punto 2]{../codigo/Punto2.sh}
 
+\section{Ejercicio 3}
+
+\lstinputlisting[title=Punto 3]{../codigo/Punto3.sh}
+
+\section{Ejercicio 4}
+
+\lstinputlisting[title=Punto 4]{../codigo/Punto4.sh}
+
+\section{Ejercicio 5}
+
+\lstinputlisting[title=Punto 5]{../codigo/Punto5.sh}
 
 \end{document} 
