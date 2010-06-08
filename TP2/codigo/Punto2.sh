@@ -1,5 +1,16 @@
 #!/bin/bash
 
+# Nombre: Punto2.sh
+# Trabajo: Programacion basica de scripts
+# Numero de ejercicio: 2
+# Entrega: Primer Entrega
+#
+# Grupo N° 63
+# Acha Erica          33.515.479
+# D`Aranno Facundo    34.842.320
+# Moure Pablo         32.031.459
+# Bevilacqua Ricardo  34.304.983
+
 #Chequeo que se reciba solo un parametro.
 #Caso contrario muestra el uso y sale.
 if test $# -ne 1
