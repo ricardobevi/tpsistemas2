@@ -1,63 +1,24 @@
-#! /bin/awk
+#! /bin/bash
+
+# Nombre: generador-de-pass.sh
+# Trabajo: Programacion en AWK
+# Numero de ejercicio: 2
+# Entrega: Primer Entrega
 #
-#ejercicio numero 2 TP Nª3
+# Bevilaqcua Ricardo
+# D`Aranno Facundo     34.842.320
+# Marcela ....
+# Moure Pablo          32.031.459
 #
-#Facus la mueve :p  ( jejeje )
-#
-BEGIN{
-
-	#cierra la aplicacion en caso de que la longitud del pass sea inferior a lo establecido	
-
-  	if ( length(pass) < longmin)
-	{
-			printf("\nERROR:\n\t la contraseña debe ser de una longitud minima de %d \n\n",longmin);
-			exit 1;
-	}
-
-	#pasa la primer letra a minuscula
-
-	val = substr(pass,1,1)
-	val=tolower(val);
-	sub( /^[A-Z]/ ,val,pass);
-
-	########################################################
-	# Asi es mas entendible pero hace un if innecesario
-	#	
-	#val = substr(pass,1,1)
-	#if (val ~ /[A-Z]/)
-	#{
-	#	val=tolower(val);
-	#	sub( /./ ,val,pass);
-	#
-	#}
-	#
-	########################################################
-
-	FS="=";
-}
+# comienzo del awk:
 
 {
-	
-#	constantes[NR] = $1;
-#	valor[NR] = $2;
-	######################################################################################################
-	#Este codigo no realiza lo pedido
-	#	
-	#cambia consonantes por sus respectivos valores, a menos que su precesora sea un 
-	#   $1 = consonante     $2= valor a reemplazar
-	#
-	#gsub(/$1/ ,$2,pass);
-	#
-	######################################################################################################
-
-	gsub($1,$2,pass);
-	
-
-
-	
-}
-
-END{
-		
-		printf ("\n\n%s\n\n",pass);
+	#cierra la aplicacion en caso de que la longitud del pass sea inferior a lo establecido	
+        
+  	if ( length(pass) < longmin)
+	{
+              printf("\nERROR:\n\t la contraseña debe ser de una longitud minima de %d \n\n",longmin);
+              exit 1
+                
+        }
 }
