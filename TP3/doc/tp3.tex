@@ -1,0 +1,91 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[spanish,activeacute]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[pdftex]{color,graphicx}
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{float}
+\usepackage{color}
+
+
+\floatstyle{ruled}
+\newfloat{code}{hbt}{lop}
+\floatname{code}{Codigo}
+
+\lstset{
+language=bash,                  % choose the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+numbers=left,                   % where to put the line-numbers
+numberstyle=\footnotesize,      % the size of the fonts that are used for the line-numbers
+stepnumber=1,                   % the step between two line-numbers. If it's 1 each line will be numbered
+numbersep=5pt,                  % how far the line-numbers are from the code
+backgroundcolor=\color{white},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=tb,			% adds a frame around the code
+tabsize=2,			% sets default tabsize to 2 spaces
+captionpos=b,			% sets the caption-position to bottom
+breaklines=true,		% sets automatic line breaking
+breakatwhitespace=false,  	% sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)},         % if you want to add a comment within your code
+keywordstyle=\color{black},
+stringstyle=\ttfamily,
+numberstyle=\tiny,
+extendedchars=true,
+frameround=tftf,
+inputencoding=latin1,
+numberblanklines=false,
+keepspaces=true
+}
+
+
+\newcommand{\tp}{Trabajo Pr\'actico N$^{\circ}$\numtp}
+\newcommand{\?}{?`}
+
+
+\pagestyle{fancy}
+\renewcommand{\sectionmark}[1]{\markright{#1}{}}
+\lhead{\includegraphics[width=7mm,height=7mm]{\logo} \materia}
+\chead{}
+\rhead{\nomtp}
+\lfoot{\rightmark}
+\cfoot{}
+\rfoot{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\renewcommand{\headheight}{24pt}
+
+
+\renewcommand{\theenumii}{\arabic{enumii}}
+\renewcommand{\labelenumii}{\theenumi.\theenumii}
+\renewcommand{\theenumiii}{\arabic{enumiii}}
+\renewcommand{\labelenumiii}{\theenumi.\theenumii.\theenumiii}
+
+
+\begin{document}
+\include{car-tp3}
+\setcounter{page}{1}
+\pagenumbering{roman}
+\tableofcontents
+\newpage
+\setcounter{page}{1}
+\pagenumbering{arabic}
+
+\section{Ejercicio 1}
+\subsection{Script}
+\lstinputlisting[title=Script Punto 1]{../codigo/ejercicio1[chmod]/Punto1.sh}
+\subsection{AWK}
+\lstinputlisting[title=Script Punto 1]{../codigo/ejercicio1[chmod]/p1Formato.awk}
+
+\section{Ejercicio 2}
+\subsection{Script}
+\lstinputlisting[title=Script Punto 2]{../codigo/Ejercicio2-password/generador-de-pass.sh}
+
+\section{Ejercicio 3}
+\subsection{Script}
+\lstinputlisting[title=Script Punto 3]{../codigo/ejercicio3/ejercicio3.sh}
+
+\end{document} 
