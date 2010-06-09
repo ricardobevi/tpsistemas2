@@ -14,9 +14,9 @@
 BEGIN{
     printf "Cambio de permisos segun patron\n"
     printf "-------------------------------\n"
-    printf "Ejecución del %s\n", fecha
+    printf "Ejecucion del %s\n", fecha
     printf "Permisos a asignar: %s\n", permisos
-    printf "Condición de búsqueda: %s\n", cond
+    printf "Condicion de búsqueda: %s\n", cond
     printf "Archivos cambiados:\n"
     printf "-------------------\n"
     printf "|Archivo                |Permisos anteriores|Permisos nuevos|\n"
