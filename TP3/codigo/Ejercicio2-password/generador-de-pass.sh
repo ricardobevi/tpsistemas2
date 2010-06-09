@@ -35,8 +35,8 @@ longmin=`cat pass-configure | cut -d"=" -f2`
 
   if test `echo $pass $longmin | awk  '{ if ( length($1) < $2) print 1  }'` 
     then
-        echo -e "\nERROR:\n\t El pass es menor al tamaño minimo establecido para una contrasenia\n"
-        echo -e "\t Tamaño minimo:\t $longmin \n"   
+        echo -e "\nERROR:\n\t El pass es menor al tamano minimo establecido para una contrasena\n"
+        echo -e "\t Tamano minimo:\t $longmin \n"   
         exit 0
   fi  
 
