@@ -5,10 +5,11 @@
 # Numero de ejercicio: 2
 # Entrega: Primer Entrega
 #
-# Bevilaqcua Ricardo
+# Grupo N° 63
 # D`Aranno Facundo     34.842.320
-# Marcela ....
 # Moure Pablo          32.031.459
+# Marcela A. Uslenghi  26.920.315
+# Bevilacqua Ricardo   34.304.983
 #
 # COMIENZO DEL SCRIPT:
 
