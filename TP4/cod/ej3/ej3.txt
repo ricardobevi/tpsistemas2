@@ -1,0 +1,17 @@
+3)
+
+    Se encontraron 2 errores. Primero el compilador dio un aviso de la ausencia de la libreria stdlib.h por la funcion exit().
+    Segundo se noto que el padre terminaba antes que el hijo, la solucion fue agregar un wait(NULL) antes de que el padre informe que
+    ha terminado.
+
+    a)
+        Se busca ejecutar el proceso de forma mas rapida no copiando todos los datos del PCB del padre, suspendiendo al padre hasta que el hijo ejecute un exec() o un _exit().
+        
+    b)
+        Una vez ejecutado en vfork() solo se puede llamar a una funcion de la familia exec() o _exit().
+        
+    c)
+        La funcion _exit() se utiliza por lo mencionado en el punto b. _exit() cierra la apicacion inmediatamente sin permitir otros parametros y validaciones que si permite el exit() tradicional.
+
+    d)
+        Con especificar cualquier archivo ejecutable (este con o sin parametros) se logro la correcta ejecucion del ejercicio.

@@ -1,0 +1,10 @@
+2)
+    a)
+        El mensaje "Fin" es impreso por el proceso padre, en este caso "ej2".
+        
+    b)
+        Se imprime primero "FIN!" porque el padre termina antes que el hijo, el padre no espera al hijo a que termine.
+        El proceso hijo es adoptado por el init, por quedar huerfano.
+        
+    c)
+        Se soluciona colocando un wait(NULL) antes del return del proceso padre.
