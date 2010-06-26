@@ -24,7 +24,7 @@ int main ()
 
           while( strcmp(linea,"exit") )
           {
-                  if( strcmp(linea,"") && strcmp(linea,"cd") ) 
+                  if( strcmp(linea,"") && strcmp(linea,"cd") && strcmp(linea,"echo") ) 
                   {             
                           if ( ( pidDelEjecutable = fork() ) == -1 ) 
                           {
@@ -48,6 +48,10 @@ int main ()
                    else if ( !strcmp(linea,"cd") )
                    {
                          chdir("/");
+                   }
+                   else if ( !strcmp(linea,"echo") ) 
+                   {
+                        printf("%s",linea);
                    }
                
               printf("%s(%s):%s=> ",  getenv("USER") , getenv("HOSTNAME")  , (char *)  get_current_dir_name() );
