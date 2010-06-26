@@ -16,7 +16,7 @@ int main ()
    
     printf("\n Bienvenido al mini interprete F&R \n \n" );
 
-    printf("F&R %s >--> ", (char *)  get_current_dir_name()  );;
+    printf("F&R %s >--> ", (char *)  get_current_dir_name()  );
     
     fgets(linea, 300, stdin);
     linea[strlen(linea) - 1] = '\0';
@@ -51,6 +51,7 @@ int main ()
                    else    
                          printf("F&R %s >--> ", (char *)  get_current_dir_name()  );
               
+              printf("F&R %s >--> ", (char *)  get_current_dir_name()  );
               fgets(linea, 300, stdin);
               linea[strlen(linea) - 1] = '\0';
           }     
