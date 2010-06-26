@@ -9,14 +9,15 @@
 int main () 
 { 
     char  linea[300]= "";
+    char host[50];
     int i = 0;
     pid_t pidDelEjecutable;
 
     chdir( getenv("HOME") );
    
     printf("\n Bienvenido al mini interprete F&R \n \n" );
-
-    printf("%s(%s):%s=> ",  getenv("USER") , getenv("HOSTNAME")  , (char *)  get_current_dir_name() );
+    gethostname(host, 50);
+    printf("%s(%s):%s=> ",  getenv("USER") , host , (char *)  get_current_dir_name() );
     
     fgets(linea, 300, stdin);
     linea[strlen(linea) - 1] = '\0';
