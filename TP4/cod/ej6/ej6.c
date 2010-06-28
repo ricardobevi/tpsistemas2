@@ -4,20 +4,27 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include "split.h"
 
 int main () 
 { 
-    char  linea[300]= "";
+    char linea[300] = "";
+    char dirAct[300] = "";
     char host[50];
+    char user[50];
     int i = 0;
     pid_t pidDelEjecutable;
+    struct arg argumentos;
 
     chdir( getenv("HOME") );
    
     printf("\n Bienvenido al mini interprete F&R \n \n" );
+    
     gethostname(host, 50);
-    printf("%s(%s):%s=> ",  getenv("USER") , host , (char *)  get_current_dir_name() );
+    strcpy(user, getenv("USER"));
+    getcwd(dirAct, 300);
+    
+    printf("%s(%s):%s=> ",user ,host, dirAct );
     
     fgets(linea, 300, stdin);
     linea[strlen(linea) - 1] = '\0';
@@ -33,8 +40,10 @@ int main ()
                           }
 
                           else if( pidDelEjecutable == 0 )
-                          {                       
-                                  if( execvp( linea, NULL ) < 0 ) {
+                          {       
+                                  split_args(linea, &argumentos);
+                                  
+                                  if( execvp( argumentos.argum[0], argumentos.argum ) < 0 ) {
                                         perror("   Error");
                                         exit(1);
                                   }
@@ -48,13 +57,14 @@ int main ()
                    else if ( !strcmp(linea,"cd") )
                    {
                          chdir("/");
+                         getcwd(dirAct, 300);
                    }
                    else if ( !strcmp(linea,"echo") ) 
                    {
                         printf("%s",linea);
                    }
                
-              printf("%s(%s):%s=> ",  getenv("USER") , getenv("HOSTNAME")  , (char *)  get_current_dir_name() );
+              printf("%s(%s):%s=> ",user ,host, dirAct);
               fgets(linea, 300, stdin);
               linea[strlen(linea) - 1] = '\0';
           }     
