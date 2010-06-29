@@ -49,11 +49,11 @@ int split_args( char * str, struct arg * argumentos ){
         }while( *++str != '\0' );
         
         lastArg = argumentos->argum[argumentos->size - 1];
-        
-        if(lastArg[strlen(lastArg) - 2] == '&'){
+               
+        if(lastArg[strlen(lastArg) - 1] == '&'){
             argumentos->bkground = 1;
             
-            if( (strlen(lastArg) - 1) == 1 )
+            if( strlen(lastArg) == 1 )
                 argumentos->size--;
             
             lastArg[strlen(lastArg) - 1] = '\0';
