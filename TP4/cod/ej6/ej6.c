@@ -18,6 +18,7 @@ int main ()
     int i = 0;              // auxiliar de iteracion
     int BkgroundChild = 0;  // cantidad de hijos en background
     pid_t pidDelEjecutable; // variable que almacena los pid 
+    pid_t pidBkgroundEnd;
     
     struct arg argumentos;  // estructura que almacena los parametros 
                             // enviados en el input 
@@ -91,7 +92,7 @@ int main ()
 
                                        if(! argumentos.bkground )
                                        {
-                                              wait(NULL);
+                                              waitpid(pidDelEjecutable, NULL, 0);
                                        }
                                        else 
                                        {     
@@ -100,7 +101,16 @@ int main ()
                                               argumentos.bkground = 0;
 
                                        }
-
+                                       
+                                       pidBkgroundEnd = waitpid(-1, NULL, WNOHANG);
+                                       
+                                       while( pidBkgroundEnd > 0 )
+                                       {
+                                           BkgroundChild--;
+                                           printf("\n%d Terminado. %d proceso/s en background.\n", pidBkgroundEnd, BkgroundChild);
+                                                                                      
+                                           pidBkgroundEnd = waitpid(-1, NULL, WNOHANG);
+                                       }
                                    
                               }
 
@@ -117,7 +127,7 @@ int main ()
               linea[strlen(linea) - 1] = '\0';
           }    
     
-    for(i=0 ; i<BkgroundChild ; i++)
+    for(i=0 ; i < BkgroundChild ; i++)
     {
           wait(NULL);
     }
