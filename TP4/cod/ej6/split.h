@@ -19,7 +19,27 @@
 #include<stdio.h>
 #include<string.h>
 
-
+/*
+ * Defino la estructura basica para devolver por la funcion.
+ * Esta estructura contiene:
+ *
+ * unsigned int size  Cantidad de argumentos incluyendo el nombre del programa.
+ *
+ * char *agrum[100]   Vector que almacena punteros a los argumentos.
+ *
+ * char arch[100]     Cadena que, en caso de haberlo, almacena el nombre del 
+ *                    archivo al cual redirigir la salida.
+ *
+ * unsigned char bkground  Indica si se especifico la opcion de background.
+ *                         (1 = SI, 0 = NO)
+ *
+ * unsigned char crear     Indica si se debe crear el archivo de salida.
+ *                         (1 = SI, 0 = NO)
+ *
+ * unsigned char agregar   Indica si se debe agregar la salida al archivo.
+ *                         (1 = SI, 0 = NO)
+ * 
+ */
 struct arg{
     unsigned int size;
     char *argum[100];
@@ -29,12 +49,32 @@ struct arg{
     unsigned char agregar;
 };
 
+/*       _\|/_
+         (o o)
+ +----oOO-{_}-OOo--------------------------------------------------+
+ |Funcion split_args                                               |
+ |                                                                 |
+ |Esta funcion divide los argumentos pasados por linea de comandos.|
+ |Tambien indica si hay un archivo al cual redirigir la salida y si|
+ |se especifico o no la opcion de background.                      |
+ |                                                                 |
+ |Recive:                                                          |
+ |                                                                 |
+ |char * str                Cadena que contiene los argumentos.    |
+ |                                                                 |
+ |struct arg * argumentos   Puntero a una estructura del tipo arg. |
+ |                                                                 |
+ |Devuelve:                                                        |
+ |                                                                 |
+ |La cantidad de argumentos, contando al programa.                 |
+ +----------------------------------------------------------------*/
+
 
 int split_args( char * str, struct arg * argumentos ){
     char * lastArg;
     unsigned char flag_comillas = 0;
     int i = 0;
-      
+       
     argumentos->size = 0;
     argumentos->bkground = 0;
     argumentos->crear = 0;
