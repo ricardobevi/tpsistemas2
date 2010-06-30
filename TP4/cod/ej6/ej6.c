@@ -8,15 +8,23 @@
 
 int main () 
 { 
-    char linea[300] = "";
-    char dirAct[300] = "";
-    char host[50];
-    char user[50];
-    int i = 0;
-    pid_t pidDelEjecutable;
-    int cantBkground = 0;
-    struct arg argumentos;
+    // declaracion de variables
 
+    char linea[300] = "";   // linea tomada del input
+    char dirAct[300] = "";  // cadena que almacena directorio actual
+    char host[50];          // cadena que almacena el HOST 
+    char user[50];          // cadena que almacena el USER actual
+    int i = 0;              // auxiliar de iteracion
+
+    pid_t pidDelEjecutable; // variable que almacena los pid 
+    
+    struct arg argumentos;  // estructura que almacena los parametros 
+                            // enviados en el input 
+
+
+    //************************ COMIENZO DE LA APLICACION************************//
+
+    // genero el prompt y espero primer linea del interprete
     chdir( getenv("HOME") );
    
     printf("\n Bienvenido al mini interprete F&R \n \n" );
@@ -30,26 +38,39 @@ int main ()
     fgets(linea, 300, stdin);
     linea[strlen(linea) - 1] = '\0';
 
+          // mientras no escriba exit continuo en el interprete
+
           while( strcmp(linea,"exit") )
           {
                   if( strcmp(linea,"")  && strcmp(linea,"echo") ) 
                   {         
-                              split_args(linea, &argumentos);
-                              printf("\n\n%d\n\n",argumentos.bkground);
-
+                              // tomo los argumentos y los almaceno 
+                              // en la estructura argumentos
+                              split_args(linea, &argumentos); 
+                             
                               if ( !strcmp( argumentos.argum[0] ,"cd") )
                               {
+                                    // realizo cambio de directorio  
                                     chdir(argumentos.argum[1]);
                                     getcwd(dirAct, 300);
                               }
                               else if ( ( pidDelEjecutable = fork() ) == -1 ) 
                               {
+                                      // informo error en caso de que
+                                      // no se haya podido crear el hijo 
+                                      // y cierro la aplicacion
                                       perror("Error al crear el hijo");
                                       exit(1);
                               }
 
                               else if( pidDelEjecutable == 0 )
-                              {        
+                              {       
+                                      // EJECUTA EL HIJO
+                                      //  redirecciona la salida en caso de que se le
+                                      //  haya enviado el parametro ">" o ">>"
+                                      //  luego ejecuta el binario enviandole 
+                                      //  los parametros adecuados 
+                                      //  ( en caso de error lo informa y mata al hijo )
                                       if(argumentos.crear)
                                                   freopen(argumentos.arch, "w", stdout);
                                       else if (argumentos.agregar)
@@ -62,12 +83,15 @@ int main ()
                               }
                               else
                               {
+                                      // EJECUTA PADRE (El interprete)
+                                      // espera al hijo para continuar
+                                      // o continua ejecutando en 
+                                      // segundo plano dependiendo del parametro "&"
 
-                                      if ( ! argumentos.bkground )
-
-                                                   waitpid(pidDelEjecutable);
-                                      else
-                                                    wait(NULL);
+                                       if(! argumentos.bkground )
+                                                        wait(NULL);
+                                        else 
+                                                        waitpid(pidDelEjecutable);
 
                                    
                               }
@@ -75,6 +99,8 @@ int main ()
                    }     
                    else if ( !strcmp(linea,"echo") ) 
                    {
+                        // ejecuta un echo 
+                        // (imprime lo escrito en pantalla)
                         printf("%s",linea);
                    }
                
@@ -83,14 +109,6 @@ int main ()
               linea[strlen(linea) - 1] = '\0';
           }    
     
-/* 
-//  aparentemente con el waitpid no hay necesidad de este for   
-
-    for(i=0; i< cantBkground ; i++)
-    {
-        wait();
-    }
-*/
     
     return 0;
 }
