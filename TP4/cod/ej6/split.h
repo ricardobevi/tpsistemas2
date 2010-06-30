@@ -1,3 +1,18 @@
+/********************************************************/
+/* Nombre: split.h                                      */
+/* Trabajo: Fork, Procesos Concurrentes, Zombies y Exec */
+/* Numero de ejercicio: 6                               */
+/* Entrega: Primer Entrega                              */
+/*                                                      */
+/* Grupo N 63                                           */
+/* D`Aranno Facundo      34.842.320                     */
+/* Jose Ferreyra         31.144.004                     */
+/* Marcela A. Uslenghi   26.920.315                     */
+/* Bevilacqua Ricardo    34.304.983                     */
+/********************************************************/
+
+
+
 #ifndef SPLIT_H
 #define SPLIT_H
 
@@ -92,3 +107,8 @@ int split_args( char * str, struct arg * argumentos ){
 }
 
 #endif
+
+
+/*******/
+/* FIN */
+/*******/
