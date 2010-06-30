@@ -1,4 +1,5 @@
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <errno.h>
@@ -96,7 +97,8 @@ int main ()
                                        {     
                                               BkgroundChild ++;
                                               printf("[%d]  %d\n",BkgroundChild ,pidDelEjecutable);
-                                              waitpid(pidDelEjecutable);
+                                              argumentos.bkground = 0;
+
                                        }
 
                                    
@@ -115,6 +117,10 @@ int main ()
               linea[strlen(linea) - 1] = '\0';
           }    
     
-    
+    for(i=0 ; i<BkgroundChild ; i++)
+    {
+          wait(NULL);
+    }
+
     return 0;
 }
