@@ -15,7 +15,7 @@ int main ()
     char host[50];          // cadena que almacena el HOST 
     char user[50];          // cadena que almacena el USER actual
     int i = 0;              // auxiliar de iteracion
-
+    int BkgroundChild = 0;  // cantidad de hijos en background
     pid_t pidDelEjecutable; // variable que almacena los pid 
     
     struct arg argumentos;  // estructura que almacena los parametros 
@@ -89,9 +89,15 @@ int main ()
                                       // segundo plano dependiendo del parametro "&"
 
                                        if(! argumentos.bkground )
-                                                        wait(NULL);
-                                        else 
-                                                        waitpid(pidDelEjecutable);
+                                       {
+                                              wait(NULL);
+                                       }
+                                       else 
+                                       {     
+                                              BkgroundChild ++;
+                                              printf("[%d]  %d\n",BkgroundChild ,pidDelEjecutable);
+                                              waitpid(pidDelEjecutable);
+                                       }
 
                                    
                               }
