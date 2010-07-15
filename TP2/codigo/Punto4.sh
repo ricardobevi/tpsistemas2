@@ -26,6 +26,11 @@ function error(){
 
 #corroboro que los parametros enviados sean correctos, en caso correcto llamo a la funcion error
 case $# in
+      
+      0)
+            directorio="./"
+            recursividad=0
+         ;;
 
       1)  
             if [ ! -d $1 ]
@@ -35,7 +40,6 @@ case $# in
             else
                   # establesco los valores de las variables desde los argumentos 
                   # (caso de un solo parametro)
-  
                   directorio=$1
                   recursividad=0
 
@@ -72,35 +76,52 @@ case $# in
 esac
 
 
-echo "\nEl directorio a renombrar es: " $directorio "y la recursividad esta en estado : " $recursividad "\n" 
+echo -e "\nEl directorio a renombrar es: " $directorio "y la recursividad esta en estado : " $recursividad "\n" 
 
 #recorro el directorio enviado como parametro renombrando sus archivos en forma normalizada  
 
-  for archivo in `ls $directorio`
-  do
-  
-              if test  -d $archivo -a $recursividad -eq 1 
-              then
-                            # efectua recursividad sobre las subcarpetas
-                            # en caso de que el parametro -R halla sido enviado
-                            echo hola!!!!      
-                            #  bash ./Ejercicio -R $archivo
-              fi   
+IFS=$'\n'
+cd $directorio 
 
-        #obtengo el nuevo nombre del archivo y lo almaceno en $archivonuevo
-        #en caso de no ser el mismo nombre que antes ($archivo) efectuo el cambio
-
-        archivonuevo=`echo $archivo | sed -r 's/([A-Z])/\L&/g'| sed -r 's/(^.|[.;\)\(* _-,].)/\U&/g'`                               
-
-              if test $archivo !=  $archivonuevo
-              then
-                                      echo "se cambiara el nombre de " $archivo "a " $archivonuevo
-                                      mv $archivo $archivonuevo
-              fi
-
-  done
-
-exit 1;
+if test $recursividad -ne 1
+then
 
 
+            for lista in `find -maxdepth 1`
+            do
+                  archivo=$( basename $lista )
+                  echo $archivo 
 
+                  archivonuevo=`echo $archivo | sed -r 's/([A-Z])/\L&/g'| sed -r 's/(^.|[.;\)\(* _-,].)/\U&/g'`                               
+
+                        if test $archivo !=  $archivonuevo
+                        then
+                                                mv $archivo $archivonuevo 
+                        fi
+
+            done
+
+
+else
+
+            for lista in `find -depth`
+            do
+                  archivo=$( basename $lista )
+                  ruta=$( dirname $lista )
+                  echo $archivo 
+
+                  archivonuevo=`echo $archivo | sed -r 's/([A-Z])/\L&/g'| sed -r 's/(^.|[.;\)\(* _-,].)/\U&/g'`                               
+
+                        if test $archivo !=  $archivonuevo
+                        then
+                                                mv  `echo  $ruta/$archivo` `echo $ruta/$archivonuevo `
+                        fi
+
+            done
+
+
+
+fi
+IFS=' '
+
+exit 0
