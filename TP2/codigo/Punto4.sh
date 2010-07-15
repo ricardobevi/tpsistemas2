@@ -90,13 +90,12 @@ then
             for lista in `find -maxdepth 1`
             do
                   archivo=$( basename $lista )
-                  echo $archivo 
 
                   archivonuevo=`echo $archivo | sed -r 's/([A-Z])/\L&/g'| sed -r 's/(^.|[.;\)\(* _-,].)/\U&/g'`                               
 
                         if test $archivo !=  $archivonuevo
                         then
-                                                mv $archivo $archivonuevo 
+                                                mv $archivo $archivonuevo 2> /dev/null
                         fi
 
             done
@@ -108,13 +107,12 @@ else
             do
                   archivo=$( basename $lista )
                   ruta=$( dirname $lista )
-                  echo $archivo 
 
                   archivonuevo=`echo $archivo | sed -r 's/([A-Z])/\L&/g'| sed -r 's/(^.|[.;\)\(* _-,].)/\U&/g'`                               
 
                         if test $archivo !=  $archivonuevo
                         then
-                                                mv  `echo  $ruta/$archivo` `echo $ruta/$archivonuevo `
+                                                mv  `echo  $ruta/$archivo` `echo $ruta/$archivonuevo ` 2> /dev/null
                         fi
 
             done
