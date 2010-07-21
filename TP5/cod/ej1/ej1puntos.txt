@@ -1,0 +1,8 @@
+a) Al programa se lo puede interrumpir desde otra terminal, ejecutando el comando "ps aux" e identificando el ID entre
+todos los procesos activos.
+Luego escribimos el comando "kill -9 + ID"
+
+b) Las señales "SIGKILL" (no se puede ignorar y quien la recibe no puede realizar ninguna accion adicional) y "SIGTERM" son las que se envian a un proceso para que finalize inmediatamente.
+Las señales "SIGTERM" y "SIGINIT" pueden ser reprogramadas para que el proceso no finalize o para que pueda
+realizar algun tipo de accion antes de su finalizacion.
+
