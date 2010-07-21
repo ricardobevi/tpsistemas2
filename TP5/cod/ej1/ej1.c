@@ -1,6 +1,6 @@
 /************************************/
 /* Nombre: ej1.c                    */
-/* Trabajo: Señales, Pipes y FIFOs */
+/* Trabajo: Senales, Pipes y FIFOs  */
 /* Numero de ejercicio: 1           */
 /* Entrega: Primer Entrega          */
 /*                                  */

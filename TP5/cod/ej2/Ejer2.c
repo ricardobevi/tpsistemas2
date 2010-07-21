@@ -1,6 +1,6 @@
 /************************************/
 /* Nombre: Ejer2.c                  */
-/* Trabajo: Señales, Pipes y FIFOs */
+/* Trabajo: Senales, Pipes y FIFOs  */
 /* Numero de ejercicio: 2           */
 /* Entrega: Primer Entrega          */
 /*                                  */

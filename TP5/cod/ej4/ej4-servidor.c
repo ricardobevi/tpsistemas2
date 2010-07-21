@@ -1,6 +1,6 @@
 /************************************/
 /* Nombre: ej4-servidor.c           */
-/* Trabajo: Señales, Pipes y FIFOs */
+/* Trabajo: Senales, Pipes y FIFOs  */
 /* Numero de ejercicio: 4           */
 /* Entrega: Primer Entrega          */
 /*                                  */

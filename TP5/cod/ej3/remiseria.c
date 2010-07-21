@@ -1,6 +1,6 @@
 /************************************/
 /* Nombre: remiseria.c              */
-/* Trabajo: Señales, Pipes y FIFOs */
+/* Trabajo: Senales, Pipes y FIFOs  */
 /* Numero de ejercicio: 3           */
 /* Entrega: Primer Entrega          */
 /*                                  */
