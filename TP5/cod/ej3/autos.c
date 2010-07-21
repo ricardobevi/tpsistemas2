@@ -77,7 +77,7 @@ int main(){
         sigaction(SIGTERM, &term, NULL);
         sigaction(SIGINT, &term, NULL);
         
-        printf("En espera de señales del servidor...\n" 
+        printf("En espera de senales del servidor...\n" 
                "(Matar proceso %d o control-c para terminar los 6 clientes)\n", getpid() );
         
         while(1)
