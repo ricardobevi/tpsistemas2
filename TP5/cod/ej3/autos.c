@@ -1,3 +1,18 @@
+/************************************/
+/* Nombre: autos.c                  */
+/* Trabajo: Señales, Pipes y FIFOs */
+/* Numero de ejercicio: 3           */
+/* Entrega: Primer Entrega          */
+/*                                  */
+/* Grupo N 63                       */
+/* D`Aranno Facundo      34.842.320 */
+/* Jose Ferreyra         31.144.004 */
+/* Marcela A. Uslenghi   26.920.315 */
+/* Bevilacqua Ricardo    34.304.983 */
+/************************************/
+
+
+
 #include<stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -90,3 +105,8 @@ int main(){
     
     return 0;
 }
+
+
+/*******/
+/* FIN */
+/*******/

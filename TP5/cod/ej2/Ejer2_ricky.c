@@ -1,3 +1,18 @@
+/************************************/
+/* Nombre: Ejer2_ricky.c            */
+/* Trabajo: Señales, Pipes y FIFOs */
+/* Numero de ejercicio: 2           */
+/* Entrega: Primer Entrega          */
+/*                                  */
+/* Grupo N 63                       */
+/* D`Aranno Facundo      34.842.320 */
+/* Jose Ferreyra         31.144.004 */
+/* Marcela A. Uslenghi   26.920.315 */
+/* Bevilacqua Ricardo    34.304.983 */
+/************************************/
+
+
+
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
@@ -91,3 +106,9 @@ int main () {
 
 
 
+
+
+
+/*******/
+/* FIN */
+/*******/
