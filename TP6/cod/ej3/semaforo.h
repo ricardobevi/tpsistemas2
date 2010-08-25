@@ -1,3 +1,25 @@
+/***********************************************/
+/* Nombre: semaforo.h                          */
+/* Trabajo: TP6 Semaforos y Memoria Compartida */
+/* Numero de ejercicio: 3                      */
+/* Entrega: Primer Entrega                     */
+/*                                             */
+/* Grupo N 63                                  */
+/* D'Aranno Facundo      34.842.320            */
+/* Jose Ferreyra         31.144.004            */
+/* Marcela A. Uslenghi   26.920.315            */
+/* Bevilacqua Ricardo    34.304.983            */
+/***********************************************/
+
+
+
+
+/*
+ * SEMAFORO.H
+ * Contiene las primitivas para el manejo de semaforos.
+ */
+
+
 #ifndef SEMAFORO_H
 #define SEMAFORO_H
 
@@ -5,11 +27,27 @@
 #include <sys/ipc.h>
 #include <sys/sem.h>
 
+
 union semun{
     int val;
     struct semid_ds *buf;
     unsigned short *array;
 }arg;
+
+/*
+ * int P( int semId, unsigned short semNum )
+ *
+ * Decrementa el valor de un semaforo. Si el valor decrementado es menor
+ * a 0, deja el semaforo en 0 y se bloquea hasta que este tome valor 1 y
+ * pueda decrementarlo una unidad.
+ *
+ * Recibe:
+ * int semId                          El id del vector de semaforos.
+ * unsigned short semNum              El numero de semaforo a decrementar.
+ * 
+ * Devuelve:
+ * Restorna un entero. 0 si no hubo error y -1 en caso contrario.
+ */
 
 int P( int semId, unsigned short semNum ){
     struct sembuf opSem;
@@ -27,6 +65,19 @@ int P( int semId, unsigned short semNum ){
     return 0;
 }
 
+/*
+ * int V( int semId, unsigned short semNum )
+ *
+ * Incrementa el valor de un semaforo.
+ *
+ * Recibe:
+ * int semId                          El id del vector de semaforos.
+ * unsigned short semNum              El numero de semaforo a decrementar.
+ * 
+ * Devuelve:
+ * Restorna un entero. 0 si no hubo error y -1 en caso contrario.
+ */
+
 int V( int semId, unsigned short semNum ){
     struct sembuf opSem;
     
@@ -43,6 +94,19 @@ int V( int semId, unsigned short semNum ){
     return 0;
 }
 
+/*
+ * int setSem (int semId, int semNum, int semVal)
+ *
+ * Setea el valor de un semaforo.
+ *
+ * Recibe:
+ * int semId               El id del vector de semaforos.
+ * int semNum              El numero de semaforo a decrementar.
+ * int semVal              El valor al cual setear el semaforo.
+ * 
+ * Devuelve:
+ * Restorna un entero. 0 si no hubo error y -1 en caso contrario.
+ */
 
 int setSem(int semId, int semNum, int semVal){
     arg.val = semVal;
@@ -56,8 +120,26 @@ int setSem(int semId, int semNum, int semVal){
 
 }
 
+/*
+ * int rmSem (semId)
+ *
+ * Borra un vector de semaforos.
+ *
+ * Recibe:
+ * int semId               El id del vector de semaforos.
+ * 
+ * Devuelve:
+ * Restorna un entero. 0 si no hubo error y -1 en caso contrario.
+ */
+
 int rmSem(semId){
     return semctl(semId, 0, IPC_RMID);
 }
 
 #endif
+
+
+
+/*******/
+/* FIN */
+/*******/
