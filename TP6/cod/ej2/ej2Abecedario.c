@@ -5,38 +5,7 @@
 #include <errno.h>
 
 
-/*Includes de Semaforos*/
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/sem.h>
-
-void P( int semaforo, unsigned short semNum ){
-    struct sembuf opSem;
-    
-    opSem.sem_num = semNum;
-    opSem.sem_op = -1;
-    opSem.sem_flg = 0;
-    
-    if ( semop(semaforo, &opSem, 1) == -1){
-        perror("P: semop");
-        semctl(semaforo, 0, IPC_RMID);
-        exit(1);
-    }
-}
-
-void V( int semaforo, unsigned short semNum ){
-    struct sembuf opSem;
-    
-    opSem.sem_num = semNum;
-    opSem.sem_op = 1;
-    opSem.sem_flg = 0;
-    
-    if ( semop(semaforo, &opSem, 1) == -1){
-        perror("V: semop");
-        semctl(semaforo, 0, IPC_RMID);
-        exit(1);
-    }
-}
+#include "semaforo.h"
 
 int main(){
     char abc[26] = {'a','b','c','d',
@@ -47,12 +16,7 @@ int main(){
                     'u','v','w','x',
                     'y','z'};
                     
-    union semun{
-        int val;
-        struct semid_ds *buf;
-        unsigned short *array;
-    }arg;
-                  
+    
     pid_t childPids[3];
     int i = 0,
         letra = 0,
@@ -70,20 +34,11 @@ int main(){
         exit(1);
     }
     
-    arg.val = 1;
-    if ( semctl(semaforo, 0, SETVAL, arg) == -1){
-        perror("main: semctl1");
-        semctl(semaforo, 0, IPC_RMID);
+    if ( setSem(semaforo, 0, 1) ) 
         exit(1);
-    }
     
-    arg.val = 0;    
-    if ( semctl(semaforo, 1, SETVAL, arg) == -1){
-        perror("main: semctl2");
-        semctl(semaforo, 0, IPC_RMID);
+    if ( setSem(semaforo, 1, 0) ) 
         exit(1);
-    }
-    
     
     while( i < 2 && ( childPids[i] = fork() ) != 0 ) i++;
     
@@ -92,7 +47,7 @@ int main(){
         wait(NULL);
         wait(NULL);
         
-        semctl(semaforo, 0, IPC_RMID);
+        rmSem(semaforo);
         
     }else if ( childPids[ i ] == 0 ){/* Hijos */
         int j;
