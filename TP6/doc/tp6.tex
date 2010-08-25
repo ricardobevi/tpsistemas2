@@ -1,0 +1,126 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[spanish,activeacute]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[pdftex]{color,graphicx}
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{float}
+\usepackage{color}
+
+
+\floatstyle{ruled}
+\newfloat{code}{hbt}{lop}
+\floatname{code}{Codigo}
+
+\lstset{
+  language=C,                     % choose the language of the code
+  basicstyle=\tiny,                 % the size of the fonts that are used for the code
+  numbers=left,                   % where to put the line-numbers
+  numberstyle=\footnotesize,      % the size of the fonts that are used for the line-numbers
+  stepnumber=1,                   % the step between two line-numbers. If it's 1 each line will be numbered
+  numbersep=5pt,                  % how far the line-numbers are from the code
+  backgroundcolor=\color{white},  % choose the background color. You must add \usepackage{color}
+  showspaces=false,               % show spaces adding particular underscores
+  showstringspaces=false,         % underline spaces within strings
+  showtabs=false,                 % show tabs within strings adding particular underscores
+  frame=tb,			% adds a frame around the code
+  tabsize=2,			% sets default tabsize to 2 spaces
+  captionpos=b,			% sets the caption-position to bottom
+  breaklines=true,		% sets automatic line breaking
+  breakatwhitespace=false,  	% sets if automatic breaks should only happen at whitespace
+  escapeinside={\%*}{*)},         % if you want to add a comment within your code
+  stringstyle=\ttfamily,
+  numberstyle=\tiny,
+  extendedchars=true,
+  frameround=tftf,
+  inputencoding=latin1,
+  numberblanklines=false,
+  keepspaces=true,
+  prebreak = \raisebox{0ex}[0ex][0ex]{\ensuremath{\hookleftarrow}},
+  keywordstyle=\color{blue},
+  commentstyle=\color[rgb]{0.5,0.5,0.5},
+  stringstyle=\color{red}
+}
+
+
+\newcommand{\tp}{Trabajo Pr\'actico N$^{\circ}$\numtp}
+\newcommand{\?}{?`}
+\renewcommand{\appendixname}{Ap'endice}
+
+
+\pagestyle{fancy}
+\renewcommand{\sectionmark}[1]{\markright{#1}{}}
+\lhead{\includegraphics[width=7mm,height=7mm]{\logo} \materia}
+\chead{}
+\rhead{\nomtp}
+\lfoot{\rightmark}
+\cfoot{}
+\rfoot{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\renewcommand{\headheight}{24pt}
+
+
+\renewcommand{\theenumii}{\arabic{enumii}}
+\renewcommand{\labelenumii}{\theenumi.\theenumii}
+\renewcommand{\theenumiii}{\arabic{enumiii}}
+\renewcommand{\labelenumiii}{\theenumi.\theenumii.\theenumiii}
+
+
+\begin{document}
+\include{car-tp6}
+\setcounter{page}{1}
+\pagenumbering{roman}
+\tableofcontents
+\newpage
+\setcounter{page}{1}
+\pagenumbering{arabic}
+
+\section{Ejercicio 1}
+
+\subsection{C'odigo}
+\lstinputlisting[title=ej1.c]{../cod/ej1/ej1.c}
+
+\subsection[Punto A]{\?Cu'al es el tama\~no que se reserva de memoria compartida?}
+El tama\~no de MC reservado es de 80 bits (10 bytes).
+
+\subsection[Punto B]{\?Qu'e se almacena en la memoria compartida?}
+En la memoria compartida se almacenan diez letras ``a''.
+
+\subsection[Punto C]{En una sesi'on distinta a la que est'a ejecutando el proceso, ingrese el comando ``ipcs'' y analice el resultado. \?Puede explicar qu'e est'a informando el comando?}
+Al ejecutar el comando ipcs me muestra los segmentos de memoria compartida que estan en uso. El ultimo dato mostrado es el que se reservo en el proceso que se ejecuto del ejercicio 1 del 6.
+
+\subsection[Punto D]{Si ejecuta ``ipcs'' durante los primeros 10 segundos que 'este proceso duerme, aparece cierta informaci'on, y si lo hace en los pr'oximos 10 segundos aparece un cambio. \?En qu'e consiste?}
+
+Al ejecutar el comando ipcs durante los diez segundos que duerme el proceso, me muestra el segmento asignado para el mismo. ( 10 bytes ) luego que pasaron los diez segundos dicha memoria asignada no vuelve a aparecer dentro del listado.
+
+\subsection[Punto E]{El primer valor de la salida de ``ipcs'' es ``key''. \?Qu'e relaci'on tiene ese valor que apareci'o con respecto a lo definido en la constante LLAVE?}
+
+Al ejecutar el comando ipcs, el valor 234 asignado como LLAVE, esta representada en Hexadecimal en la columna correspondiente ``key'' ( 0x000000ea).
+
+\subsection[Punto F]{Coloque comentarios en cada bloque funcional del c'odigo.}
+
+Ver c'odigo arriba.
+
+\section{Ejercicio 2}
+\subsection{C'odigo}
+\lstinputlisting[title=ej2Abecedario.c]{../cod/ej2/ej2Abecedario.c}
+
+\section{Ejercicio 3}
+\subsection{C'odigo}
+\subsubsection{A}
+\lstinputlisting[title=ej3A.c]{../cod/ej3/ej3A.c}
+
+\subsubsection{B}
+\lstinputlisting[title=ej3B.c]{../cod/ej3/ej3B.c}
+
+\section{Ejercicio 4}
+%\lstinputlisting[title=ej4.c]{../cod/ej4/ej4.c}
+
+\appendix
+\section{semaforo.h}
+\lstinputlisting[title=semaforo.h]{../cod/ej2/semaforo.h}
+
+\end{document} 
