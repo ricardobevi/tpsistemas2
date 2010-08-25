@@ -90,7 +90,7 @@ if [ `ls $bkupDir | grep "$dirName" > /dev/null ; echo $?` = "0" ]; then
     #Rescato el nombre del ultimo Back Up.
     ultimoBkUp="$bkupDir/`echo $(ls -t $bkupDir) | cut -d" " -f1`"
     #Busco los archivos modificados desde el ultimo Back Up.
-    archMod="`find $directorio -newer $ultimoBkUp -type f`"
+    archMod="`find $directorio -newer $ultimoBkUp`"
     
     #Chequeo si hay algun archivo modificado.
     if [ ! "$archMod" = "" ]; then
