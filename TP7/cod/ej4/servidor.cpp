@@ -3,45 +3,63 @@
 #include <cstdlib>
 #include <vector>
 #include <string>
+#include <signal.h>
 
 #include "ServidorBbs.h"
 
 void * sender(void * args);
 void * recver(void * args);
 
+void cTERM(int iNumSen, siginfo_t *info, void *ni);
+
 ServidorBbs ServerBbs;
 
 int main(int argc, const char *argv[]){
-  vector<pthread_t> threads;
-   
-  
-  ServerBbs.ActivarServidor(argv[1], argv[2], atoi(argv[3]) );
-  
-  string Login;
-  
-  while(1){
-    
-    pthread_t newSender,
-              newRecver;
-    
-    Login = ServerBbs.EsperarCliente();
-    
-    pthread_create( &newSender, NULL, sender, (void *) (&Login) );
-    pthread_create( &newRecver, NULL, recver, (void *) (&Login) );
-    
-    threads.push_back(newSender);
-    threads.push_back(newRecver);
-  }
-  
-  pthread_join(threads[0], NULL);
-  pthread_join(threads[1], NULL);
-  
-  return 0;
+    vector<pthread_t> threads;
+
+    struct sigaction term;
+
+    term.sa_sigaction = cTERM;
+    sigfillset( &term.sa_mask );
+    term.sa_flags = SA_SIGINFO | SA_NODEFER;
+    sigaction(SIGTERM, &term, NULL);
+    sigaction(SIGINT, &term, NULL);
+
+    ServerBbs.ActivarServidor(argv[1], argv[2], atoi(argv[3]) );
+
+    string Login;
+
+    while(1){
+
+        pthread_t newSender,
+        newRecver;
+
+        Login = ServerBbs.EsperarCliente();
+
+        if ( Login != "" ){
+        
+            pthread_create( &newSender, NULL, sender, (void *) (&Login) );
+            pthread_create( &newRecver, NULL, recver, (void *) (&Login) );
+
+            threads.push_back(newSender);
+            threads.push_back(newRecver);
+        
+        }else{
+            cout << "Intento de ingreso erroneo." << endl;
+        }
+    }
+
+    pthread_join(threads[0], NULL);
+    pthread_join(threads[1], NULL);
+
+    return 0;
 }
 
 void * sender(void * args){
     string * usrPtr = (string *) args;
     string Login = *usrPtr;
+
+    ServerBbs.getUsuario(Login).sendString("Bienvenido al Servidor BBS R y F\n");
     
     return 0;
 }
@@ -49,16 +67,16 @@ void * sender(void * args){
 void * recver(void * args){
     string * usrPtr = (string *) args;
     string Login = *usrPtr;
-    string Command;
     
+    vector<string> Command;
     
     Command = ServerBbs.getUsuario(Login).receiveCommand();
     
-    while( Command != "fin" ){
+    while( Command[0] != "fin" ){
     
-        cout << "Comando: " << Command << endl;
+        cout << "Comando: " << Command[0] << endl;
         
-        if (Command == "hora"){
+        if (Command[0] == "hora"){
               time_t segundos;
               struct tm * hora;
 
@@ -67,40 +85,39 @@ void * recver(void * args){
               ServerBbs.getUsuario(Login).sendString(  asctime (hora)  );
         
         }
-        else if ( Command == "usuarios"){
+        else if ( Command[0] == "usuarios"){
         
               string listaUsuarios  =  ServerBbs.getListaUsuarios();
               ServerBbs.getUsuario(Login).sendString(  listaUsuarios  );
            
         }
-        else if ( Command.substr(0,7) == "mensaje" ){
+        else if ( Command[0] == "mensaje" ){
            
-           string mensaje = Command.substr( 7, Command.size() -1 );
-           
-           unsigned pos = Command.find_first_of(' ',0) -1;
-           cout << "Pos:" << pos << endl;
-           
-           string sendTo = Command.substr(7,pos);
-           cout << "Enviar a:" << sendTo<< endl;
-           
-           pos++;
-           string Msg = Command.substr(pos,Command.size()-1 );
-           cout << "Mensaje:" << Msg<< endl; 
-           
-           //sendMessage(Login,sendTo,Msg );
-           
+           if( Command.size() >= 2 ){
+               cout << "Mensaje: " << Command[1] << endl; 
+
+               //sendMessage(Login,sendTo,Msg );
+           }
         }
         else{
             
-            cout << "Comando desconocido: " << Command << endl;
+            cout << "Comando desconocido: " << Command[0] << endl;
         }
         
-        Command = ServerBbs.getUsuario(Login ).receiveCommand();
+        Command = ServerBbs.getUsuario(Login).receiveCommand();
         
     }
-    cout << "Cierra Sesion: " << Login  << endl;
     
     ServerBbs.CloseUsuario(Login);
     
     return 0;
+}
+
+
+void cTERM(int iNumSen, siginfo_t *info, void *ni) {
+    cout << "Terminado Servidor..." << endl;
+    
+    ServerBbs.Close();
+    
+    exit(0);
 }

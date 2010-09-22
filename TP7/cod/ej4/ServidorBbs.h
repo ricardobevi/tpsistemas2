@@ -9,7 +9,8 @@
 #include "Comm.h"
 
 
-#define TAMLOGIN 50
+#define TAM_LOGIN 50
+#define TAM_RETURN 1
 
 using namespace std;
 
@@ -54,28 +55,37 @@ int ServidorBbs :: ActivarServidor( string RutaDescarga, string RutaNovedades , 
 
 string ServidorBbs :: EsperarCliente(){
   unsigned numConnection = 0;
-  char Login[TAMLOGIN];
+  char Login[TAM_LOGIN],
+       ret;
   
   numConnection = this->Socket.Accept();
   
-  Socket.getConn(numConnection).Recv(Login, TAMLOGIN);
+  Socket.getConn(numConnection).Recv(Login, TAM_LOGIN);
   
   // validar si ya existe this->Usuarios[login] mediante saludo de tres vias
   
-  cout << "Login = " << Login << endl;
+  if( Usuarios.find( Login ) == Usuarios.end() ){
+      cout << Login << " inicia sesion." << endl;
+
+      Usuario usr( Login, Socket.getConn(numConnection) );
+
+      this->Usuarios[Login]= usr;
+
+      ret = 1;
+      
+  }else{
+      ret = 0;
+      Login[0] = '\0';
+  }
+
+  Socket.getConn(numConnection).Send( &ret, TAM_RETURN);
   
-  Usuario usr( Login, Socket.getConn(numConnection) );
- 
-  
-  this->Usuarios[Login]= usr;
-  
-  return (Login);
+  return string(Login);
   
 }
 
 Usuario& ServidorBbs :: getUsuario(string Login){
   return Usuarios[Login];
-
 }
 
 string ServidorBbs :: getListaUsuarios(){
@@ -98,16 +108,19 @@ void ServidorBbs :: Close(){
 }
 
 void ServidorBbs :: CloseUsuario(string Login){
+    cout << Login <<  " cierra sesion."  << endl;
+    
     Usuarios[Login].Close();
     Usuarios.erase(Login);
 }
 
-bool sendMessage( string Login,string sendTo,string Msg )
+
+bool ServidorBbs :: sendMessage( string Login,string sendTo,string Msg )
 {
     map < string, Usuario > :: iterator end = Usuarios.end();
     if (  Usuarios.find(sendTo) == (end++))  return false;
             
-    Login.push_back(":");
+    Login.append(":");
     
     Usuarios[sendTo].sendString( Login );
     Usuarios[sendTo].sendString( Msg );
