@@ -101,6 +101,9 @@ Connection<T> Comm<T> :: getConn(unsigned index){
 
 template <class T>
 void Comm<T> :: Close(){
+    for( unsigned i = 0 ; i < cons.size() ; i++ )
+        cons[i].Close();
+        
     close(in_socket);
 }
 
