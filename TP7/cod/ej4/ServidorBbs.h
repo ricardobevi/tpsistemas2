@@ -62,8 +62,6 @@ string ServidorBbs :: EsperarCliente(){
   
   Socket.getConn(numConnection).Recv(Login, TAM_LOGIN);
   
-  // validar si ya existe this->Usuarios[login] mediante saludo de tres vias
-  
   if( Usuarios.find( Login ) == Usuarios.end() ){
       cout << Login << " inicia sesion." << endl;
 
@@ -115,10 +113,11 @@ void ServidorBbs :: CloseUsuario(string Login){
 }
 
 
-bool ServidorBbs :: sendMessage( string Login,string sendTo,string Msg )
+bool ServidorBbs :: sendMessage( string Login, string sendTo, string Msg )
 {
     map < string, Usuario > :: iterator end = Usuarios.end();
-    if (  Usuarios.find(sendTo) == (end++))  return false;
+    
+    if( Usuarios.find( sendTo ) == Usuarios.end() )  return false;
             
     Login.append(":");
     

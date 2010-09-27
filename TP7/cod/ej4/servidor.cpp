@@ -93,10 +93,18 @@ void * recver(void * args){
         }
         else if ( Command[0] == "mensaje" ){
            
-           if( Command.size() >= 2 ){
-               cout << "Mensaje: " << Command[1] << endl; 
+           if(Command.size() >= 3 ){
+               string Msg;
+               
+               for( unsigned i = 2 ; i < Command.size() ; i++ )
+                   Msg += Command[i];
+               
+               cout << "Enviando Mensaje..." << endl
+                    << "De: " << Login << endl
+                    << "A:  " << Command[1] << endl
+                    << "Mensaje: " << Msg << endl;
 
-               //sendMessage(Login,sendTo,Msg );
+               ServerBbs.sendMessage( Login, Command[1], Msg );
            }
         }
         else{
