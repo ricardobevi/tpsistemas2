@@ -115,7 +115,6 @@ void ServidorBbs :: CloseUsuario(string Login){
 
 bool ServidorBbs :: sendMessage( string Login, string sendTo, string Msg )
 {
-    map < string, Usuario > :: iterator end = Usuarios.end();
     
     if( Usuarios.find( sendTo ) == Usuarios.end() )  return false;
             
