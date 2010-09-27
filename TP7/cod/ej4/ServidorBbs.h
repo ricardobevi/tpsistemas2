@@ -119,7 +119,7 @@ bool ServidorBbs :: sendMessage( string Login, string sendTo, string Msg )
     
     if( Usuarios.find( sendTo ) == Usuarios.end() )  return false;
             
-    Login.append(":");
+    Login.append(" dice:");
     
     Usuarios[sendTo].sendString( Login );
     Usuarios[sendTo].sendString( Msg );

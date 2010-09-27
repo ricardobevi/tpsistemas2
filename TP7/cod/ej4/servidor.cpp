@@ -96,8 +96,9 @@ void * recver(void * args){
            if(Command.size() >= 3 ){
                string Msg;
                
-               for( unsigned i = 2 ; i < Command.size() ; i++ )
-                   Msg += Command[i];
+               for( unsigned i = 2 ; i < Command.size() ; i++ ){
+                   Msg += Command[i] + " ";
+               }
                
                cout << "Enviando Mensaje..." << endl
                     << "De: " << Login << endl

@@ -75,23 +75,23 @@ vector<string> Usuario :: receiveCommand(){
   //Divido la instruccion.
   string cmdStr(Command); 
   
-  endPos = cmdStr.find_first_of(' ', startPos);
+  endPos = cmdStr.find(' ', startPos);
+
+  subStr = cmdStr.substr(startPos, endPos - startPos);
+
+  Strings.push_back(subStr);
    
   while(endPos != string::npos){
+
+      startPos = endPos + 1;
       
-      subStr = cmdStr.substr(startPos, endPos); //Resto 1 para ignorar el espacio.
-      
+      endPos = cmdStr.find(' ', startPos);
+
+      subStr = cmdStr.substr(startPos, endPos - startPos);
+
       Strings.push_back(subStr);
       
-      startPos = endPos + 1; //Sumo 1 para ignorar el espacio.
-      
-      endPos = cmdStr.find_first_of(' ', startPos);
-      
   }
-  //Agrego la ultima (o la unica) cadena.
-  subStr = cmdStr.substr(startPos);
-  
-  Strings.push_back(subStr);
   
   return Strings;
   
