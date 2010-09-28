@@ -1,15 +1,20 @@
 #ifndef USER_H
 #define USER_H
 
+#include <iostream>
 #include <ctime>
 #include <string>
 #include <cstring>
 #include <vector>
+#include <unistd.h>
+#include <fstream>
+#include <stdio.h>
 
 #include "Connection.h"
 
 #define TAM_COMMAND 128
 #define TAM_STRING 512
+#define TAM_RETURN 1
 
 using namespace std;
 
@@ -19,14 +24,9 @@ class Usuario
 	     Usuario(string login = "", Connection<char> socket = *(new  Connection<char>));
 	     ~Usuario();
 	     
-	     //send
-	     //receive
-	     
-	     //send archivo
-	     //receive archivo
-	     
 	     vector<string> receiveCommand();
          void sendString(string str);
+         void sendFile(string file);
 	     
          string getLogin();
 	     time_t getLastOperation();
@@ -98,13 +98,32 @@ vector<string> Usuario :: receiveCommand(){
 }
 
 void Usuario :: sendString(string str){
-  
-  char auxString [TAM_STRING];
-  
-  strncpy( auxString, str.c_str() ,  TAM_STRING );
-  
-  Socket.Send(  auxString ,  TAM_STRING);
-  
+
+    //Envio la senal de cadena (string) al cliente.
+    {
+        char cmd = 1;
+        Socket.Send(&cmd, TAM_RETURN);
+    }
+
+    char auxString [TAM_STRING];
+
+    strncpy( auxString, str.c_str() ,  TAM_STRING );
+
+    Socket.Send(  auxString ,  TAM_STRING);
+
+}
+
+
+void Usuario :: sendFile(string File){
+
+    //Envio la senal de archivo al cliente.
+    {
+        char cmd = 2;
+        Socket.Send(&cmd, TAM_RETURN);
+    }
+    
+    Socket.SendFile(File.c_str());
+
 }
 
 string Usuario :: getLogin(){
@@ -112,6 +131,12 @@ string Usuario :: getLogin(){
 }
 
 void Usuario :: Close(){
+    //Envio la senal de cierre al cliente.
+    {
+        char cmd = 3;
+        Socket.Send(&cmd, TAM_RETURN);
+    }
+    
     Socket.Close();
 }
 

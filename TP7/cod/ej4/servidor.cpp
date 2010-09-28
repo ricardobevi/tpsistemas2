@@ -4,8 +4,12 @@
 #include <vector>
 #include <string>
 #include <signal.h>
+#include <stdio.h>
+#include <fstream>
 
 #include "ServidorBbs.h"
+
+#define TAM_MAX_NOVEDAD 512
 
 void * sender(void * args);
 void * recver(void * args);
@@ -70,8 +74,30 @@ void * recver(void * args){
     
     vector<string> Command;
     
-    Command = ServerBbs.getUsuario(Login).receiveCommand();
+    // -------------------------------mensajes de bienvenida y modo de uso al servidor bbs-------------------------------
+   
+    string bienvenida;
+            
+    bienvenida= "MODO DE USO:\n\thora: Muestra la hora del servidor\n\tusuarios: Muestra los usuarios conectados al servidor";
+     
+    ServerBbs.getUsuario(Login).sendString( bienvenida );
     
+    bienvenida="\tnovedades [nueva]: Muestra las novedades del servidor.\n\t\t\tEn caso de enviar el parametro opcional [nueva] este sera subido  como una nueva novedad";
+    
+    ServerBbs.getUsuario(Login).sendString( bienvenida );
+    
+    bienvenida= "\tmensaje destinatario msg: envia el mensaje 'msg' al destinatario especificado en el primer parametro 'destinatario' ";
+    
+    ServerBbs.getUsuario(Login).sendString( bienvenida );
+    
+    bienvenida= "\tlistar: lista archivos ubicados en el servidor\n\tdescargar: descarga el archivo especifico del servidor\n\t";
+    
+    ServerBbs.getUsuario(Login).sendString( bienvenida );
+    
+    // -------------------------------fin mensajes de bienvenida y modo de uso al servidor bbs----------------------------
+    
+    Command = ServerBbs.getUsuario(Login).receiveCommand();
+  
     while( Command[0] != "fin" ){
     
         cout << "Comando: " << Command[0] << endl;
@@ -107,9 +133,55 @@ void * recver(void * args){
 
                ServerBbs.sendMessage( Login, Command[1], Msg );
            }
+           
+        }else if (Command[0] == "novedades"){
+            
+                if ( Command.size() == 1 )
+                {                    
+                    ifstream archivoNovedadesSalida("./Novedades");
+                    char novedad[TAM_MAX_NOVEDAD];
+                    
+                    archivoNovedadesSalida.getline( novedad ,  TAM_MAX_NOVEDAD , '\n');
+                   
+                    ServerBbs.getUsuario(Login).sendString(   "\nNovedades: \n"  );
+                    while ( !archivoNovedadesSalida.eof() )
+                    {    
+                            ServerBbs.getUsuario(Login).sendString(  novedad  );
+                            archivoNovedadesSalida.getline( novedad ,  TAM_MAX_NOVEDAD , '\n');
+                    }
+                    ServerBbs.getUsuario(Login).sendString(   "\n"  );
+                    
+                    archivoNovedadesSalida.close();
+                    
+                }
+                else
+                {
+                    string nuevaNovedad;
+                    for( unsigned i = 1 ; i < Command.size() ; i++ ) nuevaNovedad += Command[i] + " ";
+                    
+                    ofstream archivoNovedades;
+                    archivoNovedades.open("./Novedades",fstream::app);
+                     
+                    cout << endl <<"Nueva novedad: " <<  nuevaNovedad << endl;
+                    archivoNovedades  << nuevaNovedad << endl;
+                    
+                    archivoNovedades.close();
+ 
+                }
+                    
+        }else if ( Command[0] == "listar"){
+
+              string listaArchivos  =  ServerBbs.getListaArchivos();
+              ServerBbs.getUsuario(Login).sendString(  listaArchivos  );
+
+        }else if ( Command[0] == "descargar"){
+
+              if ( Command.size() >= 2 ){
+                  ServerBbs.sendFile( Login, Command[1] );
+              }
+
         }
         else{
-            
             cout << "Comando desconocido: " << Command[0] << endl;
         }
         
