@@ -4,6 +4,8 @@
 #include <vector>
 #include <iostream>
 #include <map>
+#include <sys/types.h>
+#include <dirent.h>
 
 #include "Usuario.h"
 #include "Comm.h"
@@ -25,8 +27,10 @@ class ServidorBbs
 	     
          Usuario& getUsuario(string Login);
          string getListaUsuarios();
+         string getListaArchivos();
          
          bool sendMessage( string Login,string sendTo,string Msg );
+         bool sendFile( string Login, string File );
          
          void CloseUsuario(string Login);
          void Close();
@@ -101,9 +105,27 @@ string ServidorBbs :: getListaUsuarios(){
     return (ListaUsuarios);
 }
 
-void ServidorBbs :: Close(){
-    Socket.Close();
+string ServidorBbs :: getListaArchivos(){
+
+    string ListaArchivos;
+
+    DIR * directorio;
+
+    struct dirent * entradaDir;
+
+    directorio = opendir ( RutaDescarga.c_str() );
+
+    while ( ( entradaDir = readdir ( directorio ) ) ){
+        if ( entradaDir->d_type == DT_REG ){
+            ListaArchivos += entradaDir->d_name;
+            ListaArchivos += "\n";
+        }
+    }
+
+    
+    return (ListaArchivos);
 }
+
 
 void ServidorBbs :: CloseUsuario(string Login){
     cout << Login <<  " cierra sesion."  << endl;
@@ -125,6 +147,25 @@ bool ServidorBbs :: sendMessage( string Login, string sendTo, string Msg )
     
     return true;
     
+}
+
+bool ServidorBbs :: sendFile( string Login, string File ){
+
+    Usuarios[Login].sendFile(RutaDescarga + File);
+
+    return true;
+
+}
+
+void ServidorBbs :: Close(){
+    cout << "Cerrando sesiones..." << endl;
+
+    map < string, Usuario >::iterator it;
+    
+    for( it = Usuarios.begin() ; it != Usuarios.end() ; it++ )
+        this->CloseUsuario( (*it).first );
+
+    Socket.Close();
 }
 
 #endif

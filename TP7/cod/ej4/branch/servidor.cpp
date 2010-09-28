@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <signal.h>
+#include <stdio.h>
 
 #include "ServidorBbs.h"
 
@@ -107,9 +108,19 @@ void * recver(void * args){
 
                ServerBbs.sendMessage( Login, Command[1], Msg );
            }
+        }else if ( Command[0] == "alist"){
+
+              string listaArchivos  =  ServerBbs.getListaArchivos();
+              ServerBbs.getUsuario(Login).sendString(  listaArchivos  );
+
+        }else if ( Command[0] == "getfile"){
+
+              if ( Command.size() >= 2 ){
+                  ServerBbs.sendFile( Login, Command[1] );
+              }
+
         }
         else{
-            
             cout << "Comando desconocido: " << Command[0] << endl;
         }
         
