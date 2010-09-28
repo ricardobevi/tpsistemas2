@@ -10,6 +10,8 @@
 #include <cstring>
 #include <string>
 
+#define MAX_BUFFER 65535
+
 
 using namespace std;
 
@@ -26,6 +28,9 @@ class Connection{
         
         ssize_t Send( const T* buf, size_t size ) const;
         ssize_t Recv( T* buf, size_t size );
+
+        ssize_t SendFile( string fileToSend ) const;
+        ssize_t RecvFile( string fileToSave );
 
 	Connection<T> operator=( const Connection<T> & obj);
         
@@ -115,6 +120,93 @@ ssize_t Connection<T> :: Recv( T* buf, size_t size ){
     recvSize = recv( io_socket, buf, size, 0 );
        
     return recvSize;
+}
+
+template <class T>
+ssize_t Connection<T> :: SendFile( string fileToSend ) const{
+    //char buffer[ARCH_BUFFER];
+    unsigned long int tam = 0;
+    ssize_t enviado = 0;
+    size_t blockSize = 1;
+    char * buffer;
+
+    ifstream is;
+    is.open (fileToSend.c_str(), ios::binary );
+
+    /*Veo el tamano del archivo*/
+    is.seekg (0, ios::end);
+    tam = is.tellg();
+    is.seekg (0, ios::beg);
+
+    {
+        size_t tamULInt = sizeof(unsigned long int);
+        blockSize = tam > MAX_BUFFER ? MAX_BUFFER : tam;
+
+        this->Send( (char*) &(tam), tamULInt );
+
+        while( ( tam % blockSize ) != 0 )
+            blockSize--;
+        
+        cout << "blockSize = " << blockSize << endl;
+
+        this->Send( (char*) &(blockSize), sizeof(size_t) );
+    }
+
+    buffer = new char[blockSize];
+    
+    is.read (buffer, blockSize);
+    
+    while(! is.eof() ){
+        enviado += this->Send( buffer,  blockSize );
+
+        is.read (buffer, blockSize);
+
+    }
+
+    is.close();
+
+    delete [] buffer;
+    
+    return enviado;
+}
+
+template <class T>
+ssize_t Connection<T> :: RecvFile( string fileToSave ){
+    unsigned long int tam = 0,
+                      recibido = 0;
+                      
+    //char buffer[ARCH_BUFFER];
+    size_t blockSize = 1;
+    char * buffer;
+    
+    ofstream os;
+    os.open (fileToSave.c_str(), ios::binary );
+
+    {
+        size_t tamULInt = sizeof(unsigned long int);
+
+        this->Recv( (char*) &(tam), tamULInt );
+
+        this->Recv( (char*) &(blockSize), sizeof(size_t) );
+    }
+
+    cout << "blockSize = " << blockSize << endl;
+
+    buffer = new char[blockSize];
+
+    recibido += this->Recv(buffer, blockSize);
+    os.write(buffer, blockSize);
+
+    while( recibido < tam ){
+        recibido += this->Recv(buffer, blockSize);
+        os.write(buffer, blockSize);
+    }
+
+    os.close();
+
+    delete [] buffer;
+
+    return (ssize_t)recibido;
 }
 
 template <class T>
