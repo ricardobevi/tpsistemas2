@@ -52,9 +52,13 @@ ServidorBbs :: ~ServidorBbs(){
 }
 
 int ServidorBbs :: ActivarServidor( string RutaDescarga, string RutaNovedades , int CantUsuarios ){
-  this->RutaDescarga = RutaDescarga;
   this->RutaNovedades = RutaNovedades;
   this->Socket.Listen(CantUsuarios);
+
+  if( RutaDescarga[ RutaDescarga.size() - 1 ] != '\\' &&
+      RutaDescarga[ RutaDescarga.size() - 1 ] != '/' ) RutaDescarga += "/";
+
+  this->RutaDescarga = RutaDescarga;
   
   return 0;
 }
