@@ -207,7 +207,7 @@ ssize_t Connection<T> :: RecvFile( string fileToSave ){
 
 template <class T>
 string Connection<T> :: getIp(){
-    return string( inet_ntoa(this->in_sock.sin_addr) );
+    return string( inet_ntoa( this->in_sock.sin_addr ) );
 }
 
 template <class T>

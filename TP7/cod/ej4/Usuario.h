@@ -120,13 +120,15 @@ void Usuario :: sendString(string str){
 void Usuario :: sendFile(string File, string saveTo){
 
     //Envio la senal de archivo al cliente.
-    {
-        char cmd = 2;
-        Socket.Send(&cmd, TAM_RETURN);
-        Socket.Send(  saveTo.c_str() ,  TAM_STRING);
-    }
+
+    char cmd = 2;
+    
+    Socket.Send(&cmd, TAM_RETURN);
+
+    Socket.Send(  saveTo.c_str() ,  TAM_STRING);
     
     Socket.SendFile(File.c_str());
+
 
 }
 
