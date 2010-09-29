@@ -124,7 +124,6 @@ ssize_t Connection<T> :: Recv( T* buf, size_t size ){
 
 template <class T>
 ssize_t Connection<T> :: SendFile( string fileToSend ) const{
-    //char buffer[ARCH_BUFFER];
     unsigned long int tam = 0;
     ssize_t enviado = 0;
     size_t blockSize = 1;
@@ -146,8 +145,6 @@ ssize_t Connection<T> :: SendFile( string fileToSend ) const{
 
         while( ( tam % blockSize ) != 0 )
             blockSize--;
-        
-        cout << "blockSize = " << blockSize << endl;
 
         this->Send( (char*) &(blockSize), sizeof(size_t) );
     }
@@ -175,7 +172,6 @@ ssize_t Connection<T> :: RecvFile( string fileToSave ){
     unsigned long int tam = 0,
                       recibido = 0;
                       
-    //char buffer[ARCH_BUFFER];
     size_t blockSize = 1;
     char * buffer;
     
@@ -189,8 +185,6 @@ ssize_t Connection<T> :: RecvFile( string fileToSave ){
 
         this->Recv( (char*) &(blockSize), sizeof(size_t) );
     }
-
-    cout << "blockSize = " << blockSize << endl;
 
     buffer = new char[blockSize];
 

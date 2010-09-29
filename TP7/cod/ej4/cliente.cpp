@@ -59,9 +59,25 @@ void * sender(void * args){
 
     do{
 
+       cout << "-> ";
        cin.getline( Command,TAM_COMMAND,'\n');
        sock.Send(Command, TAM_COMMAND);
 
+       /*Demaciado bruto, lo se, pero efectivo y rapido.*/
+
+       if ( Command[0] == 's' &&
+            Command[1] == 'u' &&
+            Command[2] == 'b' &&
+            Command[3] == 'i' &&
+            Command[4] == 'r'){
+
+           cout << "Enviando Archivo...";
+       
+           sock.SendFile(&Command[6]);
+
+           cout << "Enviado!" << endl;
+           
+       }
     }while(  strcmp(Command,"fin") != 0 );
 
     sock.Close();
@@ -84,7 +100,11 @@ void * recver(void * args){
                 break;
                 
             case 2: //Recibe Archivo
-                sock.RecvFile("lala");
+                char saveTo[TAM_STRING];
+                sock.Recv(saveTo, TAM_STRING );
+                
+                sock.RecvFile(saveTo);
+                
                 break;
 
             default:
@@ -94,6 +114,8 @@ void * recver(void * args){
 
         sock.Recv(&cmd, TAM_RETURN );
     }
+
+    sock.Send("fin", TAM_COMMAND);
 
     cout << "El servidor se ha desconectado." << endl;
 

@@ -13,6 +13,8 @@
 
 void * sender(void * args);
 void * recver(void * args);
+void * timer(void * args);
+void * sendFile(void * args);
 
 void cTERM(int iNumSen, siginfo_t *info, void *ni);
 
@@ -20,6 +22,8 @@ ServidorBbs ServerBbs;
 
 int main(int argc, const char *argv[]){
     vector<pthread_t> threads;
+    pthread_t tTimer;
+    int timeOut = 10;
 
     struct sigaction term;
 
@@ -30,6 +34,8 @@ int main(int argc, const char *argv[]){
     sigaction(SIGINT, &term, NULL);
 
     ServerBbs.ActivarServidor(argv[1], argv[2], atoi(argv[3]) );
+
+    pthread_create( &tTimer, NULL, timer, (void *) (&timeOut) );
 
     string Login;
 
@@ -64,6 +70,28 @@ void * sender(void * args){
     string Login = *usrPtr;
 
     ServerBbs.getUsuario(Login).sendString("Bienvenido al Servidor BBS R y F\n");
+
+    // -------------------------------mensajes de bienvenida y modo de uso al servidor bbs-------------------------------
+
+    string bienvenida;
+
+    bienvenida= "MODO DE USO:\n\thora: Muestra la hora del servidor\n\tusuarios: Muestra los usuarios conectados al servidor";
+
+    ServerBbs.getUsuario(Login).sendString( bienvenida );
+
+    bienvenida="\tnovedades [nueva]: Muestra las novedades del servidor.\n\t\t\tEn caso de enviar el parametro opcional [nueva] este sera subido  como una nueva novedad";
+
+    ServerBbs.getUsuario(Login).sendString( bienvenida );
+
+    bienvenida= "\tmensaje destinatario msg: envia el mensaje 'msg' al destinatario especificado en el primer parametro 'destinatario' ";
+
+    ServerBbs.getUsuario(Login).sendString( bienvenida );
+
+    bienvenida= "\tlistar: lista archivos ubicados en el servidor\n\tdescargar: descarga el archivo especifico del servidor\n\t";
+
+    ServerBbs.getUsuario(Login).sendString( bienvenida );
+
+    // -------------------------------fin mensajes de bienvenida y modo de uso al servidor bbs----------------------------
     
     return 0;
 }
@@ -71,35 +99,15 @@ void * sender(void * args){
 void * recver(void * args){
     string * usrPtr = (string *) args;
     string Login = *usrPtr;
-    
     vector<string> Command;
-    
-    // -------------------------------mensajes de bienvenida y modo de uso al servidor bbs-------------------------------
-   
-    string bienvenida;
-            
-    bienvenida= "MODO DE USO:\n\thora: Muestra la hora del servidor\n\tusuarios: Muestra los usuarios conectados al servidor";
-     
-    ServerBbs.getUsuario(Login).sendString( bienvenida );
-    
-    bienvenida="\tnovedades [nueva]: Muestra las novedades del servidor.\n\t\t\tEn caso de enviar el parametro opcional [nueva] este sera subido  como una nueva novedad";
-    
-    ServerBbs.getUsuario(Login).sendString( bienvenida );
-    
-    bienvenida= "\tmensaje destinatario msg: envia el mensaje 'msg' al destinatario especificado en el primer parametro 'destinatario' ";
-    
-    ServerBbs.getUsuario(Login).sendString( bienvenida );
-    
-    bienvenida= "\tlistar: lista archivos ubicados en el servidor\n\tdescargar: descarga el archivo especifico del servidor\n\t";
-    
-    ServerBbs.getUsuario(Login).sendString( bienvenida );
-    
-    // -------------------------------fin mensajes de bienvenida y modo de uso al servidor bbs----------------------------
+    pthread_t sendFileT;
     
     Command = ServerBbs.getUsuario(Login).receiveCommand();
   
     while( Command[0] != "fin" ){
-    
+
+        ServerBbs.getUsuario(Login).setLastOperation();
+        
         cout << "Comando: " << Command[0] << endl;
         
         if (Command[0] == "hora"){
@@ -177,11 +185,30 @@ void * recver(void * args){
         }else if ( Command[0] == "descargar"){
 
               if ( Command.size() >= 2 ){
-                  ServerBbs.sendFile( Login, Command[1] );
+                  string args[3];
+
+                  args[0] = Login;
+                  args[1] = Command[1];
+                  args[2] = Command.size() == 2 ? Command[1] : Command[2];
+                  
+                  pthread_create( &sendFileT, NULL, sendFile, (void *) (&args) );
               }
 
-        }
-        else{
+        }else if ( Command[0] == "subir"){
+
+              if ( Command.size() >= 2 ){
+                  /* O se reciben archivos, o se reciben comandos.
+                   * Es por eso que se hace en el mismo thread.
+                   */
+                  cout << "Recibiendo " << Command[1] << " de " << Login << endl;
+
+                  ServerBbs.recvFile( Login, Command[1] );
+
+                  cout << "Fin de recepcion de " << Command[1] << " de " << Login << endl;
+                  
+              }
+
+        }else{
             cout << "Comando desconocido: " << Command[0] << endl;
         }
         
@@ -194,6 +221,18 @@ void * recver(void * args){
     return 0;
 }
 
+void * sendFile(void * args){
+    string * argv = (string *) args;
+
+    cout << "Enviando " << argv[1] << " a " << argv[0] << endl;
+
+    ServerBbs.sendFile( argv[0], argv[1], argv[2] );
+
+    cout << "Fin de envio de " << argv[1] << " a " << argv[0] << endl;
+
+    return 0;
+}
+
 
 void cTERM(int iNumSen, siginfo_t *info, void *ni) {
     cout << "Terminado Servidor..." << endl;
@@ -201,4 +240,17 @@ void cTERM(int iNumSen, siginfo_t *info, void *ni) {
     ServerBbs.Close();
     
     exit(0);
+}
+
+void * timer(void * args){
+    int * timeOutP = (int *) args;
+    int timeOut = *timeOutP;
+
+    while(1){
+        sleep(timeOut);
+        //TODO: leer el vector de usuarios y ver cual exedio el tiempo.
+        //ServerBbs.sendCloseSignal("Ricky");
+    }
+
+    return 0;
 }

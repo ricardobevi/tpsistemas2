@@ -26,13 +26,15 @@ class Usuario
 	     
 	     vector<string> receiveCommand();
          void sendString(string str);
-         void sendFile(string file);
+         void sendFile(string file, string saveTo);
+         void recvFile( string saveTo );
 	     
          string getLogin();
 	     time_t getLastOperation();
 	     void   setLastOperation();
-	     
-             void Close();
+
+         void sendCloseSignal();
+         void Close();
          
   private:
 	     string Login;
@@ -114,21 +116,37 @@ void Usuario :: sendString(string str){
 }
 
 
-void Usuario :: sendFile(string File){
+void Usuario :: sendFile(string File, string saveTo){
 
     //Envio la senal de archivo al cliente.
     {
         char cmd = 2;
         Socket.Send(&cmd, TAM_RETURN);
+        Socket.Send(  saveTo.c_str() ,  TAM_STRING);
     }
     
     Socket.SendFile(File.c_str());
 
 }
 
+void Usuario :: recvFile( string saveTo ){
+
+    Socket.RecvFile(saveTo.c_str());
+}
+
 string Usuario :: getLogin(){
     return Login;
 }
+
+void Usuario :: sendCloseSignal(){
+    //Envio la senal de cierre al cliente.
+    {
+        char cmd = 3;
+        Socket.Send(&cmd, TAM_RETURN);
+    }
+
+}
+
 
 void Usuario :: Close(){
     //Envio la senal de cierre al cliente.
