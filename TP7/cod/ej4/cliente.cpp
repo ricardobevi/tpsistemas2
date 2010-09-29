@@ -24,8 +24,6 @@ int validacion(const char* IP_SERVIDOR ,int PUERTO_DE_ENLACE,const char*  NOMBRE
 Connection<char> sock;
 char login[TAM_LOGIN];
 
-
-
 using namespace std;
 
 int main(int argc, const char *argv[]){
@@ -52,8 +50,8 @@ int main(int argc, const char *argv[]){
 
     if( ret == 1 ){
         //Una vez que me logueo empiezo los hilos de transmicion y recepcion.
-        pthread_create( &sender_t, NULL, sender, NULL);
         pthread_create( &recver_t, NULL, recver, NULL);
+        pthread_create( &sender_t, NULL, sender, NULL);
         
         pthread_join(sender_t, NULL);
         //pthread_join(recver_t, NULL);
@@ -70,10 +68,12 @@ void * sender(void * args){
     char Command[TAM_COMMAND];
 
     do{
-
        cout << "-> ";
+       
        cin.getline( Command,TAM_COMMAND,'\n');
-       sock.Send(Command, TAM_COMMAND);
+       
+       if ( strcmp( Command, "" ) != 0 )
+           sock.Send(Command, TAM_COMMAND);
 
        /*Demaciado bruto, lo se, pero efectivo y rapido.*/
 
@@ -108,16 +108,25 @@ void * recver(void * args){
             case 1: //Recibe Cadena
                 sock.Recv(cadena, TAM_STRING );
                 cout << cadena << endl;
+
                 break;
                 
             case 2: //Recibe Archivo
-                char saveTo[TAM_STRING];
-                sock.Recv(saveTo, TAM_STRING );
-                
-                sock.RecvFile(saveTo);
-                
-                break;
+                {
+                    char saveTo[TAM_STRING];
+                    sock.Recv(saveTo, TAM_STRING );
+                    
+                    cout << endl << "Recibiendo " << saveTo
+                         << "..." << endl << "-> ";
+                         
+                    sock.RecvFile(saveTo);
 
+                    cout << endl << "Recibido " << saveTo
+                         << "! =)" << endl << "-> ";
+
+                 }
+                 break;
+                
             default:
                 cout << "Orden desconocida." << endl;
                 
