@@ -84,6 +84,8 @@ unsigned Comm<T> :: Accept(){
     bzero( &addr, sizeof(addr) );
     
     newCon = accept(this->in_socket, (struct sockaddr *)(& addr), &addrLen);
+
+    bzero(&(addr.sin_zero), 8);
     
     Connection<T> conn( newCon, addr );
     
