@@ -1,3 +1,15 @@
+/************************************/
+/* Nombre: cliente.cpp              */
+/* Trabajo: Threads y Sockets       */
+/* Numero de ejercicio: 4           */
+/* Entrega: Primer Entrega          */
+/*                                  */
+/* Grupo N 63                       */
+/* D'Aranno Facundo      34.842.320 */
+/* Marcela A. Uslenghi   26.920.315 */
+/* Bevilacqua Ricardo    34.304.983 */
+/************************************/
+
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
@@ -176,3 +188,8 @@ int validacion( const char* IP_SERVIDOR ,int PUERTO_DE_ENLACE,const char*  NOMBR
     return error;
     
 }
+
+
+/*******/
+/* FIN */
+/*******/

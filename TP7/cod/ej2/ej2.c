@@ -1,3 +1,17 @@
+/************************************/
+/* Nombre: ej2.c                    */
+/* Trabajo: Threads y Sockets       */
+/* Numero de ejercicio: 2           */
+/* Entrega: Primer Entrega          */
+/*                                  */
+/* Grupo N 63                       */
+/* D'Aranno Facundo      34.842.320 */
+/* Marcela A. Uslenghi   26.920.315 */
+/* Bevilacqua Ricardo    34.304.983 */
+/************************************/
+
+
+
 #include <stdio.h>
 #include <pthread.h>
 
@@ -61,3 +75,8 @@ int main(){
 
     return 0;
 }
+
+
+/*******/
+/* FIN */
+/*******/
