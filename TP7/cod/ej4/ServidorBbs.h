@@ -22,23 +22,27 @@ class ServidorBbs
 	     ServidorBbs();
 	     ~ServidorBbs();
 	     
-	     int ActivarServidor( string RutaDescarga, string RutaNovedades , int CantUsuarios );
+	     int ActivarServidor( string RutaDescarga, string RutaNovedades , int CantUsuarios ,int timeOut);
 	     string EsperarCliente();
 	     
          Usuario& getUsuario(string Login);
          string getListaUsuarios();
          string getListaArchivos();
+         const char * getRutaNovedades();
+         int    getTimeOut();
+         
          
          bool sendMessage( string Login,string sendTo,string Msg );
          bool sendFile( string Login, string File, string saveTo );
          bool recvFile( string Login, string File );
          
-         void timeoutSignal( int timeOut );
+         void timeoutSignal( );
          void sendCloseSignal(string Login);
          void CloseUsuario(string Login);
          void Close();
      
   private:
+         int timeOut;
 	     string RutaDescarga;
 	     string RutaNovedades;
 	     map < string, Usuario >  Usuarios;
@@ -52,8 +56,9 @@ ServidorBbs :: ServidorBbs(){
 ServidorBbs :: ~ServidorBbs(){
 }
 
-int ServidorBbs :: ActivarServidor( string RutaDescarga, string RutaNovedades , int CantUsuarios ){
+int ServidorBbs :: ActivarServidor( string RutaDescarga, string RutaNovedades , int CantUsuarios ,int timeOut){
   this->RutaNovedades = RutaNovedades;
+  this->timeOut = timeOut * 60;
   this->Socket.Listen(CantUsuarios);
 
   if( RutaDescarga[ RutaDescarga.size() - 1 ] != '\\' &&
@@ -186,7 +191,7 @@ void ServidorBbs :: Close(){
     Socket.Close();
 }
 
-void ServidorBbs :: timeoutSignal( int timeOut  ){
+void ServidorBbs :: timeoutSignal( ){
 
     // si hay usuarios en el servidor comienzo a buscar cual esta fuera del timeout
     if ( Usuarios.size() > 0 )
@@ -202,7 +207,7 @@ void ServidorBbs :: timeoutSignal( int timeOut  ){
                     //cout << "   Dif:  " <<    difftime(  time(NULL) , (it->second).getLastOperation() )  << " segundos";
                     
                     // si el tiempo inactivo en el servidor es mayor al timeout da de baja al login del usuario
-                    if( difftime(  time(NULL) , (it->second).getLastOperation() ) >=  (double)  timeOut ){
+                    if( difftime(  time(NULL) , (it->second).getLastOperation() ) >=  (double)  this->timeOut ){
                                 // para ver proceso de timeout descomentar la siguiente linea
                                 // cout <<endl  << (it->first) << " fue dado de baja "  <<endl;
                                 this-> sendCloseSignal((*it).first);
@@ -210,6 +215,16 @@ void ServidorBbs :: timeoutSignal( int timeOut  ){
             }
     }
 
+}
+
+int ServidorBbs :: getTimeOut(){
+    
+    return this->timeOut;
+}
+
+const char *  ServidorBbs :: getRutaNovedades(){
+
+    return (this->RutaNovedades).c_str();
 }
 
 #endif
