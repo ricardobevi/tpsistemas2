@@ -4,6 +4,7 @@
 #include <cstring>
 #include <pthread.h>
 #include <stdio.h>
+#include <ctype.h>
 
 #include "Connection.h"
 
@@ -17,6 +18,9 @@ void help(void);
 void * sender(void * args);
 void * recver(void * args);
 
+
+int validacion(const char* IP_SERVIDOR ,int PUERTO_DE_ENLACE,const char*  NOMBRE_DE_USUARIO);
+
 Connection<char> sock;
 char login[TAM_LOGIN];
 
@@ -28,7 +32,7 @@ int main(int argc, const char *argv[]){
     pthread_t sender_t,
               recver_t;
 
-    if ( strcmp(argv[1], "--help") == 0 )
+    if ( strcmp(argv[1], "--help") == 0  || validacion( argv[1] , atoi(argv[2]) , argv[3] )  )
     {
         help();
         exit(1);
@@ -138,5 +142,28 @@ void help(void){
     cout << "PUERTO_DE_ENLACE:  puerto del computador por el cual el servidor recivira y enviara peticiones y datos (parametro a enviar por defecto 50000)"<< endl<< endl;
     cout << "NOMBRE_DE_USUARIO:  nombre del usuario que desea iniciar servicio ( puede denegarce en caso de existencia de duplicados de este login )"<< endl<< endl;
     
+    
+}
+
+int validacion( const char* IP_SERVIDOR ,int PUERTO_DE_ENLACE,const char*  NOMBRE_DE_USUARIO)
+{
+    int error = 0;
+    
+     
+    if(  PUERTO_DE_ENLACE != 50000){
+     
+        cout << endl << "ERROR: el puerto debe ser 50000"  <<endl;
+        error = 1;
+    }
+        
+        
+    if( strlen(NOMBRE_DE_USUARIO) > TAM_LOGIN ){
+     
+        cout << endl << "ERROR: tamaño de login superior a " <<  TAM_LOGIN   << " caracteres"<<endl;
+        error = 1;
+    }
+    
+    cout << endl;
+    return error;
     
 }
