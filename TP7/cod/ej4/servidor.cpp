@@ -27,7 +27,9 @@ map< string, queue<string> > downQueue;
 int main(int argc, const char *argv[]){
     vector<pthread_t> threads;
     pthread_t tTimer;
-    int timeOut = 10;
+    // toma el cuarto argumento, que sera el limite de timeout en minutos ( lo pasa a segundos)
+    // y lo guarda en la variable timeOut para enviarcelo al hilo que realizara el proceso correspondiente
+    int timeOut = atoi(argv[4]) * 60;
 
     struct sigaction term;
 
@@ -54,7 +56,7 @@ int main(int argc, const char *argv[]){
         
             pthread_create( &newSender, NULL, sender, (void *) (&Login) );
             pthread_create( &newRecver, NULL, recver, (void *) (&Login) );
-
+            
             threads.push_back(newSender);
             threads.push_back(newRecver);
         
@@ -74,6 +76,9 @@ void * sender(void * args){
     string Login = *usrPtr;
 
     ServerBbs.getUsuario(Login).sendString("Bienvenido al Servidor BBS R y F\n");
+    
+    // Establece hora de inicio del cliente como su ultima operacion
+    ServerBbs.getUsuario(Login).setLastOperation();
 
     // -------------------------------mensajes de bienvenida y modo de uso al servidor bbs-------------------------------
 
@@ -110,6 +115,7 @@ void * recver(void * args){
   
     while( Command[0] != "fin" ){
 
+        // setea el tiempo de ultima operacion realizada para procesar el timeout
         ServerBbs.getUsuario(Login).setLastOperation();
         
         cout << "Comando: " << Command[0] << endl;
@@ -255,10 +261,15 @@ void * timer(void * args){
     int * timeOutP = (int *) args;
     int timeOut = *timeOutP;
 
-    while(1){
-        sleep(timeOut);
-        //TODO: leer el vector de usuarios y ver cual exedio el tiempo.
-        //ServerBbs.sendCloseSignal("Ricky");
+    while( true ){
+        
+        // realiza un sleep de una veinteaba parte del timeout establecido
+        // de forma de no realizar bucles innesesarios, ni pasar por alto un usuario 
+        // fuera del timeout establecido. pasado dicho tiempo, llama a la funcion que buscara
+        // usuarios que hayan pasado el tiempo limite de inactividad ( timeoutSignal )
+        sleep( timeOut / 20 );
+        ServerBbs.timeoutSignal( timeOut );
+        
     }
 
     return 0;
