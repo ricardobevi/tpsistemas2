@@ -79,7 +79,8 @@ string ServidorBbs :: EsperarCliente(){
   Socket.getConn(numConnection).Recv(Login, TAM_LOGIN);
   
   if( Usuarios.find( Login ) == Usuarios.end() ){
-      cout << Login << " inicia sesion." << endl;
+      cout << Login << " inicia sesion." << endl
+           << "IP: " << Socket.getConn(numConnection).getIp() << endl;
 
       Usuario usr( Login, Socket.getConn(numConnection) );
 
