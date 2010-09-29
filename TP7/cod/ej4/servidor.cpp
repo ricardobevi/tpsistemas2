@@ -27,7 +27,9 @@ int validacion( const char* DESCARGAS ,const char* NOVEDADES,int CANT_USER, int 
 
 ServidorBbs ServerBbs;
 
-map< string, queue<string> > downQueue;
+pthread_mutex_t downQueueMutex = PTHREAD_MUTEX_INITIALIZER;
+map< string, queue<string*> > downQueue;
+
 
 int main(int argc, const char *argv[]){
     
@@ -119,6 +121,7 @@ void * recver(void * args){
     string Login = *usrPtr;
     vector<string> Command;
     pthread_t sendFileT;
+    string ip = ServerBbs.getUsuario(Login).getIp();
     
     Command = ServerBbs.getUsuario(Login).receiveCommand();
   
@@ -214,8 +217,22 @@ void * recver(void * args){
 
                   //La ruta a donde guardarlo
                   args[2] = Command.size() == 2 ? Command[1] : Command[2];
+
+                  pthread_mutex_lock(&downQueueMutex);
                   
-                  pthread_create( &sendFileT, NULL, sendFile, (void *) (&args) );
+                  if ( downQueue.find( ip ) == downQueue.end() ){
+                      cout << "IP: " << ip << endl;
+                      downQueue[ ip ].push( args );
+                      pthread_create( &sendFileT, NULL, sendFile, (void *) &ip );
+                      
+                  }else {
+                      
+                      downQueue[ ip ].push( args );
+                      
+                  }
+
+                  pthread_mutex_unlock(&downQueueMutex);
+
               }
 
         }else if ( Command[0] == "subir"){
@@ -246,13 +263,30 @@ void * recver(void * args){
 }
 
 void * sendFile(void * args){
-    string * argv = (string *) args;
+    string * p_ip = (string *) args;
+    string ip = *p_ip;
 
-    cout << "Enviando " << argv[1] << " a " << argv[0] << endl;
+    while( ! downQueue[ ip ].empty() ){
 
-    ServerBbs.sendFile( argv[0], argv[1], argv[2] );
+        usleep(500);
+        
+        pthread_mutex_lock(&downQueueMutex);
+        string * argv = (string *) downQueue[ ip ].front();
+        pthread_mutex_unlock(&downQueueMutex);
+    
+        cout << "Enviando " << argv[1] << " a " << argv[0] << endl;
 
-    cout << "Fin de envio de " << argv[1] << " a " << argv[0] << endl;
+        ServerBbs.sendFile( argv[0], argv[1], argv[2] );
+
+        cout << "Fin de envio de " << argv[1] << " a " << argv[0] << endl;
+
+        pthread_mutex_lock(&downQueueMutex);
+        downQueue[ ip ].pop();
+        pthread_mutex_unlock(&downQueueMutex);
+
+    }
+
+    downQueue.erase( ip );
 
     return 0;
 }
