@@ -30,8 +30,10 @@ class ServidorBbs
          string getListaArchivos();
          
          bool sendMessage( string Login,string sendTo,string Msg );
-         bool sendFile( string Login, string File );
-         
+         bool sendFile( string Login, string File, string saveTo );
+         bool recvFile( string Login, string File );
+
+         void sendCloseSignal(string Login);
          void CloseUsuario(string Login);
          void Close();
      
@@ -127,14 +129,6 @@ string ServidorBbs :: getListaArchivos(){
 }
 
 
-void ServidorBbs :: CloseUsuario(string Login){
-    cout << Login <<  " cierra sesion."  << endl;
-    
-    Usuarios[Login].Close();
-    Usuarios.erase(Login);
-}
-
-
 bool ServidorBbs :: sendMessage( string Login, string sendTo, string Msg )
 {
     
@@ -149,12 +143,31 @@ bool ServidorBbs :: sendMessage( string Login, string sendTo, string Msg )
     
 }
 
-bool ServidorBbs :: sendFile( string Login, string File ){
+bool ServidorBbs :: sendFile( string Login, string File, string saveTo ){
 
-    Usuarios[Login].sendFile(RutaDescarga + File);
+    Usuarios[Login].sendFile(RutaDescarga + File, saveTo);
 
     return true;
 
+}
+
+bool ServidorBbs :: recvFile( string Login, string File ){
+
+    Usuarios[Login].recvFile(RutaDescarga + File);
+
+    return true;
+
+}
+
+void ServidorBbs :: sendCloseSignal(string Login){
+    Usuarios[Login].sendCloseSignal();
+}
+
+void ServidorBbs :: CloseUsuario(string Login){
+    cout << Login <<  " cierra sesion."  << endl;
+
+    Usuarios[Login].Close();
+    Usuarios.erase(Login);
 }
 
 void ServidorBbs :: Close(){
