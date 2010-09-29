@@ -9,6 +9,7 @@
 #include <map>
 #include <queue>
 #include <string>
+#include <unistd.h>
 
 #include "ServidorBbs.h"
 
@@ -22,6 +23,7 @@ void * sendFile(void * args);
 void cTERM(int iNumSen, siginfo_t *info, void *ni);
 
 void help(void);
+int validacion( const char* DESCARGAS ,const char* NOVEDADES,int CANT_USER, int TIMEOUT);
 
 ServidorBbs ServerBbs;
 
@@ -29,11 +31,11 @@ map< string, queue<string> > downQueue;
 
 int main(int argc, const char *argv[]){
     
-        if ( strcmp(argv[1], "--help") == 0 )
-        {
-            help();
-            exit(1);
-        }
+    if ( validacion( argv[1], argv[2], atoi(argv[3]) ,atoi(argv[4]) ) ||  strcmp(argv[1], "--help") == 0   )
+    {
+          help();
+          exit(1);
+    }
         
     vector<pthread_t> threads;
     pthread_t tTimer;
@@ -287,5 +289,50 @@ void help(void){
     cout << "archivo_novedades:  ruta del archivo donde se almacenan las novedades del servidor"<< endl<< endl;
     cout << "cantidad_usuarios:  especificacion de cuantos usuarios simultaneos pueden estar conectados al servidor al mismo tiempo"<< endl<< endl;
     cout << "tiempo_limite:   tiempo en minutos en el que se desconectara a un usuario inactivo ( que no esta realizando ninguna operacion )"<< endl<< endl;
+    
+}
+
+int validacion( const char* DESCARGAS ,const char* NOVEDADES,int CANT_USER, int TIMEOUT)
+{
+    int error = 0;
+    
+    char * rutaActual = get_current_dir_name();  
+    
+    if( chdir( DESCARGAS ) == -1 ){
+    
+        cout << endl << "ERROR: la ruta de directorio de descargas no es valida"  <<endl;
+        chdir ( rutaActual);
+        error = 1;
+    }
+    else
+    {
+        chdir ( rutaActual);
+    }
+       
+    
+    
+    ifstream  testNovedad(NOVEDADES);
+     
+    if( !testNovedad.good() ){
+     
+        cout << endl << "ERROR: El archivo novedades no existe o la ruta no es valida, verifique la ruta o cree el archivo" <<endl;
+        error = 1;
+    }
+    
+     if( CANT_USER < 0 ){
+     
+        cout << endl << "ERROR: la cantidad de usuarios debe ser mayor a cero " <<endl;
+        error = 1;
+    }
+   
+    
+    if( TIMEOUT < 0 ){
+     
+        cout << endl << "ERROR: el timeout debe ser mayor a cero " <<endl;
+        error = 1;
+    }
+    
+    cout << endl;
+    return error;
     
 }
