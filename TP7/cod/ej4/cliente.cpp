@@ -12,7 +12,7 @@
 #define TAM_RETURN 1
 
 #define TAM_COMMAND 128
-#define TAM_STRING 512
+#define TAM_STRING 1024
 
 void help(void);
 void * sender(void * args);
