@@ -13,19 +13,27 @@
 #define TAM_COMMAND 128
 #define TAM_STRING 512
 
-
+void help(void);
 void * sender(void * args);
 void * recver(void * args);
 
 Connection<char> sock;
 char login[TAM_LOGIN];
 
+
+
 using namespace std;
 
 int main(int argc, const char *argv[]){
     pthread_t sender_t,
-            recver_t;
+              recver_t;
 
+    if ( strcmp(argv[1], "--help") == 0 )
+    {
+        help();
+        exit(1);
+    }
+        
     sock.Connect( argv[1], atoi(argv[2]) );
 
     strncpy(login, argv[3], TAM_LOGIN);
@@ -65,8 +73,7 @@ void * sender(void * args){
 
        /*Demaciado bruto, lo se, pero efectivo y rapido.*/
 
-       if ( Command[0] == 's' &&
-            Command[1] == 'u' &&
+       if ( Command[0] == 's' &&  Command[1] == 'u' &&
             Command[2] == 'b' &&
             Command[3] == 'i' &&
             Command[4] == 'r'){
@@ -122,4 +129,14 @@ void * recver(void * args){
     exit(0);
     
     return 0;
+}
+
+void help(void){
+    
+    cout << "MODO DE USO:" << endl << "\t\t ./cli    IP_SERVIDOR    PUERTO_DE_ENLACE   NOMBRE_DE_USUARIO" << endl << endl;
+    cout << "IP_SERVIDOR:  ip del servidor (si el servidor esta en el mismo computador 127.0.0.1)"<< endl<< endl;
+    cout << "PUERTO_DE_ENLACE:  puerto del computador por el cual el servidor recivira y enviara peticiones y datos (parametro a enviar por defecto 50000)"<< endl<< endl;
+    cout << "NOMBRE_DE_USUARIO:  nombre del usuario que desea iniciar servicio ( puede denegarce en caso de existencia de duplicados de este login )"<< endl<< endl;
+    
+    
 }

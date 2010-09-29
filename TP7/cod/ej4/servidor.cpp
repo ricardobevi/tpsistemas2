@@ -21,11 +21,20 @@ void * sendFile(void * args);
 
 void cTERM(int iNumSen, siginfo_t *info, void *ni);
 
+void help(void);
+
 ServidorBbs ServerBbs;
 
 map< string, queue<string> > downQueue;
 
 int main(int argc, const char *argv[]){
+    
+        if ( strcmp(argv[1], "--help") == 0 )
+        {
+            help();
+            exit(1);
+        }
+        
     vector<pthread_t> threads;
     pthread_t tTimer;
 
@@ -269,4 +278,14 @@ void * timer( void * ){
     }
 
     return 0;
+}
+
+void help(void){
+    
+    cout << "MODO DE USO:" << endl << "\t\t ./serv  ruta_directorio_archivos_servidor  archivo_novedades  cantidad_usuarios  tiempo_limite" << endl << endl;
+    cout << "ruta_directorio_archivos_servidor:  ruta del directorio donde se almacenan los archivos del servidor"<< endl<< endl;
+    cout << "archivo_novedades:  ruta del archivo donde se almacenan las novedades del servidor"<< endl<< endl;
+    cout << "cantidad_usuarios:  especificacion de cuantos usuarios simultaneos pueden estar conectados al servidor al mismo tiempo"<< endl<< endl;
+    cout << "tiempo_limite:   tiempo en minutos en el que se desconectara a un usuario inactivo ( que no esta realizando ninguna operacion )"<< endl<< endl;
+    
 }
