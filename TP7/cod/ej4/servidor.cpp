@@ -95,19 +95,15 @@ void * sender(void * args){
 
     string bienvenida;
 
-    bienvenida= "MODO DE USO:\n\thora: Muestra la hora del servidor\n\tusuarios: Muestra los usuarios conectados al servidor";
-
-    ServerBbs.getUsuario(Login).sendString( bienvenida );
-
-    bienvenida="\tnovedades [nueva]: Muestra las novedades del servidor.\n\t\t\tEn caso de enviar el parametro opcional [nueva] este sera subido  como una nueva novedad";
-
-    ServerBbs.getUsuario(Login).sendString( bienvenida );
-
-    bienvenida= "\tmensaje destinatario msg: envia el mensaje 'msg' al destinatario especificado en el primer parametro 'destinatario' ";
-
-    ServerBbs.getUsuario(Login).sendString( bienvenida );
-
-    bienvenida= "\tlistar: lista archivos ubicados en el servidor\n\tdescargar: descarga el archivo especifico del servidor\n\t";
+    bienvenida= "MODO DE USO:\n"
+                "    hora : Muestra la hora del servidor.\n"
+                "    usuarios : Muestra los usuarios conectados al servidor.\n"
+                "    novedades [nueva novedad] : Muestra (o agrega) las novedades del servidor.\n"
+                "    mensaje destinatario msg : envia el mensaje 'msg' al destinatario especificado\n"
+                "                               en el primer parametro 'destinatario.'\n"
+                "    listar : lista archivos ubicados en el servidor.\n"
+                "    descargar archivo_a_descargar [ruta_donde_guardarlo]: descarga el archivo especifico del servidor.\n"
+                "    subir archivo_a_subir : Sube un archivo al servidor.";
 
     ServerBbs.getUsuario(Login).sendString( bienvenida );
 
