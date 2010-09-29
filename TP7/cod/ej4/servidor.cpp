@@ -8,6 +8,7 @@
 #include <fstream>
 #include <map>
 #include <queue>
+#include <string>
 
 #include "ServidorBbs.h"
 
@@ -15,7 +16,7 @@
 
 void * sender(void * args);
 void * recver(void * args);
-void * timer(void * args);
+void * timer( void * args);
 void * sendFile(void * args);
 
 void cTERM(int iNumSen, siginfo_t *info, void *ni);
@@ -27,9 +28,6 @@ map< string, queue<string> > downQueue;
 int main(int argc, const char *argv[]){
     vector<pthread_t> threads;
     pthread_t tTimer;
-    // toma el cuarto argumento, que sera el limite de timeout en minutos ( lo pasa a segundos)
-    // y lo guarda en la variable timeOut para enviarcelo al hilo que realizara el proceso correspondiente
-    int timeOut = atoi(argv[4]) * 60;
 
     struct sigaction term;
 
@@ -39,9 +37,9 @@ int main(int argc, const char *argv[]){
     sigaction(SIGTERM, &term, NULL);
     sigaction(SIGINT, &term, NULL);
 
-    ServerBbs.ActivarServidor(argv[1], argv[2], atoi(argv[3]) );
+    ServerBbs.ActivarServidor(argv[1], argv[2], atoi(argv[3]) ,atoi(argv[4]) );
 
-    pthread_create( &tTimer, NULL, timer, (void *) (&timeOut) );
+    pthread_create( &tTimer, NULL, timer, (void * ) NULL );
 
     string Login;
 
@@ -156,7 +154,7 @@ void * recver(void * args){
             
                 if ( Command.size() == 1 )
                 {                    
-                    ifstream archivoNovedadesSalida("./Novedades");
+                    ifstream archivoNovedadesSalida( ServerBbs.getRutaNovedades()  );
                     char novedad[TAM_MAX_NOVEDAD];
                     
                     archivoNovedadesSalida.getline( novedad ,  TAM_MAX_NOVEDAD , '\n');
@@ -178,7 +176,7 @@ void * recver(void * args){
                     for( unsigned i = 1 ; i < Command.size() ; i++ ) nuevaNovedad += Command[i] + " ";
                     
                     ofstream archivoNovedades;
-                    archivoNovedades.open("./Novedades",fstream::app);
+                    archivoNovedades.open( ServerBbs.getRutaNovedades() ,fstream::app);
                      
                     cout << endl <<"Nueva novedad: " <<  nuevaNovedad << endl;
                     archivoNovedades  << nuevaNovedad << endl;
@@ -257,9 +255,7 @@ void cTERM(int iNumSen, siginfo_t *info, void *ni) {
     exit(0);
 }
 
-void * timer(void * args){
-    int * timeOutP = (int *) args;
-    int timeOut = *timeOutP;
+void * timer( void * ){
 
     while( true ){
         
@@ -267,8 +263,8 @@ void * timer(void * args){
         // de forma de no realizar bucles innesesarios, ni pasar por alto un usuario 
         // fuera del timeout establecido. pasado dicho tiempo, llama a la funcion que buscara
         // usuarios que hayan pasado el tiempo limite de inactividad ( timeoutSignal )
-        sleep( timeOut / 20 );
-        ServerBbs.timeoutSignal( timeOut );
+        sleep( ServerBbs.getTimeOut() / 20 );
+        ServerBbs.timeoutSignal( );
         
     }
 
