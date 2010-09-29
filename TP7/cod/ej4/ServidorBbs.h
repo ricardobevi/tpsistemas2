@@ -32,7 +32,8 @@ class ServidorBbs
          bool sendMessage( string Login,string sendTo,string Msg );
          bool sendFile( string Login, string File, string saveTo );
          bool recvFile( string Login, string File );
-
+         
+         void timeoutSignal( int timeOut );
          void sendCloseSignal(string Login);
          void CloseUsuario(string Login);
          void Close();
@@ -183,6 +184,32 @@ void ServidorBbs :: Close(){
         this->CloseUsuario( (*it).first );
 
     Socket.Close();
+}
+
+void ServidorBbs :: timeoutSignal( int timeOut  ){
+
+    // si hay usuarios en el servidor comienzo a buscar cual esta fuera del timeout
+    if ( Usuarios.size() > 0 )
+    {
+            map < string, Usuario >::iterator it  ;
+            
+            it = Usuarios.begin();
+            
+            for( it = Usuarios.begin() ; it != Usuarios.end() ; it++ )
+            {
+                    // para ver proceso de timeout descomentar la siguiente linea
+                    //cout << endl << (it->first) << ":: Ultima op: " << (it->second).getLastOperation() << "   now: " <<   time(NULL) ;
+                    //cout << "   Dif:  " <<    difftime(  time(NULL) , (it->second).getLastOperation() )  << " segundos";
+                    
+                    // si el tiempo inactivo en el servidor es mayor al timeout da de baja al login del usuario
+                    if( difftime(  time(NULL) , (it->second).getLastOperation() ) >=  (double)  timeOut ){
+                                // para ver proceso de timeout descomentar la siguiente linea
+                                // cout <<endl  << (it->first) << " fue dado de baja "  <<endl;
+                                this-> sendCloseSignal((*it).first);
+                    }
+            }
+    }
+
 }
 
 #endif
