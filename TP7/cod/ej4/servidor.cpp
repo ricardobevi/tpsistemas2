@@ -1,3 +1,15 @@
+/************************************/
+/* Nombre: servidor.cpp             */
+/* Trabajo: Threads y Sockets       */
+/* Numero de ejercicio: 4           */
+/* Entrega: Primer Entrega          */
+/*                                  */
+/* Grupo N 63                       */
+/* D'Aranno Facundo      34.842.320 */
+/* Marcela A. Uslenghi   26.920.315 */
+/* Bevilacqua Ricardo    34.304.983 */
+/************************************/
+
 #include <iostream>
 #include <pthread.h>
 #include <cstdlib>
@@ -366,3 +378,7 @@ int validacion( const char* DESCARGAS ,const char* NOVEDADES,int CANT_USER, int 
     return error;
     
 }
+
+/*******/
+/* FIN */
+/*******/
