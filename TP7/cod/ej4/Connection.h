@@ -32,7 +32,9 @@ class Connection{
         ssize_t SendFile( string fileToSend ) const;
         ssize_t RecvFile( string fileToSave );
 
-	Connection<T> operator=( const Connection<T> & obj);
+        Connection<T> operator=( const Connection<T> & obj);
+
+        string getIp();
         
         void Close();
         
@@ -201,6 +203,11 @@ ssize_t Connection<T> :: RecvFile( string fileToSave ){
     delete [] buffer;
 
     return (ssize_t)recibido;
+}
+
+template <class T>
+string Connection<T> :: getIp(){
+    return string( inet_ntoa(this->in_sock.sin_addr) );
 }
 
 template <class T>

@@ -6,6 +6,8 @@
 #include <signal.h>
 #include <stdio.h>
 #include <fstream>
+#include <map>
+#include <queue>
 
 #include "ServidorBbs.h"
 
@@ -19,6 +21,8 @@ void * sendFile(void * args);
 void cTERM(int iNumSen, siginfo_t *info, void *ni);
 
 ServidorBbs ServerBbs;
+
+map< string, queue<string> > downQueue;
 
 int main(int argc, const char *argv[]){
     vector<pthread_t> threads;
@@ -42,7 +46,7 @@ int main(int argc, const char *argv[]){
     while(1){
 
         pthread_t newSender,
-        newRecver;
+                  newRecver;
 
         Login = ServerBbs.EsperarCliente();
 
@@ -187,8 +191,13 @@ void * recver(void * args){
               if ( Command.size() >= 2 ){
                   string args[3];
 
+                  //El login
                   args[0] = Login;
+
+                  //El archivo a mandar
                   args[1] = Command[1];
+
+                  //La ruta a donde guardarlo
                   args[2] = Command.size() == 2 ? Command[1] : Command[2];
                   
                   pthread_create( &sendFileT, NULL, sendFile, (void *) (&args) );

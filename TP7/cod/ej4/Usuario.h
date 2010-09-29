@@ -30,6 +30,7 @@ class Usuario
          void recvFile( string saveTo );
 	     
          string getLogin();
+         string getIp();
 	     time_t getLastOperation();
 	     void   setLastOperation();
 
@@ -136,6 +137,10 @@ void Usuario :: recvFile( string saveTo ){
 
 string Usuario :: getLogin(){
     return Login;
+}
+
+string Usuario :: getIp(){
+    return Socket.getIp();
 }
 
 void Usuario :: sendCloseSignal(){
