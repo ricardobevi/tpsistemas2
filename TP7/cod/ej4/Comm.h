@@ -20,6 +20,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <errno.h>
 
 #include <string>
 #include <vector>
@@ -63,6 +64,9 @@ Comm<T> :: Comm(long int port){
     this->port = port;
     
     this->in_socket = socket(AF_INET, SOCK_STREAM, 0);
+
+    if ( this->in_socket == -1 )
+        perror("error: Comm.h: Comm(long int port): socket()");
     
     bzero(&(this->in_address), sizeof(this->in_address));
     
@@ -73,8 +77,39 @@ Comm<T> :: Comm(long int port){
     this->in_address.sin_port = this->listenPort; 
     this->in_address.sin_addr.s_addr = this->listenIpAddress;
     
-    bind(this->in_socket, (struct sockaddr *)& this->in_address, sizeof(struct sockaddr));
-    
+    if ( bind(this->in_socket,
+              (struct sockaddr *)& this->in_address,
+              sizeof(struct sockaddr)) == -1 ){
+        perror("error: Comm.h: Comm(long int port): bind()");
+
+        if ( errno == EADDRINUSE ){
+            int tr = 1;
+            
+            cout << "Trying to reuse the address...";
+            
+            if ( setsockopt( this->in_socket,
+                             SOL_SOCKET,
+                             SO_REUSEADDR,
+                             &tr,
+                             sizeof(int) ) == -1 ) {
+                
+                perror("error: Comm.h: Comm(long int port): setsockopt()");
+                exit(1);
+            
+            }else{
+
+                if ( bind(this->in_socket,
+                          (struct sockaddr *)& this->in_address,
+                          sizeof(struct sockaddr)) == -1 ){
+                    perror("error: Comm.h: Comm(long int port): bind()");
+                    exit(1);
+                }
+                else
+                    cout << "Success!" << endl;
+                
+            }
+        }
+    }
     
 }
 
@@ -85,19 +120,31 @@ Comm<T> :: ~Comm(){
 
 template <class T>
 int Comm<T> :: Listen(int backlog){
-    return listen(this->in_socket, backlog);
+    int retVal = 0;
+
+    retVal = listen(this->in_socket, backlog);
+
+    if ( retVal == -1 )
+        perror("error: Comm.h: Listen(int backlog): listen()");
+    
+    return retVal;
 }
 
 
 template <class T>
 unsigned Comm<T> :: Accept(){
     struct sockaddr_in addr;
-    socklen_t addrLen;
+    socklen_t addrLen = sizeof(struct sockaddr_in);
     int newCon = 0;
     
     bzero( &addr, sizeof(addr) );
     
     newCon = accept(this->in_socket, (struct sockaddr *)(& addr), &addrLen);
+
+    if ( newCon == -1 ){
+        perror("error: Comm.h: Accept(): accept()");
+        return -1;
+    }
 
     bzero(&(addr.sin_zero), 8);
     
@@ -110,7 +157,10 @@ unsigned Comm<T> :: Accept(){
 
 template <class T>
 Connection<T> Comm<T> :: getConn(unsigned index){
-    return cons[index];
+    if ( index <= cons.size() )
+        return cons[index];
+    else
+        return *(new Connection<T>);
 }
 
 

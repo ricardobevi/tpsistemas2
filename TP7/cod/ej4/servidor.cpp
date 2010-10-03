@@ -98,8 +98,6 @@ void * sender(void * args){
     string * usrPtr = (string *) args;
     string Login = *usrPtr;
 
-    ServerBbs.getUsuario(Login).sendString("Bienvenido al Servidor BBS R y F\n");
-    
     // Establece hora de inicio del cliente como su ultima operacion
     ServerBbs.getUsuario(Login).setLastOperation();
 
@@ -107,7 +105,9 @@ void * sender(void * args){
 
     string bienvenida;
 
-    bienvenida= "MODO DE USO:\n"
+    bienvenida= "Bienvenido al Servidor BBS R y F\n"
+                "\n"
+                "MODO DE USO:\n"
                 "    hora : Muestra la hora del servidor.\n"
                 "    usuarios : Muestra los usuarios conectados al servidor.\n"
                 "    novedades [nueva novedad] : Muestra (o agrega) las novedades del servidor.\n"
@@ -138,7 +138,7 @@ void * recver(void * args){
         // setea el tiempo de ultima operacion realizada para procesar el timeout
         ServerBbs.getUsuario(Login).setLastOperation();
         
-        cout << "Comando: " << Command[0] << endl;
+        cout << "[" << Login << "] " << "Comando: " << Command[0] << endl;
         
         if (Command[0] == "hora"){
               time_t segundos;

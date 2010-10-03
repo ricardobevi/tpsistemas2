@@ -18,13 +18,12 @@
 #include <stdio.h>
 #include <ctype.h>
 
-#include "Connection.h"
+#include "Usuario.h"
 
 #define TAM_LOGIN 50
 #define TAM_RETURN 1
 
 #define TAM_COMMAND 128
-#define TAM_STRING 1024
 
 void help(void);
 void * sender(void * args);
@@ -35,6 +34,9 @@ int validacion(const char* IP_SERVIDOR ,int PUERTO_DE_ENLACE,const char*  NOMBRE
 
 Connection<char> sock;
 char login[TAM_LOGIN];
+
+pthread_mutex_t screenMutex1 = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t screenMutex2 = PTHREAD_MUTEX_INITIALIZER;
 
 using namespace std;
 
@@ -61,6 +63,9 @@ int main(int argc, const char *argv[]){
     sock.Recv(&ret, TAM_RETURN);
 
     if( ret == 1 ){
+
+        pthread_mutex_lock(&screenMutex1);
+        
         //Una vez que me logueo empiezo los hilos de transmicion y recepcion.
         pthread_create( &recver_t, NULL, recver, NULL);
         pthread_create( &sender_t, NULL, sender, NULL);
@@ -80,9 +85,13 @@ void * sender(void * args){
     char Command[TAM_COMMAND];
 
     do{
-       cout << "-> ";
        
+       pthread_mutex_lock(&screenMutex1);
+       
+       cout << "-> ";
        cin.getline( Command,TAM_COMMAND,'\n');
+
+       pthread_mutex_unlock(&screenMutex2);
        
        if ( strcmp( Command, "" ) != 0 )
            sock.Send(Command, TAM_COMMAND);
@@ -118,29 +127,36 @@ void * recver(void * args){
         switch( cmd ){
             
             case 1: //Recibe Cadena
-                sock.Recv(cadena, TAM_STRING );
-                cout << cadena << endl;
+                {
+                    sock.Recv(cadena, TAM_STRING );
 
+                    pthread_mutex_lock(&screenMutex2);
+                    cout << cadena << endl;
+                    pthread_mutex_unlock(&screenMutex1);
+                }
                 break;
                 
             case 2: //Recibe Archivo
                 {
                     char saveTo[TAM_STRING];
-                    sock.Recv(saveTo, TAM_STRING );
+
+                    pthread_mutex_lock(&screenMutex2);
                     
-                    cout << endl << "Recibiendo " << saveTo
-                         << "..." << endl << "-> ";
-                         
+                    sock.Recv(saveTo, TAM_STRING );
+
+                    cout << endl << "Recibiendo " << saveTo << "...";
+                    
                     sock.RecvFile(saveTo);
 
-                    cout << endl << "Recibido " << saveTo
-                         << "! =)" << endl << "-> ";
+                    cout << "OK!" << endl;
+
+                    pthread_mutex_unlock(&screenMutex1);
 
                  }
                  break;
                 
             default:
-                cout << "Orden desconocida." << endl;
+                cerr << "[" << cmd << "] " << "Orden desconocida." << endl;
                 
         }
 

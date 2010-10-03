@@ -24,7 +24,17 @@
 #include <cstring>
 #include <string>
 
+/*Tamano maximo del buffer para enviar archivos*/
 #define MAX_BUFFER 65535
+
+/*
+ * Para asegurar la compatibilidad entre sistemas de
+ * 32 y 64 bits aca se especifica el tipo de dato en
+ * donde guardar el tamanio del archivo.
+ * Con "unsigned int" deberia haber compatibilidad entre
+ * ambas plataformas.
+ */
+#define INT_TYPE unsigned int
 
 
 using namespace std;
@@ -56,6 +66,11 @@ class Connection{
         int io_socket;
         struct sockaddr_in in_sock;
 
+        struct fileLen {
+            INT_TYPE tam,
+                     blockSize;
+        };
+
         unsigned short int listenPort;
         unsigned long int listenIpAddress;
 
@@ -64,7 +79,11 @@ class Connection{
 
 template <class T>
 Connection<T> :: Connection(string addr, long int port){
+    
     this->io_socket = socket(AF_INET, SOCK_STREAM, 0);
+
+    if ( this->io_socket == -1 )
+        perror("error: Connection.h: Connection(string addr, long int port): socket()");
     
     this->listenPort = htons(port);
     this->listenIpAddress = inet_addr(addr.c_str());
@@ -94,6 +113,9 @@ int Connection<T> :: Connect(){
     int connectReturn = 0;
     
     connectReturn = connect(this->io_socket, (struct sockaddr *) (& (this->in_sock)), sizeof(struct sockaddr));
+
+    if ( connectReturn == -1 )
+        perror("error: Connection.h: Connect(): connect()");
     
     return connectReturn;
 }
@@ -103,6 +125,11 @@ int Connection<T> :: Connect(string addr, long int port){
     int connectReturn = 0;
     
     this->io_socket = socket(AF_INET, SOCK_STREAM, 0);
+
+    if ( this->io_socket == -1 ){
+        perror("error: Connection.h: Connect(string addr, long int port): socket()");
+        return this->io_socket;
+    }
     
     this->listenPort = htons(port);
     this->listenIpAddress = inet_addr(addr.c_str());
@@ -114,6 +141,9 @@ int Connection<T> :: Connect(string addr, long int port){
     bzero(&(this->in_sock.sin_zero), 8);
     
     connectReturn = connect(this->io_socket, (struct sockaddr *) (& (this->in_sock)), sizeof(struct sockaddr));
+
+    if ( connectReturn == -1 )
+        perror("error: Connection.h: Connect(string addr, long int port): connect()");
     
     return connectReturn;
 }
@@ -123,6 +153,12 @@ ssize_t Connection<T> :: Send( const T* buf, size_t size ) const{
     ssize_t sendSize = 0;
     
     sendSize = send( io_socket, buf, size, 0 );
+
+    while( (unsigned) sendSize <  (unsigned) size && sendSize != -1 )
+        sendSize += send( io_socket, buf + sendSize, size - sendSize, 0 );
+
+    if ( sendSize == -1 )
+        perror("error: Connection.h: Send( const T* buf, size_t size ): send()");
     
     return sendSize;
 }
@@ -134,16 +170,25 @@ ssize_t Connection<T> :: Recv( T* buf, size_t size ){
     bzero(buf, size);
     
     recvSize = recv( io_socket, buf, size, 0 );
+
+    while( (unsigned) recvSize <  (unsigned) size && recvSize != -1 )
+        recvSize += recv( io_socket, buf + recvSize, size - recvSize, 0 );
+
+    if ( recvSize == -1 )
+        perror("error: Connection.h: Recv( T* buf, size_t size ): recv()");
        
     return recvSize;
 }
 
 template <class T>
 ssize_t Connection<T> :: SendFile( string fileToSend ) const{
-    unsigned long int tam = 0;
+    INT_TYPE tam = 0,
+             blockSize = 1;
+             
     ssize_t enviado = 0;
-    size_t blockSize = 1;
     char * buffer;
+
+    struct fileLen fileLenAndBS;
 
     ifstream is;
     is.open (fileToSend.c_str(), ios::binary );
@@ -153,17 +198,16 @@ ssize_t Connection<T> :: SendFile( string fileToSend ) const{
     tam = is.tellg();
     is.seekg (0, ios::beg);
 
-    {
-        size_t tamULInt = sizeof(unsigned long int);
-        blockSize = tam > MAX_BUFFER ? MAX_BUFFER : tam;
 
-        this->Send( (char*) &(tam), tamULInt );
+    blockSize = tam > MAX_BUFFER ? MAX_BUFFER : tam;
 
-        while( ( tam % blockSize ) != 0 )
-            blockSize--;
+    while( ( tam % blockSize ) != 0 )
+        blockSize--;
 
-        this->Send( (char*) &(blockSize), sizeof(size_t) );
-    }
+    fileLenAndBS.tam = tam;
+    fileLenAndBS.blockSize = blockSize;
+
+    this->Send( (char*) &(fileLenAndBS), sizeof(struct fileLen) );
 
     buffer = new char[blockSize];
     
@@ -185,22 +229,22 @@ ssize_t Connection<T> :: SendFile( string fileToSend ) const{
 
 template <class T>
 ssize_t Connection<T> :: RecvFile( string fileToSave ){
-    unsigned long int tam = 0,
-                      recibido = 0;
+    INT_TYPE tam = 0,
+             blockSize = 1;
                       
-    size_t blockSize = 1;
+    size_t recibido = 0;
     char * buffer;
+    
+    struct fileLen fileLenAndBS;
+
     
     ofstream os;
     os.open (fileToSave.c_str(), ios::binary );
 
-    {
-        size_t tamULInt = sizeof(unsigned long int);
+    this->Recv( (char*) &(fileLenAndBS), sizeof(struct fileLen) );
 
-        this->Recv( (char*) &(tam), tamULInt );
-
-        this->Recv( (char*) &(blockSize), sizeof(size_t) );
-    }
+    tam = fileLenAndBS.tam;
+    blockSize = fileLenAndBS.blockSize;
 
     buffer = new char[blockSize];
 

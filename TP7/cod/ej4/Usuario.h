@@ -26,9 +26,9 @@
 
 #include "Connection.h"
 
-#define TAM_COMMAND 128
-#define TAM_STRING 1024
-#define TAM_RETURN 1
+#define TAM_COMMAND  128
+#define TAM_STRING  1024
+#define TAM_RETURN     1
 
 using namespace std;
 
@@ -124,7 +124,9 @@ void Usuario :: sendString(string str){
 
     char auxString [TAM_STRING];
 
-    strncpy( auxString, str.c_str() ,  TAM_STRING );
+    bzero(auxString, TAM_STRING);
+
+    strcpy( auxString, str.c_str());
 
     Socket.Send(  auxString ,  TAM_STRING);
 
