@@ -13,19 +13,20 @@ class Escenario
         
     public:
         
-        vector < Coordenada > vidas;
+        vector < unsigned int > vidas;
         vector < Coordenada > jugadores;
         vector < Coordenada > paredesFijas;
         vector < Coordenada > paredesDestruibles;
+        vector < Coordenada > bombas;
+         
         vector < Coordenada > premiosBomba;
         vector < Coordenada > premiosVida;
         vector < Coordenada > premiosExplosion;
         vector < Coordenada > premiosVelocidad;
-        vector < unsigned int  > explosiones;
+        vector < vector < Coordenada >  > explosiones;
         
         unsigned int    tiempo;
               
-        
 };
 
 
