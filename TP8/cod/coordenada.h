@@ -12,14 +12,16 @@ class Coordenada
     public:
         
         Coordenada( unsigned int x , unsigned int y);
+        Coordenada( const Coordenada& );
         ~Coordenada();
         
         void set_coordenada( unsigned int x , unsigned int y );
         void set_x ( unsigned int x );
         void set_y ( unsigned int y );
         void get_coordenada( unsigned int &x , unsigned int &y );
-        unsigned int  get_x();
-        unsigned int  get_y();
+        unsigned int&  get_x();
+        unsigned int&  get_y();
+        Coordenada operator = ( const Coordenada& );
 };
 
 
@@ -27,6 +29,12 @@ Coordenada :: Coordenada( unsigned int x , unsigned int y)
 {
     this->x = x;
     this->y = y;
+}
+
+Coordenada ::  Coordenada( const Coordenada& obj)
+{
+    this->x = obj.x;
+    this->y = obj.y;
 }
 
 Coordenada ::  ~Coordenada()
@@ -55,14 +63,22 @@ void Coordenada :: get_coordenada( unsigned int &x , unsigned int &y )
     y = this->y;
 }
 
-unsigned int Coordenada ::  get_x()
+unsigned int& Coordenada ::  get_x()
 {
     return this->x;
 }
 
-unsigned int Coordenada ::  get_y()
+unsigned int& Coordenada ::  get_y()
 {
     return this->y;
+}
+
+Coordenada Coordenada :: operator = ( const Coordenada& obj)
+{
+    this->x = obj.x;
+    this->y = obj.y;
+    
+    return *this;
 }
 
 
