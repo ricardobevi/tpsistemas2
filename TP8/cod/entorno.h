@@ -13,18 +13,21 @@ class Entorno
 {
     private:
        
-         WINDOW *  pantalla;
-         int startx, starty , filas , columnas;
-         Escenario * escenarioActual;
+         WINDOW *  pantalla;                        // puntero a el objeto pantalla - propio de ncurses
+         int startx, starty , filas , columnas;     // datos necesarios para iniciar la pantalla, como filas columnas, y posicion de inicio del cursor
+         Escenario * escenarioActual;               // puntero al escenario desde donde deben levantarce los datos de la pantalla
         
     public:
         
-         Entorno( Escenario * escenario );
-         ~Entorno();
+         Entorno( Escenario * escenario );          // constructor de pantalla: inicializa todos los valores y caracteristicas de la pantalla
+                                                    // luego actualiza la pantalla y comienza a esperar lecturas de teclado
+                                                    
+         void actualizarPantalla( void );           // borra el contenido de la pantalla y lo redibuja con el contenido de escenarioActual
+         void finalizarPantalla( void );            // Elimina la pantalla
          
-         void actualizarPantalla( void );
-         void finalizarPantalla( void );
-         void  leerTeclado();
+         
+         void leerTeclado();                        // lee contantemente el teclado a la espera de que se presione una tecla,
+                                                    //en dicho caso realiza la accion correspondiente
                            
 };
 
@@ -40,12 +43,17 @@ Entorno :: Entorno ( Escenario * escenario )
    starty = 1;  
    startx = 1;   
    
+   
+   // inicializa caracteristicas del ncurses
    initscr();  
    cbreak();
    noecho();
    curs_set(0);
    keypad(stdscr, TRUE);
    nodelay(stdscr, TRUE);
+   
+   
+   // inicializa los colores a utilizar
    start_color();
    
    init_pair(1, COLOR_BLACK, COLOR_RED);
@@ -57,37 +65,86 @@ Entorno :: Entorno ( Escenario * escenario )
    init_pair(7, COLOR_WHITE, COLOR_MAGENTA );
    init_pair(8,COLOR_YELLOW, COLOR_RED );   
       
-   
+   // actualiza la pantalla y comienza a leer de teclado
    actualizarPantalla();
    leerTeclado();
     
 }
 
+// Destructor, elimina los contenidos dinamicos ( por ahora ninguno )
 Entorno :: ~Entorno ()
 {
 }
 
+// Elimina la pantalla
+void Entorno :: finalizarPantalla( void )
+{
+    endwin();
+}
 
+
+// lee contantemente el teclado a la espera de que se presione una tecla,
+//en dicho caso realiza la accion correspondiente
+void Entorno :: leerTeclado()
+{
+ int tecla;
+ unsigned int jugador = 0;
+    
+    while( (tecla = getch()) != 'q' )
+    {  
+        switch(tecla)
+        {   
+            case KEY_LEFT:
+                
+                (escenarioActual->jugadores).at( jugador ).get_y()--;
+                
+                break;
+                
+            case KEY_RIGHT:
+                                
+                (escenarioActual->jugadores).at( jugador ).get_y()++;
+                
+                break;
+                
+            case KEY_UP:
+                
+                (escenarioActual->jugadores).at( jugador ).get_x()--;
+                
+                break;
+                
+            case KEY_DOWN:
+                
+                (escenarioActual->jugadores).at( jugador ).get_x()++;
+                
+                break;  
+        }
+        
+        actualizarPantalla();
+
+    }
+    
+    finalizarPantalla( );
+        
+}
+
+
+// borra el contenido de la pantalla y lo redibuja con el contenido de escenarioActual
 void Entorno :: actualizarPantalla( void )
 {
-    // ****************  DATOS ESCENARIO ********************* //
-    /*
     
-        vector < unsigned int > vidas;
-        vector < Coordenada > jugadores;
-        vector < Coordenada > paredesFijas;
-        vector < Coordenada > paredesDestruibles;
-        vector < Coordenada > premiosBomba;
-        vector < Coordenada > premiosVida;
-        vector < Coordenada > premiosExplosion;
-        vector < Coordenada > premiosVelocidad;
-        vector < vector < Coordenada >  > explosiones;
-        
-        unsigned int    tiempo;
-     */          
+    //----------------------------------- variables e iteradores auxiliares para la actualizacion de la pantalla ------------------------ //
+    unsigned int x,y;
+    vector < Coordenada > :: iterator it;
+    vector < vector <Coordenada> > :: iterator explosion;
+    unsigned int posX, posY;
+    //----------------------------------- FIN variables e iteradores auxiliares para la actualizacion de la pantalla -------------------- //
+    
+    
+    
+    
+     //------------------------------------------ Cabecera de pantalla ( vidas y tiempo de juego ) --------------------------------------//
      
      mvprintw(0,36,"Time %d", escenarioActual->tiempo);
-
        
     // jugador1 : Rojo
     attron(COLOR_PAIR(1));
@@ -109,17 +166,36 @@ void Entorno :: actualizarPantalla( void )
     mvprintw(0,68,"Jug 4: %d", (escenarioActual->vidas).at(3));
     attroff(COLOR_PAIR(4));
     
+    //------------------------------------------ FIN Cabecera de pantalla ( vidas y tiempo de juego ) --------------------------------------//
     
-    if ( pantalla != NULL ) 
+   
+   
+   
+   
+   
+   //-------------------------------------------- Creacion de la ventana vacia y su recuadro -----------------------------------------------//
+   if ( pantalla != NULL ) 
                             delwin(pantalla); 
     
     pantalla = newwin(filas,columnas,starty, startx);
    
     box(pantalla,0 ,0);
+   //--------------------------------------------- FIN Creacion de la ventana vacia y su recuadro ------------------------------------------//
    
-    //  ----------------------------------------LEO EL ESCENARIO Y ACTUALIZO LA PANTALLA--------------------- //
-    unsigned int posX, posY;
-    
+   
+   
+   
+   
+   
+   
+   //----------------------------------------------- Actualizo Posicion de los jugadores ---------------------------------------------------//
+   /*
+        A tener en cuenta: para trasformar la coordenada a la matriz real de 23*78 se realiza una trasnformacion lineal  (2*x+1 , 2*y+1)
+                           siendo la matriz aparente de (0,0) ~ (9,37)
+        
+        Aclaracion:        podria realizarce con un for() pero ya esta hecho asi 
+   */
+
     // jugador1 : ROJO
     posX = (escenarioActual->jugadores).at(0).get_x() ;
     posY = (escenarioActual->jugadores).at(0).get_y() ;
@@ -169,11 +245,15 @@ void Entorno :: actualizarPantalla( void )
     mvwprintw(pantalla,posX + 1 ,posY  ,"\\/");
     wattroff(pantalla,COLOR_PAIR(4));
 
-    
+    //----------------------------------------------- FIN Actualizo Posicion de los jugadores ------------------------------------------------//
+     
+     
+
+     
+     
+    //------------------------------------------------------  Actualizo Paredes Fijas------ --------------------------------------------------//
     // paredes fijas
-    unsigned int x,y;
-    vector < Coordenada > :: iterator it;
-    
+   
     wattron( pantalla,COLOR_PAIR(5) );
     for(it = escenarioActual->paredesFijas.begin() ; it != escenarioActual->paredesFijas.end() ; it++)
     {
@@ -184,7 +264,13 @@ void Entorno :: actualizarPantalla( void )
         mvwprintw(pantalla, x+1,y, "XX");  
     }
     wattroff(pantalla,COLOR_PAIR(5));   
-       
+    
+    //------------------------------------------------------ FIN Actualizo Paredes Fijas-----------------------------------------------------//
+    
+    
+    
+    
+     //------------------------------------------------------  Actualizo Paredes destruibles-------------------------------------------------//
     // paredes destruibles
     
     wattron( pantalla,COLOR_PAIR(5) );
@@ -198,54 +284,13 @@ void Entorno :: actualizarPantalla( void )
         
     }
     wattroff(pantalla,COLOR_PAIR(5));
-    
+    //------------------------------------------------------ FIN Actualizo Paredes destruibles---------------------------------------------//
 
-    //PREMIOS
-    
-    wattron( pantalla,COLOR_PAIR(7) );
-    
-    for(it = escenarioActual->premiosVida.begin() ; it != escenarioActual->premiosVida.end() ; it++)
-    {
-        x = 2 * it->get_x() +1;
-        y = 2 * it->get_y() +1;
 
-        mvwprintw(pantalla, x  ,y, "VI");
-        mvwprintw(pantalla, x+1,y, "DA");  
-        
-    }
-    
-    for(it = escenarioActual->premiosExplosion.begin() ; it != escenarioActual->premiosExplosion.end() ; it++)
-    {
-        x = 2 * it->get_x() +1;
-        y = 2 * it->get_y() +1;
 
-        mvwprintw(pantalla, x  ,y, "++");
-        mvwprintw(pantalla, x+1,y, "++");  
-        
-    }
-    
-    for(it = escenarioActual->premiosBomba.begin() ; it != escenarioActual->premiosBomba.end() ; it++)
-    {
-        x = 2 * it->get_x() +1;
-        y = 2 * it->get_y() +1;
 
-        mvwprintw(pantalla, x  ,y, "BO");
-        mvwprintw(pantalla, x+1,y, "MB");  
-        
-    }
-    
-    for(it = escenarioActual->premiosVelocidad.begin() ; it != escenarioActual->premiosVelocidad.end() ; it++)
-    {
-        x = 2 * it->get_x() +1;
-        y = 2 * it->get_y() +1;
 
-        mvwprintw(pantalla, x  ,y, ">>");
-        mvwprintw(pantalla, x+1,y, ">>");  
-        
-    }
-    wattroff(pantalla,COLOR_PAIR(7));
-    
-    
+    //------------------------------------------------------  Actualizo Bombas colocadas en pantalla---------------------------------------//
     // Bombas
 
     wattron(pantalla,COLOR_PAIR(8));
@@ -263,10 +308,13 @@ void Entorno :: actualizarPantalla( void )
         
     }
     wattroff(pantalla,COLOR_PAIR(8));
+    //------------------------------------------------------ FIN  Actualizo Bombas colocadas en pantalla-----------------------------------//
     
     
+    
+    
+    //------------------------------------------------------  Actualizo explosiones en pantalla --------------------------------------------//
     // Explosiones
-    vector < vector <Coordenada> > :: iterator explosion;
     
     wattron(pantalla,COLOR_PAIR(1));
     for(explosion = escenarioActual->explosiones.begin() ; explosion != escenarioActual->explosiones.end() ; explosion++)
@@ -284,6 +332,65 @@ void Entorno :: actualizarPantalla( void )
         
     }
     wattroff(pantalla,COLOR_PAIR(1));
+    
+    //------------------------------------------------------ FIN Actualizo explosiones en pantalla ---------------------------------------//
+
+
+
+
+
+    //-------------------------------------------------------  Actualizo Premios en pantalla ---------------------------------------------//
+    //PREMIOS
+    
+    wattron( pantalla,COLOR_PAIR(7) );
+    
+    //premios de vida
+    for(it = escenarioActual->premiosVida.begin() ; it != escenarioActual->premiosVida.end() ; it++)
+    {
+        x = 2 * it->get_x() +1;
+        y = 2 * it->get_y() +1;
+
+        mvwprintw(pantalla, x  ,y, "VI");
+        mvwprintw(pantalla, x+1,y, "DA");  
+        
+    }
+    
+    //premios de explosion
+    for(it = escenarioActual->premiosExplosion.begin() ; it != escenarioActual->premiosExplosion.end() ; it++)
+    {
+        x = 2 * it->get_x() +1;
+        y = 2 * it->get_y() +1;
+
+        mvwprintw(pantalla, x  ,y, "++");
+        mvwprintw(pantalla, x+1,y, "++");  
+        
+    }
+    
+    //premios de bombas
+    for(it = escenarioActual->premiosBomba.begin() ; it != escenarioActual->premiosBomba.end() ; it++)
+    {
+        x = 2 * it->get_x() +1;
+        y = 2 * it->get_y() +1;
+
+        mvwprintw(pantalla, x  ,y, "BO");
+        mvwprintw(pantalla, x+1,y, "MB");  
+        
+    }
+    
+    //premios de velocidad
+    for(it = escenarioActual->premiosVelocidad.begin() ; it != escenarioActual->premiosVelocidad.end() ; it++)
+    {
+        x = 2 * it->get_x() +1;
+        y = 2 * it->get_y() +1;
+
+        mvwprintw(pantalla, x  ,y, ">>");
+        mvwprintw(pantalla, x+1,y, ">>");  
+        
+    }
+    
+    wattroff(pantalla,COLOR_PAIR(7));
+     //--------------------------------------------------  FIN Actualizo Premios en pantalla ---------------------------------------------//
+   
  
 
     //actualizo pantalla   
@@ -298,76 +405,7 @@ void Entorno :: actualizarPantalla( void )
 }
 
 
-void Entorno :: leerTeclado()
-{
-     //  ----------------------------------------ESTO DEBE ESTAR EN OTROS METODOS CORRESPONDIENTES A TECLADO --------------------- //
- int ch;
- unsigned int jugador = 0;
-    
-    while( (ch = getch()) != 'q' )
-    {  
-        switch(ch)
-        {   
-            case KEY_LEFT:
-                
-                (escenarioActual->jugadores).at( jugador ).get_y()--;
-                
-                break;
-                
-            case KEY_RIGHT:
-                                
-                (escenarioActual->jugadores).at( jugador ).get_y()++;
-                
-                break;
-                
-            case KEY_UP:
-                
-                (escenarioActual->jugadores).at( jugador ).get_x()--;
-                
-                break;
-                
-            case KEY_DOWN:
-                
-                (escenarioActual->jugadores).at( jugador ).get_x()++;
-                
-                break;  
-        }
-        
-        actualizarPantalla();
 
-    }
-    
-    finalizarPantalla( );
-        
-}
-
-void Entorno :: finalizarPantalla( void )
-{
-    endwin();
-}
 
 #endif
 
-/*
-//////////////////////////////////////////////// Clase coordenada ////////////////////////////////////////////////
-
-class Coordenada
-{
-    private:
-        unsigned int x;
-        unsigned int y;
-        
-    public:
-        
-        Coordenada( unsigned int x , unsigned int y);
-        ~Coordenada();
-        
-        void set_coordenada( unsigned int x , unsigned int y );
-        void set_x ( unsigned int x );
-        void set_y ( unsigned int y );
-        void get_coordenada( unsigned int &x , unsigned int &y );
-        unsigned int  get_x();
-        unsigned int  get_y();
-};
-
-*/
