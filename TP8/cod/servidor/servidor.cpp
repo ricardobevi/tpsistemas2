@@ -12,27 +12,59 @@
 
 #include "Bomberman.h"
 
-Bomberman servidor;
+Bomberman Servidor;
+
+void * sender(void * args);
+void * recver(void * args);
 
 int main(){
-    /*
-    servidor.activar(50000);
+    
+    Servidor.activar(50000);
 
-    int numJugador;
+    unsigned numJugador;
     
     while(1){
         pthread_t newSender,
                   newRecver;
 
         numJugador = 0;
-                  
-        numJugador = servidor.nuevoJugador();
 
-        pthread_create( &newSender, NULL, sender, (void *) (&Login) );
-        pthread_create( &newRecver, NULL, recver, (void *) (&Login) );
+        cout << "Esperando Jugador..." << endl;
+        
+        numJugador = Servidor.nuevoJugador();
+
+        cout << "Conectado jugador " << numJugador << endl;
+
+        pthread_create( &newSender, NULL, sender, (void *) (&numJugador) );
+        pthread_create( &newRecver, NULL, recver, (void *) (&numJugador) );
         
     }
-    */
+    
     return 0;
 }
 
+void * sender(void * args){
+
+    return NULL;
+}
+
+void * recver(void * args){
+    unsigned * jugPtr = (unsigned *) args;
+    unsigned jugador = *jugPtr;
+
+    t_protocolo recibido;
+
+    while(1){
+
+        recibido = Servidor.recvFrom( jugador );
+
+        cout << "Jugador " << jugador << endl;
+        cout << "id = " << recibido.id << endl
+             << "posicion = " << recibido.posicion << endl
+             << "x = " << recibido.x << endl
+             << "y = " << recibido.y << endl;
+
+    }
+    return NULL;
+
+}
