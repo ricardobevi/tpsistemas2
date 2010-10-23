@@ -101,7 +101,7 @@ void * sender(void * args)
     // una vez habilitado comienza un bucle infinito a la espera de que se presione una tecla
     // si esto sucede, envia la solicitud de presionado de esa tecla al servidor
     
-    pthread_mutex_lock(&inicio);
+    //pthread_mutex_lock(&inicio);
     
     while (true)
     {

@@ -57,8 +57,9 @@ void  Bomberman :: enviarSolicitud ( char teclaPresionada)
     
     solicitud.id = 'i';
     solicitud.x  = teclaPresionada ;
-    
+
     //send de tipo protocolo
+    connectionCliente.Send( (char*) &solicitud, sizeof(t_protocolo) );
 }
 
 
