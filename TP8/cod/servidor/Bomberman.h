@@ -33,7 +33,7 @@ class Bomberman {
         
         int nuevoJugador();
 
-        int recvFrom(int jugador);
+        t_protocolo recvFrom(int jugador);
 
         int update(int jugador);
 
@@ -98,9 +98,8 @@ int Bomberman :: nuevoJugador(){
     return Jugadores.size() - 1;
 }
 
-int Bomberman :: recvFrom(int jugador) {
-
-    return 0;
+t_protocolo Bomberman :: recvFrom(int jugador) {
+    return Jugadores[ jugador ].recv();
 }
 
 int Bomberman :: update(int jugador) {
