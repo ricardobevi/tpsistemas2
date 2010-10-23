@@ -4,7 +4,7 @@
 #include <ctime>
 #include <cstdlib>
 
-#include "Coordenada.h"
+#include "../include/Coordenada.h"
 
 class Premio {
     public:

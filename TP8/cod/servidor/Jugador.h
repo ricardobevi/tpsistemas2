@@ -1,15 +1,10 @@
 #ifndef JUGADOR_H
 #define JUGADOR_H
 
-#include "Coordenada.h"
-#include "Connection.h"
+#include "../include/Coordenada.h"
+#include "../include/Connection.h"
 
-typedef struct {
-    char      id;
-    unsigned  posicion;
-    int       x;
-    int       y;
-} tProtocolo;
+#include "../include/t_protocolo.h"
 
 class Jugador {
 
@@ -35,9 +30,9 @@ class Jugador {
 
         Coordenada getPosicion();
 
-        void send( tProtocolo data );
+        void send( t_protocolo data );
 
-        tProtocolo recv();
+        t_protocolo recv();
         
     private:
 
@@ -111,14 +106,14 @@ Coordenada Jugador :: getPosicion(){
     return this->Posicion;
 }
 
-void Jugador :: send( tProtocolo data ){
-    Socket.Send ( (char*) &data, sizeof(tProtocolo) );
+void Jugador :: send( t_protocolo data ){
+    Socket.Send ( (char*) &data, sizeof(t_protocolo) );
 }
 
-tProtocolo Jugador :: recv(){
-    tProtocolo recibido;
+t_protocolo Jugador :: recv(){
+    t_protocolo recibido;
     
-    Socket.Recv ( (char*) &recibido, sizeof(tProtocolo) );
+    Socket.Recv ( (char*) &recibido, sizeof(t_protocolo) );
 
     return recibido;
     

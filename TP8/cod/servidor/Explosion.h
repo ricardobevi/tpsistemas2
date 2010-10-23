@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "Coordenada.h"
+#include "../include/Coordenada.h"
 #include "Bomba.h"
 
 using namespace std;
