@@ -5,8 +5,8 @@
 
 #include "entorno.h"
 #include "c_escenario.h"
-#include "t_protocolo.h"
-#include "Connection.h"
+#include "../include/t_protocolo.h"
+#include "../include/Connection.h"
 
 using namespace std;
 
