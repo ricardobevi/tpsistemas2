@@ -11,7 +11,7 @@ class Coordenada
         
     public:
         
-        Coordenada( unsigned int x , unsigned int y);
+        Coordenada( unsigned int x = 0 , unsigned int y = 0);
         Coordenada( const Coordenada& );
         ~Coordenada();
         
