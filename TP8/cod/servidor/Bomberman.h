@@ -13,10 +13,12 @@
 #include "Bomba.h"
 #include "Premio.h"
 #include "Explosion.h"
-#include "Coordenada.h"
+#include "../include/Coordenada.h"
 
-#include "Comm.h"
-#include "Connection.h"
+#include "../include/Comm.h"
+#include "../include/Connection.h"
+
+//#include "../include/t_protocolo.h"
 
 // matriz de 9 X 37
 

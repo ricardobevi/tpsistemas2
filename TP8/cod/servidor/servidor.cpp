@@ -15,7 +15,7 @@
 Bomberman servidor;
 
 int main(){
-    
+    /*
     servidor.activar(50000);
 
     int numJugador;
@@ -32,7 +32,7 @@ int main(){
         pthread_create( &newRecver, NULL, recver, (void *) (&Login) );
         
     }
-    
+    */
     return 0;
 }
 

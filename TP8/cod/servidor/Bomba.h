@@ -1,7 +1,7 @@
 #ifndef BOMBA_H
 #define BOMBA_H
 
-#include "Coordenada.h"
+#include "../include/Coordenada.h"
 
 class Bomba {
     public:
