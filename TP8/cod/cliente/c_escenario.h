@@ -2,7 +2,7 @@
 #define ESCENARIO_H
 
 #include <vector>
-#include "coordenada.h"
+#include "../include/Coordenada.h"
 #include <stdlib.h>
 
 using namespace std;
