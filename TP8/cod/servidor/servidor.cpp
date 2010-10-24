@@ -19,7 +19,7 @@ void * recver(void * args);
 
 int main(){
     
-    Servidor.activar(50000);
+    Servidor.activar(50002);
 
     unsigned numJugador;
     
@@ -37,6 +37,9 @@ int main(){
 
         pthread_create( &newSender, NULL, sender, (void *) (&numJugador) );
         pthread_create( &newRecver, NULL, recver, (void *) (&numJugador) );
+
+        pthread_join(newSender, NULL);
+        pthread_join(newRecver, NULL);
         
     }
     
@@ -44,6 +47,13 @@ int main(){
 }
 
 void * sender(void * args){
+    unsigned * jugPtr = (unsigned *) args;
+    unsigned jugador = *jugPtr;
+
+    t_protocolo enviar;
+
+    enviar.id = 'i';
+    
 
     return NULL;
 }
