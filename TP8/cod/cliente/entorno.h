@@ -28,10 +28,18 @@ class Entorno
          
          ~Entorno ();
          
-         char leerTeclado();                         // lee contantemente el teclado a la espera de que se presione una tecla,
+         int leerTeclado();                         // lee contantemente el teclado a la espera de que se presione una tecla,
                                                      //en dicho caso realiza la accion correspondiente
                            
 };
+
+int Entorno :: leerTeclado()
+{
+    int aux;
+    aux = getch();
+    
+    return aux;
+}
 
 Entorno :: Entorno()
 {
@@ -57,7 +65,7 @@ void Entorno :: cargarEntorno ( Escenario * escenario )
    noecho();
    curs_set(0);
    keypad(stdscr, TRUE);
-   nodelay(stdscr, TRUE);
+  //nodelay(stdscr, TRUE);
    
    
    // inicializa los colores a utilizar

@@ -34,12 +34,12 @@ class Bomberman
          Bomberman();
          ~Bomberman();
          
-         char leerTeclado();
+         int  leerTeclado();
          void set_idJugador( int jugador );
          void dibujarPantalla();
          void recivirAccion(t_protocolo * accion, size_t tam );
          void actualizarNovedades( t_protocolo * accion );
-         void enviarSolicitud ( char teclaPresionada);
+         void enviarSolicitud ( int teclaPresionada);
          void ComunicarServidor();
          
          void finalizarBomberman(void);
@@ -51,12 +51,14 @@ class Bomberman
 // un objeto t_protocolo:
 //                          id = 'i' de informe
 //                          x  = tecla presionada
-void  Bomberman :: enviarSolicitud ( char teclaPresionada)
+void  Bomberman :: enviarSolicitud ( int teclaPresionada )
 {
     t_protocolo solicitud;
     
     solicitud.id = 'i';
     solicitud.x  = teclaPresionada ;
+    solicitud.y = 0 ; 
+    solicitud.posicion = 0 ;
 
     //send de tipo protocolo
     connectionCliente.Send( (char*) &solicitud, sizeof(t_protocolo) );
@@ -110,9 +112,11 @@ void Bomberman :: finalizarBomberman( void )
 
 
 // lee la tecla presionada por el usuario y devuelve la misma como resultado ( por ahora solo eso )
-char  Bomberman ::leerTeclado()
+int  Bomberman ::leerTeclado()
 {
-     return  getch();
+    int aux;
+    aux = entornoCliente.leerTeclado();
+    return aux;
 }
 
 
