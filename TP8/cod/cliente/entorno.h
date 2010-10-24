@@ -65,7 +65,7 @@ void Entorno :: cargarEntorno ( Escenario * escenario )
    noecho();
    curs_set(0);
    keypad(stdscr, TRUE);
-  //nodelay(stdscr, TRUE);
+   //nodelay(stdscr, TRUE);
    
    
    // inicializa los colores a utilizar
@@ -372,7 +372,7 @@ void Entorno :: actualizarPantalla( void )
     //actualizo pantalla   
     refresh();
     wrefresh( pantalla ); 
-    wgetch(pantalla); // esto me sirve por ahora para q no me muestre el prompt, pero creo q me genera conflicto para tomar los datos de teclado
+    //wgetch(pantalla); // esto me sirve por ahora para q no me muestre el prompt, pero creo q me genera conflicto para tomar los datos de teclado
 
     //  -------------------------------------------------- FIN LEO EL ESCENARIO Y ACTUALIZO LA PANTALLA--------------------------------- //
 
