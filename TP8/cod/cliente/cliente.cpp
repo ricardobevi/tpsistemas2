@@ -41,14 +41,17 @@ int main(int argc, const char *argv[]){
               recver_t,                                               // receptor de datos, emisor de datos , y gestor de pantalla
               screen_t;
    
-        pthread_mutex_lock(&inicio);                                  // mediante estos mutex freno a los hilos de emision y pantalla :     
-        pthread_mutex_lock(&pantalla);                                // hasta q comience la partida (inicio) o haya q actualizar la pantalla (pantalla)
+        //pthread_mutex_lock(&inicio);                                  // mediante estos mutex freno a los hilos de emision y pantalla :     
+        //pthread_mutex_lock(&pantalla);                                // hasta q comience la partida (inicio) o haya q actualizar la pantalla (pantalla)
         
-        pthread_create( &recver_t, NULL, recver, NULL); 
+        //pthread_create( &recver_t, NULL, recver, NULL);
         pthread_create( &sender_t, NULL, sender, NULL);
         pthread_create( &screen_t, NULL, screen, NULL);
-  
-    return 0;
+
+        pthread_join(screen_t, NULL);
+        pthread_join(sender_t, NULL);
+        
+        return 0;
 }
 
 
@@ -124,12 +127,12 @@ void * screen(void * args)
     // una vez habilitado comienza un bucle infinito a la espera de que se desea actualizar la pantalla
     // si esto sucede, se le informa por el semaforo "pantalla" y se procede a redibujar la pantalla
     
-    pthread_mutex_lock(&inicio);
+    //pthread_mutex_lock(&inicio);
     
     while ( true )
     {
-         pthread_mutex_lock(&pantalla);
-         clienteBomberman.dibujarPantalla();;
+         //pthread_mutex_lock(&pantalla);
+         clienteBomberman.dibujarPantalla();
     }
     
     return NULL; //solo para que no me tire warning
