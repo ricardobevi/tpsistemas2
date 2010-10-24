@@ -71,7 +71,7 @@ void * recver(void * args){
         cout << "Jugador " << jugador << endl;
         cout << "id = " << recibido.id << endl
              << "posicion = " << recibido.posicion << endl
-             << "x = " << recibido.x << endl
+             << "x = " << ( char ) recibido.x << endl
              << "y = " << recibido.y << endl;
 
     }
