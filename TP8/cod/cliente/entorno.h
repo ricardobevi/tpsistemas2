@@ -177,7 +177,7 @@ void Entorno :: actualizarPantalla( void )
     // jugador1 : ROJO
     posX = (escenarioActual->jugadores).at(0).get_x() ;
     posY = (escenarioActual->jugadores).at(0).get_y() ;
-   
+
     posX = 2 * posX +1;
     posY = 2 * posY +1;
     

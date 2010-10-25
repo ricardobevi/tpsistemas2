@@ -39,6 +39,7 @@ Escenario::  Escenario()
    for (unsigned int i = 0 ; i<4 ; i++) 
         vidas.push_back(0);
 
+   
    jugadores.push_back( Coordenada (0,0)  );
    jugadores.push_back( Coordenada (0,37) );
    jugadores.push_back( Coordenada (9,0)  );
