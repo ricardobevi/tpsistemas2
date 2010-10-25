@@ -110,7 +110,7 @@ void * sender(void * args)
     // una vez habilitado comienza un bucle infinito a la espera de que se presione una tecla
     // si esto sucede, envia la solicitud de presionado de esa tecla al servidor
     
-    pthread_mutex_unlock(&inicioTeclado);
+    pthread_mutex_lock(&inicioTeclado);
     
     while (true)
     {
@@ -140,7 +140,7 @@ void * screen(void * args)
     // una vez habilitado comienza un bucle infinito a la espera de que se desea actualizar la pantalla
     // si esto sucede, se le informa por el semaforo "pantalla" y se procede a redibujar la pantalla
     
-    pthread_mutex_unlock(&inicioPantalla);
+    pthread_mutex_lock(&inicioPantalla);
     
     while ( true )
     {
