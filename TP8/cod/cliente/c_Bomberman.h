@@ -27,10 +27,7 @@ class Bomberman
          
          Escenario escenarioCliente;                           // Objeto que identifica el estado actual de la pantalla
                                                                // (posicion de todos sus elementos)
-     
-         
-    public:
-        
+
          Bomberman();
          ~Bomberman();
          
@@ -54,6 +51,7 @@ class Bomberman
 void  Bomberman :: enviarSolicitud ( int teclaPresionada )
 {
     t_protocolo solicitud;
+    ofstream errores;
     
     solicitud.id = 'i';
     solicitud.x  = teclaPresionada ;
@@ -92,7 +90,7 @@ Bomberman :: Bomberman()
     configuracion >> timeOut;
        
     configuracion.close();
-    
+
     entornoCliente.cargarEntorno( &escenarioCliente );
     
     connectionCliente.Connect( ipServidor , puerto);
@@ -130,7 +128,7 @@ void  Bomberman ::dibujarPantalla()
 void Bomberman :: recivirAccion(t_protocolo * accion, size_t tam  )
 {
     // aca va el recv de tipo protocolo
-    //connectionCliente.Recv( accion, tam );
+    connectionCliente.Recv( (char*) accion, tam );
 }
 
 
@@ -164,7 +162,7 @@ void Bomberman :: actualizarNovedades( t_protocolo * accion )
                         break;
                         
                 case 'j':
-                        escenarioCliente.jugadores[accion->posicion] = Coordenada( accion->x, accion->y);
+                        escenarioCliente.jugadores[accion->posicion].set_coordenada( accion->x, accion->y);
                         break;
                 
                 case 'f':

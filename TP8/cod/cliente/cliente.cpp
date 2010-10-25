@@ -43,7 +43,7 @@ pthread_mutex_t pantalla = PTHREAD_MUTEX_INITIALIZER;
 void finalizarCliente(int iNumSen, siginfo_t  * info, void *ni)
 {
     clienteBomberman.finalizarBomberman();
-    cout << endl << "El cliente a finalizado" << endl << endl ;
+    cout << endl << "El cliente ha finalizado" << endl << endl ;
     exit (0);
 }
 
@@ -111,10 +111,14 @@ void * recver(void * args)
     while ( true )
     {
             clienteBomberman.recivirAccion( &accion, sizeof(t_protocolo) );
+            
+            /*cout << "id = " << accion.id << " pos = " << accion.posicion
+                 << " (" << accion.x << "," << accion.y << ")"  << endl;*/
+                 
             clienteBomberman.actualizarNovedades( &accion );
             
-          //  if ( pthread_mutex_trylock( &pantalla ) !=  0 )
-          //          pthread_mutex_unlock( &pantalla );
+            if ( pthread_mutex_trylock( &pantalla ) !=  0 )
+                    pthread_mutex_unlock( &pantalla );
     }
     
     
@@ -128,7 +132,7 @@ void * sender(void * args)
     pthread_mutex_lock(&inicioTeclado);
     
     int teclaPresionada;
-    ofstream errores;
+    
     
     // espera mediante el semaforo inicio a que se habilite la ejecucion del hilo
     // una vez habilitado comienza un bucle infinito a la espera de que se presione una tecla
@@ -137,10 +141,15 @@ void * sender(void * args)
     while (true)
     {
         teclaPresionada = clienteBomberman.leerTeclado();    // esto por ahora es un getch
-            errores.open ("errores.err", fstream::in | fstream::out | fstream::app);
-            errores << (char) teclaPresionada <<endl;
-            errores.close();
-            
+
+        /*Imprimo errores*/{
+        ofstream errores;
+
+        errores.open ("errores.err", fstream::in | fstream::out | fstream::app);
+        errores << teclaPresionada << endl;
+        errores.close();
+        }
+          
         clienteBomberman.enviarSolicitud (teclaPresionada);
        
     }
