@@ -7,8 +7,9 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <linux/kd.h>
-# include <stdio.h>
-# include <stdlib.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <queue>
 
 #include "Bomberman.h"
 
@@ -16,6 +17,10 @@ Bomberman Servidor;
 
 void * sender(void * args);
 void * recver(void * args);
+
+queue<t_protocolo> QRecibido;
+
+pthread_mutex_t RecibidoMutex = PTHREAD_MUTEX_INITIALIZER;
 
 int main(){
     
@@ -28,6 +33,8 @@ int main(){
                   newRecver;
 
         numJugador = 0;
+
+        pthread_mutex_lock(&RecibidoMutex);
 
         cout << "Esperando Jugador..." << endl;
         
@@ -49,11 +56,45 @@ int main(){
 void * sender(void * args){
     unsigned * jugPtr = (unsigned *) args;
     unsigned jugador = *jugPtr;
-
-    t_protocolo enviar;
-
-    enviar.id = 'i';
     
+    t_protocolo recibido,
+                enviar;
+    
+    while(1){
+        pthread_mutex_lock(&RecibidoMutex);
+        
+        do{
+            recibido = QRecibido.front();
+            QRecibido.pop();
+            
+            switch( recibido.x ){
+                case 'w':
+                    Servidor.getJugador( jugador ).moverArriba();
+                    break;
+                    
+                case 's':
+                    Servidor.getJugador( jugador ).moverAbajo();
+                    break;
+
+                case 'd':
+                    Servidor.getJugador( jugador ).moverDerecha();
+                    break;
+
+                case 'a':
+                    Servidor.getJugador( jugador ).moverIzquierda();
+                    break;
+
+            }
+
+            enviar.id = 'j';
+            enviar.posicion = jugador;
+            enviar.x = Servidor.getJugador( jugador ).getPosicion().get_x();
+            enviar.y = Servidor.getJugador( jugador ).getPosicion().get_y();
+
+            Servidor.getJugador( jugador ).send( enviar );
+
+        }while( QRecibido.empty() == false );
+    }
 
     return NULL;
 }
@@ -66,14 +107,13 @@ void * recver(void * args){
 
     while(1){
 
-        recibido = Servidor.recvFrom( jugador );
+        recibido = Servidor.getJugador( jugador ).recv();
 
-        cout << "Jugador " << jugador << endl;
-        cout << "id = " << recibido.id << endl
-             << "posicion = " << recibido.posicion << endl
-             << "x = " << ( char ) recibido.x << endl
-             << "y = " << recibido.y << endl;
+        QRecibido.push(recibido);
 
+        if( pthread_mutex_trylock(&RecibidoMutex) != 0 )
+            pthread_mutex_unlock(&RecibidoMutex);
+        
     }
     return NULL;
 

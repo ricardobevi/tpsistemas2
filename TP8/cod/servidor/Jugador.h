@@ -11,7 +11,7 @@ class Jugador {
     public:
 
         Jugador( int Vida,
-                 Coordenada& Posicion,
+                 Coordenada Posicion,
                  int BombasMax,
                  Connection<char>& Socket);
 
@@ -40,13 +40,13 @@ class Jugador {
         Coordenada Posicion;
         int BombasColocadas;
         int BombasMax;
-
+        
         Connection<char> Socket;
 
 };
 
 Jugador :: Jugador( int Vida,
-                    Coordenada& Posicion,
+                    Coordenada Posicion,
                     int BombasMax,
                     Connection<char>& Socket){
 
@@ -69,32 +69,32 @@ bool Jugador :: ponerBomba(){
 }
 
 int Jugador :: restarVida(){
-
+    Vida--;
     return this->Vida;
 }
 
 int Jugador :: sumarVida(int cant){
-
+    Vida++;
     return this->Vida;
 }
 
 Coordenada Jugador :: moverArriba(){
-
+    Posicion.set_x( Posicion.get_x() - 1 );
     return this->Posicion;
 }
 
 Coordenada Jugador :: moverAbajo(){
-
+    Posicion.set_x( Posicion.get_x() + 1 );
     return this->Posicion;
 }
 
 Coordenada Jugador :: moverIzquierda(){
-    
+    Posicion.set_y( Posicion.get_y() - 1 );
     return this->Posicion;
 }
 
 Coordenada Jugador :: moverDerecha(){
-    
+    Posicion.set_y( Posicion.get_y() + 1 );
     return this->Posicion;
 }
 
