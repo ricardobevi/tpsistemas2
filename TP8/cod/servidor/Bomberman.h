@@ -35,7 +35,9 @@ class Bomberman {
 
         Jugador& getJugador(int jugador);
 
-        int update(int jugador);
+        unsigned getNumJugadores();
+
+        int update(t_protocolo data);
 
         int clockTick();
 
@@ -104,10 +106,15 @@ Jugador& Bomberman :: getJugador(int jugador){
     return Jugadores[ jugador ];
 }
 
+unsigned Bomberman :: getNumJugadores(){
+    return Jugadores.size();
+}
 
+int Bomberman :: update( t_protocolo data ) {
 
-int Bomberman :: update(int jugador) {
-
+    for( unsigned i = 0 ; i < Jugadores.size() ; i++ )
+        Jugadores[i].send( data );
+    
     return 0;
 }
 
