@@ -28,14 +28,15 @@ int main(){
 
     unsigned numJugador;
     
-    while(1){
-        pthread_t newSender,
-                  newRecver;
+    pthread_mutex_lock(&RecibidoMutex);
+    
+    pthread_t newSender,
+              newRecver;
 
-        numJugador = 0;
+    numJugador = 0;
 
-        pthread_mutex_lock(&RecibidoMutex);
 
+    while( Servidor.getNumJugadores() < 4 ){
         cout << "Esperando Jugador..." << endl;
         
         numJugador = Servidor.nuevoJugador();
@@ -44,19 +45,17 @@ int main(){
 
         pthread_create( &newSender, NULL, sender, (void *) (&numJugador) );
         pthread_create( &newRecver, NULL, recver, (void *) (&numJugador) );
-
-        pthread_join(newSender, NULL);
-        pthread_join(newRecver, NULL);
-        
     }
+
+
+    pthread_join(newSender, NULL);
+    pthread_join(newRecver, NULL);
+        
     
     return 0;
 }
 
 void * sender(void * args){
-    unsigned * jugPtr = (unsigned *) args;
-    unsigned jugador = *jugPtr;
-    
     t_protocolo recibido,
                 enviar;
     
@@ -66,6 +65,8 @@ void * sender(void * args){
         do{
             recibido = QRecibido.front();
             QRecibido.pop();
+
+            unsigned jugador = recibido.posicion;
             
             switch( recibido.x ){
                 case 'w':
@@ -91,7 +92,7 @@ void * sender(void * args){
             enviar.x = Servidor.getJugador( jugador ).getPosicion().get_x();
             enviar.y = Servidor.getJugador( jugador ).getPosicion().get_y();
 
-            Servidor.getJugador( jugador ).send( enviar );
+            Servidor.update( enviar );
 
         }while( QRecibido.empty() == false );
     }
@@ -108,6 +109,8 @@ void * recver(void * args){
     while(1){
 
         recibido = Servidor.getJugador( jugador ).recv();
+
+        recibido.posicion = jugador;
 
         QRecibido.push(recibido);
 
