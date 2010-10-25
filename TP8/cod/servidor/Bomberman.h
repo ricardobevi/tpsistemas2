@@ -33,7 +33,7 @@ class Bomberman {
         
         int nuevoJugador();
 
-        t_protocolo recvFrom(int jugador);
+        Jugador& getJugador(int jugador);
 
         int update(int jugador);
 
@@ -87,9 +87,11 @@ int Bomberman :: nuevoJugador(){
     numCon = Socket.Accept();
 
     playerCon = Socket.getConn( numCon );
+
+    Coordenada coord(0,0);
     
     Jugador Player( this->VidaInicial,
-                    *( new Coordenada(0,0) ),
+                    coord,
                     this->MaxBombInicial,
                     playerCon );
 
@@ -98,9 +100,11 @@ int Bomberman :: nuevoJugador(){
     return Jugadores.size() - 1;
 }
 
-t_protocolo Bomberman :: recvFrom(int jugador) {
-    return Jugadores[ jugador ].recv();
+Jugador& Bomberman :: getJugador(int jugador){
+    return Jugadores[ jugador ];
 }
+
+
 
 int Bomberman :: update(int jugador) {
 
