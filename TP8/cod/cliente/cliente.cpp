@@ -84,7 +84,7 @@ void * recver(void * args)
 {   
     t_protocolo accion;
     
-    /*
+    
     // espera a recivir todo el escenario
     // hasta que se le indica 'i' como informe de fin de datos,entonces guarda el nombre del jugador 
     // y habilita la ejecucion de lectura de teclado y refresco de pantalla
@@ -98,7 +98,8 @@ void * recver(void * args)
     }
     
     clienteBomberman.set_idJugador( accion.x );
-    */
+
+    clienteBomberman.enviarSolicitud (0);
     
     // comienzo el juego ( habilito teclado y pantalla )
     pthread_mutex_unlock(&inicioPantalla);
