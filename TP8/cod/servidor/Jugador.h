@@ -10,7 +10,8 @@ class Jugador {
 
     public:
 
-        Jugador( int Vida,
+        Jugador( int Numero,
+                 int Vida,
                  Coordenada Posicion,
                  int BombasMax,
                  Connection<char>& Socket);
@@ -33,9 +34,13 @@ class Jugador {
         void send( t_protocolo data );
 
         t_protocolo recv();
+
+        void eliminar();
+        bool eliminado();
         
     private:
 
+        int Numero;
         int Vida;
         Coordenada Posicion;
         int BombasColocadas;
@@ -45,13 +50,15 @@ class Jugador {
 
 };
 
-Jugador :: Jugador( int Vida,
+Jugador :: Jugador( int Numero,
+                    int Vida,
                     Coordenada Posicion,
                     int BombasMax,
                     Connection<char>& Socket){
 
     this->Socket = Socket;
-    
+
+    this->Numero = Numero;
     this->Vida = Vida;
     this->Posicion = Posicion;
     this->BombasMax = BombasMax;
@@ -107,6 +114,15 @@ Coordenada Jugador :: getPosicion(){
 }
 
 void Jugador :: send( t_protocolo data ){
+
+    cout << "Enviando a jugador " << this->Numero << endl;
+    
+    cout << "id = "<< data.id << endl
+         << "posicion = "<< data.posicion << endl
+         << "x = "<< data.x << endl
+         << "y = "<< data.y << endl;
+
+    
     Socket.Send ( (char*) &data, sizeof(t_protocolo) );
 }
 
@@ -119,5 +135,13 @@ t_protocolo Jugador :: recv(){
     
 }
 
+void Jugador :: eliminar(){
+    this->Socket.Close();
+    this->Numero = (this->Numero + 1) * -1;
+}
+
+bool Jugador :: eliminado(){
+    return this->Numero < 0 ? true : false;
+}
 
 #endif

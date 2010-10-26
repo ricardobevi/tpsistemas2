@@ -15,89 +15,51 @@
 
 Bomberman Servidor;
 
-void * sender(void * args);
-void * recver(void * args);
+void * recver( void * args );
+void * procesador( void * args );
+void * sender( void * args );
 
 queue<t_protocolo> QRecibido;
+queue<t_protocolo> QEnviar;
 
-pthread_mutex_t RecibidoMutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t ProcesadorMutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t SenderMutex = PTHREAD_MUTEX_INITIALIZER;
 
 int main(){
     
     Servidor.activar(50002);
 
-    unsigned numJugador;
+    unsigned numJugador = 0;
     
-    pthread_mutex_lock(&RecibidoMutex);
-    
-    pthread_t newSender,
-              newRecver;
+    pthread_mutex_lock(&ProcesadorMutex);
+    pthread_mutex_lock(&SenderMutex);
 
-    numJugador = 0;
+    vector<pthread_t> recvJugadores;
+    pthread_t procesadorThread,
+              senderThread;
 
+    pthread_create( &procesadorThread, NULL, procesador, NULL );
+    pthread_create( &senderThread, NULL, sender, NULL );
 
     while( Servidor.getNumJugadores() < 4 ){
+        pthread_t newRecver;
+        
         cout << "Esperando Jugador..." << endl;
         
         numJugador = Servidor.nuevoJugador();
 
         cout << "Conectado jugador " << numJugador << endl;
 
-        pthread_create( &newSender, NULL, sender, (void *) (&numJugador) );
         pthread_create( &newRecver, NULL, recver, (void *) (&numJugador) );
+
+        recvJugadores.push_back( newRecver );
     }
 
-
-    pthread_join(newSender, NULL);
-    pthread_join(newRecver, NULL);
+    for( unsigned i = 0 ; i < recvJugadores.size() ; i++ )
+        pthread_join(recvJugadores[i], NULL);
         
     
     return 0;
-}
-
-void * sender(void * args){
-    t_protocolo recibido,
-                enviar;
-    
-    while(1){
-        pthread_mutex_lock(&RecibidoMutex);
-        
-        do{
-            recibido = QRecibido.front();
-            QRecibido.pop();
-
-            unsigned jugador = recibido.posicion;
-            
-            switch( recibido.x ){
-                case 'w':
-                    Servidor.getJugador( jugador ).moverArriba();
-                    break;
-                    
-                case 's':
-                    Servidor.getJugador( jugador ).moverAbajo();
-                    break;
-
-                case 'd':
-                    Servidor.getJugador( jugador ).moverDerecha();
-                    break;
-
-                case 'a':
-                    Servidor.getJugador( jugador ).moverIzquierda();
-                    break;
-
-            }
-
-            enviar.id = 'j';
-            enviar.posicion = jugador;
-            enviar.x = Servidor.getJugador( jugador ).getPosicion().get_x();
-            enviar.y = Servidor.getJugador( jugador ).getPosicion().get_y();
-
-            Servidor.update( enviar );
-
-        }while( QRecibido.empty() == false );
-    }
-
-    return NULL;
 }
 
 void * recver(void * args){
@@ -106,18 +68,71 @@ void * recver(void * args){
 
     t_protocolo recibido;
 
-    while(1){
+    recibido = Servidor.getJugador( jugador ).recv();
 
-        recibido = Servidor.getJugador( jugador ).recv();
+    while( recibido.x > -1 ){
 
         recibido.posicion = jugador;
 
         QRecibido.push(recibido);
 
-        if( pthread_mutex_trylock(&RecibidoMutex) != 0 )
-            pthread_mutex_unlock(&RecibidoMutex);
-        
+        if( pthread_mutex_trylock(&ProcesadorMutex) != 0 )
+            pthread_mutex_unlock(&ProcesadorMutex);
+
+        recibido = Servidor.getJugador( jugador ).recv();
     }
+
+    recibido = Servidor.eliminarJugador( jugador );
+
+    QRecibido.push(recibido);
+
+    if( pthread_mutex_trylock(&ProcesadorMutex) != 0 )
+            pthread_mutex_unlock(&ProcesadorMutex);
+
+    cout << "Se desconecto el jugador " << jugador << endl;
+    
     return NULL;
 
+}
+
+void * procesador(void * args){
+    t_protocolo recibido,
+                enviar;
+
+    while(1){
+        pthread_mutex_lock(&ProcesadorMutex);
+
+        do{
+            recibido = QRecibido.front();
+            QRecibido.pop();
+
+            enviar = Servidor.procesarAccion( recibido );
+
+            QEnviar.push(enviar);
+
+            if( pthread_mutex_trylock(&SenderMutex) != 0 )
+                pthread_mutex_unlock(&SenderMutex);
+
+        }while( QRecibido.empty() == false );
+    }
+
+    return NULL;
+}
+
+void * sender( void * args ){
+   t_protocolo enviar;
+
+    while(1){
+        pthread_mutex_lock(&SenderMutex);
+
+        do{
+            enviar = QEnviar.front();
+            QEnviar.pop();
+
+            Servidor.update( enviar );
+
+        }while( QEnviar.empty() == false );
+    }
+    
+    return NULL;
 }
