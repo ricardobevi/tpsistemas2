@@ -170,59 +170,21 @@ void Entorno :: actualizarPantalla( void )
    /*
         A tener en cuenta: para trasformar la coordenada a la matriz real de 23*78 se realiza una trasnformacion lineal  (2*x+1 , 2*y+1)
                            siendo la matriz aparente de (0,0) ~ (9,37)
-        
-        Aclaracion:        podria realizarce con un for() pero ya esta hecho asi 
    */
 
-    // jugador1 : ROJO
-    posX = (escenarioActual->jugadores).at(0).get_x() ;
-    posY = (escenarioActual->jugadores).at(0).get_y() ;
+    for( unsigned i = 0 ; i < escenarioActual->jugadores.size() ; i++ ){
+        posX = (escenarioActual->jugadores).at(i).get_x() ;
+        posY = (escenarioActual->jugadores).at(i).get_y() ;
 
-    posX = 2 * posX +1;
-    posY = 2 * posY +1;
-    
-    wattron(pantalla,COLOR_PAIR(1));
-    mvwprintw(pantalla,posX , posY  ,"^^");
-    mvwprintw(pantalla,posX + 1 ,posY  ,"\\/");
-    wattroff(pantalla,COLOR_PAIR(1));
-    
-    // jugador2 :  AZUL
-    
-    posX = (escenarioActual->jugadores).at(1).get_x() ;
-    posY = (escenarioActual->jugadores).at(1).get_y() ;
-   
-    posX = 2 * posX +1;
-    posY = 2 * posY +1;
-    
-    wattron(pantalla,COLOR_PAIR(2));
-    mvwprintw(pantalla,posX , posY  ,"^^");
-    mvwprintw(pantalla,posX + 1 ,posY  ,"\\/");
-    wattroff(pantalla,COLOR_PAIR(2));
-    
-    // jugador3 : AMARILLO
-    posX = (escenarioActual->jugadores).at(2).get_x() ;
-    posY = (escenarioActual->jugadores).at(2).get_y() ;
-   
-    posX = 2 * posX +1;
-    posY = 2 * posY +1;
-    
-    wattron(pantalla,COLOR_PAIR(3));
-    mvwprintw(pantalla,posX , posY  ,"^^");
-    mvwprintw(pantalla,posX + 1 ,posY  ,"\\/");
-    wattroff(pantalla,COLOR_PAIR(3));
-    
-    // jugador4 : VERDE
-    posX = (escenarioActual->jugadores).at(3).get_x() ;
-    posY = (escenarioActual->jugadores).at(3).get_y() ;
-   
-    posX = 2 * posX +1;
-    posY = 2 * posY +1;
-    
-    wattron(pantalla,COLOR_PAIR(4));
-    mvwprintw(pantalla,posX , posY  ,"^^");
-    mvwprintw(pantalla,posX + 1 ,posY  ,"\\/");
-    wattroff(pantalla,COLOR_PAIR(4));
+        posX = 2 * posX + 1;
+        posY = 2 * posY + 1;
 
+        wattron(pantalla,COLOR_PAIR(i + 1));
+        mvwprintw(pantalla,posX , posY  ,"^^");
+        mvwprintw(pantalla,posX + 1 ,posY  ,"\\/");
+        wattroff(pantalla,COLOR_PAIR(i + 1));
+    }
+    
     //----------------------------------------------- FIN Actualizo Posicion de los jugadores ------------------------------------------------//
      
      
