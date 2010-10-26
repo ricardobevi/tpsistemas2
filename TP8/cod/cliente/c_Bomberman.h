@@ -93,7 +93,7 @@ Bomberman :: Bomberman()
 
     entornoCliente.cargarEntorno( &escenarioCliente );
     
-    connectionCliente.Connect( ipServidor , puerto);
+    connectionCliente.Connect( ipServidor , puerto );
 }
 
 
@@ -104,6 +104,7 @@ Bomberman :: ~Bomberman()
 // Cierra correctamente la pantalla y la conexion del cliente
 void Bomberman :: finalizarBomberman( void )
 {
+    this->enviarSolicitud(-1);
     connectionCliente.Close();
     entornoCliente.finalizarPantalla();
 }
@@ -162,7 +163,28 @@ void Bomberman :: actualizarNovedades( t_protocolo * accion )
                         break;
                         
                 case 'j':
-                        escenarioCliente.jugadores[accion->posicion].set_coordenada( accion->x, accion->y);
+                        //escenarioCliente.jugadores[accion->posicion].set_coordenada( accion->x, accion->y);
+                        
+                        if ( escenarioCliente.jugadores.size() <=  accion->posicion )
+                        {
+                            escenarioCliente.jugadores.push_back( Coordenada( accion->x, accion->y) );
+                        }
+                        else
+                        {
+
+                            if (  accion->x != -1)
+                            {
+                                escenarioCliente.jugadores[accion->posicion].set_coordenada( accion->x, accion->y);
+                            }
+                            else
+                            {
+                                vector < Coordenada > :: iterator  it = escenarioCliente.jugadores.begin();
+                                it += accion->posicion -1 ;
+                                escenarioCliente.jugadores.erase( it )  ;
+                             }
+
+                        }
+                        
                         break;
                 
                 case 'f':
