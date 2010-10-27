@@ -48,8 +48,8 @@ class Bomberman {
         int clockTick();
 
         static const unsigned JUGADORES_MAX = 4;
-        static const int X_MAX = 37;
-        static const int Y_MAX = 9;
+        static const unsigned X_MAX = 37;
+        static const unsigned Y_MAX = 9;
 
     private:
         int Timer;
@@ -68,6 +68,10 @@ class Bomberman {
 
         unsigned NumJugadores;
 
+        static const char LUGAR_VACIO = 200;
+
+        char Escenario[ X_MAX + 1 ][ Y_MAX + 1 ];
+
 };
 
 
@@ -79,6 +83,7 @@ Bomberman :: ~Bomberman(){
 }
 
 void Bomberman :: activar( long int puerto, string archivoEscenario ){
+    ifstream archEsc( archivoEscenario.c_str() );
     
     this->Timer = 0;
     this->VidaInicial = 3;
@@ -90,6 +95,41 @@ void Bomberman :: activar( long int puerto, string archivoEscenario ){
     this->Socket.Listen();
 
     srand(unsigned(time(NULL)));
+
+    for( unsigned i = 0 ; i < X_MAX + 1 ; i++ )
+        for( unsigned j = 0 ; j < Y_MAX + 1 ; j++ )
+            Escenario[i][j] = LUGAR_VACIO;
+
+    /*Leo los datos del escenario*/{
+        char tipoPared;
+        unsigned x, y;
+        ifstream archEsc( archivoEscenario.c_str() );
+
+        archEsc >> tipoPared;
+        
+        while( ( ! archEsc.eof() ) && ( tipoPared != 'e' ) ){
+            archEsc >> x;
+            archEsc >> y;
+
+            /*Descomentar para ver como carga el archivo
+            cout << "tipoPared = " << tipoPared << endl
+                 << "x = " << x << endl
+                 << "y = " << y << endl;
+            */
+            if( tipoPared == 'd' ){
+                ParedesDestruibles.push_back( Coordenada( x, y ) );
+                Escenario[x][y] = 'd';
+            } else {
+                Paredes.push_back( Coordenada( x, y ) );
+                Escenario[x][y] = 'f';
+            }
+            
+            archEsc >> tipoPared;
+            
+        }
+
+        archEsc.close();
+    }
     
 }
 
@@ -133,6 +173,8 @@ int Bomberman :: nuevoJugador(){
         
     }
 
+    Escenario[0][0] = numJugador;
+
     this->sendEscenario( numJugador );
 
     this->NumJugadores++;
@@ -143,6 +185,8 @@ int Bomberman :: nuevoJugador(){
 void Bomberman :: sendEscenario( unsigned jugador ){
     unsigned i = 0;
     t_protocolo enviar;
+
+    /*Envio los jugadores*/
     
     for( i = 0 ; i < Jugadores.size() ; i++ ){
         enviar.id = 'j';
@@ -152,6 +196,26 @@ void Bomberman :: sendEscenario( unsigned jugador ){
         
         Jugadores[jugador].send(enviar);
         
+    }
+
+    for( i = 0 ; i < Paredes.size() ; i++ ){
+        enviar.id = 'f';
+        enviar.posicion = i;
+        enviar.x = Paredes[i].get_x();
+        enviar.y = Paredes[i].get_y();
+
+        Jugadores[jugador].send(enviar);
+
+    }
+
+    for( i = 0 ; i < ParedesDestruibles.size() ; i++ ){
+        enviar.id = 'd';
+        enviar.posicion = i;
+        enviar.x = ParedesDestruibles[i].get_x();
+        enviar.y = ParedesDestruibles[i].get_y();
+
+        Jugadores[jugador].send(enviar);
+
     }
 
     enviar.id = 'i';
@@ -173,24 +237,33 @@ unsigned Bomberman :: getNumJugadores(){
 
 t_protocolo Bomberman :: procesarAccion( t_protocolo recibido ){
     t_protocolo enviar;
+
+    //bool move = false;
     
     unsigned jugador = recibido.posicion;
 
+    int  x = this->Jugadores[ jugador ].getPosicion().get_x(),
+         y = this->Jugadores[ jugador ].getPosicion().get_y();
+
     switch( recibido.x ){
         case 'w':
-            this->Jugadores[ jugador ].moverArriba();
+            if ( y > 0 && Escenario[x][y - 1] == LUGAR_VACIO )
+                this->Jugadores[ jugador ].moverArriba();
             break;
 
         case 's':
-            this->Jugadores[ jugador ].moverAbajo();
-            break;
-
-        case 'd':
-            this->Jugadores[ jugador ].moverDerecha();
+            if ( (unsigned) y < Y_MAX && Escenario[x][y + 1] == LUGAR_VACIO )
+                this->Jugadores[ jugador ].moverAbajo();
             break;
 
         case 'a':
-            this->Jugadores[ jugador ].moverIzquierda();
+            if (  x > 0 && Escenario[x - 1][y] == LUGAR_VACIO )
+                this->Jugadores[ jugador ].moverIzquierda();
+            break;
+
+        case 'd':
+            if ( (unsigned) x < X_MAX && Escenario[x + 1][y] == LUGAR_VACIO )
+                this->Jugadores[ jugador ].moverDerecha();
             break;
 
     }

@@ -29,7 +29,7 @@ pthread_mutex_t SenderMutex = PTHREAD_MUTEX_INITIALIZER;
 
 int main(){
     
-    Servidor.activar( 50002, "../escenarios/e1.esc" );
+    Servidor.activar( 50002, "escenarios/e1.esc" );
 
     unsigned numJugador = 0;
     
