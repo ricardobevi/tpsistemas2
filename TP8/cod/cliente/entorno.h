@@ -180,8 +180,13 @@ void Entorno :: actualizarPantalla( void )
         posY = 2 * posY + 1;
 
         wattron(pantalla,COLOR_PAIR(i + 1));
-        mvwprintw(pantalla,posX , posY  ,"^^");
-        mvwprintw(pantalla,posX + 1 ,posY  ,"\\/");
+        
+        //mvwprintw(pantalla,posX , posY  ,"^^");
+        //mvwprintw(pantalla,posX + 1 ,posY  ,"\\/");
+
+        mvwprintw(pantalla,posY , posX  ,"^^");
+        mvwprintw(pantalla,posY + 1 ,posX  ,"\\/");
+        
         wattroff(pantalla,COLOR_PAIR(i + 1));
     }
     
@@ -200,8 +205,8 @@ void Entorno :: actualizarPantalla( void )
         x = 2 * it->get_x() +1;
         y = 2 * it->get_y() +1;
     
-        mvwprintw(pantalla, x  ,y, "XX");
-        mvwprintw(pantalla, x+1,y, "XX");  
+        mvwprintw(pantalla, y    , x, "XX");
+        mvwprintw(pantalla, y + 1, x, "XX");
     }
     wattroff(pantalla,COLOR_PAIR(5));   
     
@@ -219,8 +224,8 @@ void Entorno :: actualizarPantalla( void )
         x = 2 * it->get_x() +1;
         y = 2 * it->get_y() +1;
 
-        mvwprintw(pantalla, x  ,y, "  ");
-        mvwprintw(pantalla, x+1,y, "  ");  
+        mvwprintw(pantalla, y    , x, "  ");
+        mvwprintw(pantalla, y + 1, x, "  ");
         
     }
     wattroff(pantalla,COLOR_PAIR(6));
@@ -241,9 +246,9 @@ void Entorno :: actualizarPantalla( void )
 
         
         //mvwchgat(pantalla,  x,  y, 2, A_BLINK, 1,NULL );
-        mvwprintw(pantalla, x  ,y, "/\\");
+        mvwprintw(pantalla, y  ,x, "/\\");
         //mvwchgat(pantalla,  x+1,y, 2, A_BLINK, 1,NULL );
-        mvwprintw(pantalla, x+1,y, "\\/");  
+        mvwprintw(pantalla, y+1,x, "\\/");
         
         
     }
@@ -266,8 +271,8 @@ void Entorno :: actualizarPantalla( void )
             y = 2 * it->get_y() +1;
 
             
-            mvwprintw(pantalla, x  ,y, "  ");
-            mvwprintw(pantalla, x+1,y, "  ");  
+            mvwprintw(pantalla, y  ,x, "  ");
+            mvwprintw(pantalla, y+1,x, "  ");
         }   
         
     }
@@ -290,8 +295,8 @@ void Entorno :: actualizarPantalla( void )
         x = 2 * it->get_x() +1;
         y = 2 * it->get_y() +1;
 
-        mvwprintw(pantalla, x  ,y, "VI");
-        mvwprintw(pantalla, x+1,y, "DA");  
+        mvwprintw(pantalla, y  ,x, "VI");
+        mvwprintw(pantalla, y+1,x, "DA");
         
     }
     
@@ -301,8 +306,8 @@ void Entorno :: actualizarPantalla( void )
         x = 2 * it->get_x() +1;
         y = 2 * it->get_y() +1;
 
-        mvwprintw(pantalla, x  ,y, "++");
-        mvwprintw(pantalla, x+1,y, "++");  
+        mvwprintw(pantalla, y  ,x, "++");
+        mvwprintw(pantalla, y+1,x, "++");
         
     }
     
@@ -312,8 +317,8 @@ void Entorno :: actualizarPantalla( void )
         x = 2 * it->get_x() +1;
         y = 2 * it->get_y() +1;
 
-        mvwprintw(pantalla, x  ,y, "BO");
-        mvwprintw(pantalla, x+1,y, "MB");  
+        mvwprintw(pantalla, y  ,x, "BO");
+        mvwprintw(pantalla, y+1,x, "MB");
         
     }
     
@@ -323,8 +328,8 @@ void Entorno :: actualizarPantalla( void )
         x = 2 * it->get_x() +1;
         y = 2 * it->get_y() +1;
 
-        mvwprintw(pantalla, x  ,y, ">>");
-        mvwprintw(pantalla, x+1,y, ">>");  
+        mvwprintw(pantalla, y  ,x, ">>");
+        mvwprintw(pantalla, y+1,x, ">>");
         
     }
     
