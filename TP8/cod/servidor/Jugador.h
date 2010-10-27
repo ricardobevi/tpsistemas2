@@ -86,22 +86,22 @@ int Jugador :: sumarVida(int cant){
 }
 
 Coordenada Jugador :: moverArriba(){
-    Posicion.set_x( Posicion.get_x() - 1 );
-    return this->Posicion;
-}
-
-Coordenada Jugador :: moverAbajo(){
-    Posicion.set_x( Posicion.get_x() + 1 );
-    return this->Posicion;
-}
-
-Coordenada Jugador :: moverIzquierda(){
     Posicion.set_y( Posicion.get_y() - 1 );
     return this->Posicion;
 }
 
-Coordenada Jugador :: moverDerecha(){
+Coordenada Jugador :: moverAbajo(){
     Posicion.set_y( Posicion.get_y() + 1 );
+    return this->Posicion;
+}
+
+Coordenada Jugador :: moverIzquierda(){
+    Posicion.set_x( Posicion.get_x() - 1 );
+    return this->Posicion;
+}
+
+Coordenada Jugador :: moverDerecha(){
+    Posicion.set_x( Posicion.get_x() + 1 );
     return this->Posicion;
 }
 
