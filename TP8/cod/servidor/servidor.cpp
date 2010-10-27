@@ -84,10 +84,12 @@ void * recver(void * args){
 
     recibido = Servidor.eliminarJugador( jugador );
 
-    QRecibido.push(recibido);
+    /*Envio la eliminacion del jugador*/{
+        QEnviar.push(recibido);
 
-    if( pthread_mutex_trylock(&ProcesadorMutex) != 0 )
-            pthread_mutex_unlock(&ProcesadorMutex);
+        if( pthread_mutex_trylock(&SenderMutex) != 0 )
+                pthread_mutex_unlock(&SenderMutex);
+    }
 
     cout << "Se desconecto el jugador " << jugador << endl;
     
