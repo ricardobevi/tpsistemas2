@@ -45,7 +45,7 @@ class Bomberman {
 
         t_protocolo eliminarJugador( unsigned jugador );
 
-        int clockTick();
+        t_protocolo clockTick();
 
         static const unsigned JUGADORES_MAX = 4;
         static const unsigned X_MAX = 37;
@@ -312,9 +312,17 @@ t_protocolo Bomberman :: eliminarJugador( unsigned jugador ){
     return enviar;
 }
 
-int Bomberman :: clockTick(){
+t_protocolo Bomberman :: clockTick(){
+    t_protocolo enviar;
+    
     this->Timer++;
-    return this->Timer;
+
+    enviar.id = 't';
+    enviar.posicion = 0;
+    enviar.x = this->Timer;
+    enviar.y = 0;
+
+    return enviar;
 }
 
 
