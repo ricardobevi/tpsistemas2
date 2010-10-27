@@ -218,7 +218,7 @@ t_protocolo Bomberman :: eliminarJugador( unsigned jugador ){
     enviar.id = 'j';
     enviar.posicion = jugador;
     enviar.x = -1;
-    enviar.y = 0;
+    enviar.y = -1;
 
     return enviar;
 }
