@@ -20,12 +20,15 @@ Bomberman Servidor;
 void * recver( void * args );
 void * procesador( void * args );
 void * sender( void * args );
+void * timer( void * args );
 
 queue<t_protocolo> QRecibido;
 queue<t_protocolo> QEnviar;
 
 pthread_mutex_t ProcesadorMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t SenderMutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t ClockMutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t ClockStartMutex = PTHREAD_MUTEX_INITIALIZER;
 
 int main(){
     
@@ -35,13 +38,17 @@ int main(){
     
     pthread_mutex_lock(&ProcesadorMutex);
     pthread_mutex_lock(&SenderMutex);
+    pthread_mutex_unlock(&ClockMutex);
+    pthread_mutex_lock(&ClockStartMutex);
 
     vector<pthread_t> recvJugadores;
     pthread_t procesadorThread,
-              senderThread;
+              senderThread,
+              timerThread;
 
     pthread_create( &procesadorThread, NULL, procesador, NULL );
     pthread_create( &senderThread, NULL, sender, NULL );
+    pthread_create( &timerThread, NULL, timer, NULL );
 
     while( Servidor.getNumJugadores() < Bomberman::JUGADORES_MAX ){
         pthread_t newRecver;
@@ -53,6 +60,9 @@ int main(){
         cout << "Conectado jugador " << numJugador << endl;
 
         pthread_create( &newRecver, NULL, recver, (void *) (&numJugador) );
+
+        if( pthread_mutex_trylock(&ClockStartMutex) != 0 )
+                pthread_mutex_unlock(&ClockStartMutex);
 
         recvJugadores.push_back( newRecver );
     }
@@ -136,6 +146,26 @@ void * sender( void * args ){
             Servidor.update( enviar );
 
         }while( QEnviar.empty() == false );
+    }
+    
+    return NULL;
+}
+
+void * timer( void * args ){
+    t_protocolo clock;
+
+    pthread_mutex_lock(&ClockStartMutex);
+
+    while(1){
+        sleep(1);
+        pthread_mutex_lock(&ClockMutex);
+        clock = Servidor.clockTick();
+        pthread_mutex_unlock(&ClockMutex);
+
+        QEnviar.push(clock);
+
+        if( pthread_mutex_trylock(&SenderMutex) != 0 )
+                pthread_mutex_unlock(&SenderMutex);
     }
     
     return NULL;
