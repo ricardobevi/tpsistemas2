@@ -13,6 +13,8 @@
 
 #include "Bomberman.h"
 
+//#define JUGADORES_MAX 4
+
 Bomberman Servidor;
 
 void * recver( void * args );
@@ -27,7 +29,7 @@ pthread_mutex_t SenderMutex = PTHREAD_MUTEX_INITIALIZER;
 
 int main(){
     
-    Servidor.activar(50002);
+    Servidor.activar( 50002, "../escenarios/e1.esc" );
 
     unsigned numJugador = 0;
     
@@ -41,7 +43,7 @@ int main(){
     pthread_create( &procesadorThread, NULL, procesador, NULL );
     pthread_create( &senderThread, NULL, sender, NULL );
 
-    while( Servidor.getNumJugadores() < 4 ){
+    while( Servidor.getNumJugadores() < Bomberman::JUGADORES_MAX ){
         pthread_t newRecver;
         
         cout << "Esperando Jugador..." << endl;

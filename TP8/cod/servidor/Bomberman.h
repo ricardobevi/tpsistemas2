@@ -20,8 +20,6 @@
 
 //#include "../include/t_protocolo.h"
 
-#define JUGMAX 4
-
 // matriz de 9 X 37
 
 class Bomberman {
@@ -31,7 +29,7 @@ class Bomberman {
         Bomberman();
         ~Bomberman();
 
-        void activar( long int puerto );
+        void activar( long int puerto, string archivoEscenario );
         
         int nuevoJugador();
 
@@ -49,6 +47,10 @@ class Bomberman {
 
         int clockTick();
 
+        static const unsigned JUGADORES_MAX = 4;
+        static const int X_MAX = 37;
+        static const int Y_MAX = 9;
+
     private:
         int Timer;
         
@@ -64,8 +66,7 @@ class Bomberman {
         int VidaInicial;
         int MaxBombInicial;
 
-        static const int X = 9;
-        static const int Y = 37;
+        unsigned NumJugadores;
 
 };
 
@@ -77,11 +78,13 @@ Bomberman :: ~Bomberman(){
 
 }
 
-void Bomberman :: activar( long int puerto ){
+void Bomberman :: activar( long int puerto, string archivoEscenario ){
     
     this->Timer = 0;
     this->VidaInicial = 3;
     this->MaxBombInicial = 1;
+
+    this->NumJugadores = 0;
 
     this->Socket = Comm< char >(puerto);
     this->Socket.Listen();
@@ -105,10 +108,10 @@ int Bomberman :: nuevoJugador(){
         unsigned i = 0;
         
         while( i < Jugadores.size() &&
-               i < JUGMAX &&
+               i < JUGADORES_MAX &&
                ! Jugadores[i].eliminado() ) i = i + 1;
 
-        if ( i >= JUGMAX )
+        if ( i >= JUGADORES_MAX )
             return -1;
         else
             numJugador = i;
@@ -131,6 +134,8 @@ int Bomberman :: nuevoJugador(){
     }
 
     this->sendEscenario( numJugador );
+
+    this->NumJugadores++;
     
     return (int) numJugador;
 }
@@ -163,7 +168,7 @@ Jugador& Bomberman :: getJugador(int jugador){
 }
 
 unsigned Bomberman :: getNumJugadores(){
-    return this->Jugadores.size();
+    return this->NumJugadores;
 }
 
 t_protocolo Bomberman :: procesarAccion( t_protocolo recibido ){
@@ -212,14 +217,25 @@ t_protocolo Bomberman :: eliminarJugador( unsigned jugador ){
     t_protocolo enviar;
     
     if( this->Jugadores.size() - 1 >= jugador ){
+        
         this->Jugadores[ jugador ].eliminar();
+        
+        this->NumJugadores--;
+
+        enviar.id = 'j';
+        enviar.posicion = jugador;
+        enviar.x = -1;
+        enviar.y = -1;
+        
+    } else {
+
+        enviar.id = 0;
+        enviar.posicion = jugador;
+        enviar.x = -1;
+        enviar.y = -1;
+    
     }
-
-    enviar.id = 'j';
-    enviar.posicion = jugador;
-    enviar.x = -1;
-    enviar.y = -1;
-
+    
     return enviar;
 }
 
