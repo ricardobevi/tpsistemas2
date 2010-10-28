@@ -35,7 +35,7 @@ pthread_mutex_t QEnviarMutex = PTHREAD_MUTEX_INITIALIZER;
 
 int main(){
     
-    Servidor.activar( 50002, "escenarios/e1.esc" );
+    Servidor.activar( 50003, "escenarios/e1.esc" );
 
     unsigned numJugador = 0;
     
@@ -152,13 +152,14 @@ void * procesador(void * args){
 }
 
 void * sender( void * args ){
-   t_protocolo enviar;
 
     while(1){
         pthread_mutex_lock(&SenderMutex);
         bool empty = true;
         
         do{
+            t_protocolo enviar;
+            
             pthread_mutex_lock(&QEnviarMutex);
             enviar = QEnviar.front();
             QEnviar.pop();
