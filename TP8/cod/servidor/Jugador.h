@@ -121,14 +121,14 @@ Coordenada Jugador :: getPosicion(){
 }
 
 void Jugador :: send( t_protocolo data ){
-
+    /*
     cout << "Enviando a jugador " << this->Numero << endl;
     
     cout << "id = "<< data.id << endl
          << "posicion = "<< data.posicion << endl
          << "x = "<< data.x << endl
          << "y = "<< data.y << endl;
-
+    */
     
     Socket.Send ( (char*) &data, sizeof(t_protocolo) );
 }
@@ -137,14 +137,14 @@ t_protocolo Jugador :: recv(){
     t_protocolo recibido;
     
     Socket.Recv ( (char*) &recibido, sizeof(t_protocolo) );
-
+    /*
     cout << "    Recibido de jugador " << this->Numero << endl;
 
     cout << "    id = "<< recibido.id << endl
          << "    posicion = "<< recibido.posicion << endl
          << "    x = "<< recibido.x << endl
          << "    y = "<< recibido.y << endl;
-
+    */
     return recibido;
     
 }
