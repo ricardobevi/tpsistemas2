@@ -173,7 +173,7 @@ int Bomberman :: nuevoJugador(){
         
     }
 
-    Escenario[0][0] = numJugador;
+    //Escenario[0][0] = numJugador;
 
     this->sendEscenario( numJugador );
 
@@ -186,45 +186,47 @@ void Bomberman :: sendEscenario( unsigned jugador ){
     unsigned i = 0;
     t_protocolo enviar;
 
-    /*Envio los jugadores*/
+    if( this->Jugadores[jugador].getEnvioEscenario() == false ){
     
-    for( i = 0 ; i < Jugadores.size() ; i++ ){
-        enviar.id = 'j';
-        enviar.posicion = i;
-        enviar.x = Jugadores[i].getPosicion().get_x();
-        enviar.y = Jugadores[i].getPosicion().get_y();
-        
+        for( i = 0 ; i < Jugadores.size() ; i++ ){
+            enviar.id = 'j';
+            enviar.posicion = i;
+            enviar.x = Jugadores[i].getPosicion().get_x();
+            enviar.y = Jugadores[i].getPosicion().get_y();
+
+            Jugadores[jugador].send(enviar);
+
+        }
+
+        for( i = 0 ; i < Paredes.size() ; i++ ){
+            enviar.id = 'f';
+            enviar.posicion = i;
+            enviar.x = Paredes[i].get_x();
+            enviar.y = Paredes[i].get_y();
+
+            Jugadores[jugador].send(enviar);
+
+        }
+
+        for( i = 0 ; i < ParedesDestruibles.size() ; i++ ){
+            enviar.id = 'd';
+            enviar.posicion = i;
+            enviar.x = ParedesDestruibles[i].get_x();
+            enviar.y = ParedesDestruibles[i].get_y();
+
+            Jugadores[jugador].send(enviar);
+
+        }
+
+        enviar.id = 'i';
+        enviar.posicion = 0;
+        enviar.x = jugador;
+        enviar.y = 0;
+
         Jugadores[jugador].send(enviar);
-        
+
+        this->Jugadores[jugador].setEnvioEscenario(true);
     }
-
-    for( i = 0 ; i < Paredes.size() ; i++ ){
-        enviar.id = 'f';
-        enviar.posicion = i;
-        enviar.x = Paredes[i].get_x();
-        enviar.y = Paredes[i].get_y();
-
-        Jugadores[jugador].send(enviar);
-
-    }
-
-    for( i = 0 ; i < ParedesDestruibles.size() ; i++ ){
-        enviar.id = 'd';
-        enviar.posicion = i;
-        enviar.x = ParedesDestruibles[i].get_x();
-        enviar.y = ParedesDestruibles[i].get_y();
-
-        Jugadores[jugador].send(enviar);
-
-    }
-
-    enviar.id = 'i';
-    enviar.posicion = 0;
-    enviar.x = jugador;
-    enviar.y = 0;
-
-    Jugadores[jugador].send(enviar);
-
 }
 
 Jugador& Bomberman :: getJugador(int jugador){
@@ -238,7 +240,7 @@ unsigned Bomberman :: getNumJugadores(){
 t_protocolo Bomberman :: procesarAccion( t_protocolo recibido ){
     t_protocolo enviar;
 
-    //bool move = false;
+    bool move = false;
     
     unsigned jugador = recibido.posicion;
 
@@ -247,31 +249,46 @@ t_protocolo Bomberman :: procesarAccion( t_protocolo recibido ){
 
     switch( recibido.x ){
         case 'w':
-            if ( y > 0 && Escenario[x][y - 1] == LUGAR_VACIO )
+            if ( y > 0 && Escenario[x][y - 1] == LUGAR_VACIO ){
                 this->Jugadores[ jugador ].moverArriba();
+                move = true;
+            }
             break;
 
         case 's':
-            if ( (unsigned) y < Y_MAX && Escenario[x][y + 1] == LUGAR_VACIO )
+            if ( (unsigned) y < Y_MAX && Escenario[x][y + 1] == LUGAR_VACIO ){
                 this->Jugadores[ jugador ].moverAbajo();
+                move = true;
+            }
             break;
 
         case 'a':
-            if (  x > 0 && Escenario[x - 1][y] == LUGAR_VACIO )
+            if (  x > 0 && Escenario[x - 1][y] == LUGAR_VACIO ){
                 this->Jugadores[ jugador ].moverIzquierda();
+                move = true;
+            }
             break;
 
         case 'd':
-            if ( (unsigned) x < X_MAX && Escenario[x + 1][y] == LUGAR_VACIO )
+            if ( (unsigned) x < X_MAX && Escenario[x + 1][y] == LUGAR_VACIO ){
                 this->Jugadores[ jugador ].moverDerecha();
+                move = true;
+            }
             break;
 
     }
 
-    enviar.id = 'j';
-    enviar.posicion = jugador;
-    enviar.x = this->Jugadores[ jugador ].getPosicion().get_x();
-    enviar.y = this->Jugadores[ jugador ].getPosicion().get_y();
+    if( move == true ){
+        enviar.id = 'j';
+        enviar.posicion = jugador;
+        enviar.x = this->Jugadores[ jugador ].getPosicion().get_x();
+        enviar.y = this->Jugadores[ jugador ].getPosicion().get_y();
+    } else {
+        enviar.id = 0;
+        enviar.posicion = jugador;
+        enviar.x = 0;
+        enviar.y = 0;
+    }
 
     return enviar;
 

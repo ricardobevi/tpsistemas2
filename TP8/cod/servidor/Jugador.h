@@ -35,6 +35,9 @@ class Jugador {
 
         t_protocolo recv();
 
+        void setEnvioEscenario( bool envio );
+        bool getEnvioEscenario();
+
         void eliminar();
         bool eliminado();
         
@@ -45,6 +48,8 @@ class Jugador {
         Coordenada Posicion;
         int BombasColocadas;
         int BombasMax;
+
+        bool EnvioEscenario;
         
         Connection<char> Socket;
 
@@ -64,6 +69,8 @@ Jugador :: Jugador( int Numero,
     this->BombasMax = BombasMax;
 
     this->BombasColocadas = 0;
+
+    EnvioEscenario = false;
 
 }
 
@@ -131,8 +138,23 @@ t_protocolo Jugador :: recv(){
     
     Socket.Recv ( (char*) &recibido, sizeof(t_protocolo) );
 
+    cout << "    Recibido de jugador " << this->Numero << endl;
+
+    cout << "    id = "<< recibido.id << endl
+         << "    posicion = "<< recibido.posicion << endl
+         << "    x = "<< recibido.x << endl
+         << "    y = "<< recibido.y << endl;
+
     return recibido;
     
+}
+
+void Jugador :: setEnvioEscenario( bool envio ){
+    this->EnvioEscenario = envio;
+}
+
+bool Jugador :: getEnvioEscenario(){
+    return this->EnvioEscenario;
 }
 
 void Jugador :: eliminar(){

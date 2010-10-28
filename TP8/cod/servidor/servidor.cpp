@@ -13,8 +13,6 @@
 
 #include "Bomberman.h"
 
-//#define JUGADORES_MAX 4
-
 Bomberman Servidor;
 
 void * recver( void * args );
@@ -27,8 +25,13 @@ queue<t_protocolo> QEnviar;
 
 pthread_mutex_t ProcesadorMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t SenderMutex = PTHREAD_MUTEX_INITIALIZER;
+
 pthread_mutex_t ClockMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t ClockStartMutex = PTHREAD_MUTEX_INITIALIZER;
+
+pthread_mutex_t QRecibidoMutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t QEnviarMutex = PTHREAD_MUTEX_INITIALIZER;
+
 
 int main(){
     
@@ -86,7 +89,9 @@ void * recver(void * args){
 
         recibido.posicion = jugador;
 
+        pthread_mutex_lock(&QRecibidoMutex);
         QRecibido.push(recibido);
+        pthread_mutex_unlock(&QRecibidoMutex);
 
         if( pthread_mutex_trylock(&ProcesadorMutex) != 0 )
             pthread_mutex_unlock(&ProcesadorMutex);
@@ -97,7 +102,9 @@ void * recver(void * args){
     recibido = Servidor.eliminarJugador( jugador );
 
     /*Envio la eliminacion del jugador*/{
+        pthread_mutex_lock(&QEnviarMutex);
         QEnviar.push(recibido);
+        pthread_mutex_unlock(&QEnviarMutex);
 
         if( pthread_mutex_trylock(&SenderMutex) != 0 )
                 pthread_mutex_unlock(&SenderMutex);
@@ -115,19 +122,30 @@ void * procesador(void * args){
 
     while(1){
         pthread_mutex_lock(&ProcesadorMutex);
+        bool empty = true;
 
         do{
+            pthread_mutex_lock(&QRecibidoMutex);
             recibido = QRecibido.front();
             QRecibido.pop();
+            pthread_mutex_unlock(&QRecibidoMutex);
 
             enviar = Servidor.procesarAccion( recibido );
+            
+            if( enviar.id != 0 ){
+                pthread_mutex_lock(&QEnviarMutex);
+                QEnviar.push(enviar);
+                pthread_mutex_unlock(&QEnviarMutex);
 
-            QEnviar.push(enviar);
+                if( pthread_mutex_trylock(&SenderMutex) != 0 )
+                    pthread_mutex_unlock(&SenderMutex);
+            }
 
-            if( pthread_mutex_trylock(&SenderMutex) != 0 )
-                pthread_mutex_unlock(&SenderMutex);
-
-        }while( QRecibido.empty() == false );
+            pthread_mutex_lock(&QEnviarMutex);
+            empty = QRecibido.empty();
+            pthread_mutex_unlock(&QEnviarMutex);
+            
+        }while( empty == false );
     }
 
     return NULL;
@@ -138,14 +156,21 @@ void * sender( void * args ){
 
     while(1){
         pthread_mutex_lock(&SenderMutex);
-
+        bool empty = true;
+        
         do{
+            pthread_mutex_lock(&QEnviarMutex);
             enviar = QEnviar.front();
             QEnviar.pop();
-
+            pthread_mutex_unlock(&QEnviarMutex);
+            
             Servidor.update( enviar );
 
-        }while( QEnviar.empty() == false );
+            pthread_mutex_lock(&QEnviarMutex);
+            empty = QEnviar.empty();
+            pthread_mutex_unlock(&QEnviarMutex);
+
+        }while( empty == false );
     }
     
     return NULL;
@@ -162,7 +187,9 @@ void * timer( void * args ){
         clock = Servidor.clockTick();
         pthread_mutex_unlock(&ClockMutex);
 
+        pthread_mutex_lock(&QEnviarMutex);
         QEnviar.push(clock);
+        pthread_mutex_unlock(&QEnviarMutex);
 
         if( pthread_mutex_trylock(&SenderMutex) != 0 )
                 pthread_mutex_unlock(&SenderMutex);
