@@ -284,7 +284,7 @@ t_protocolo Bomberman :: procesarAccion( t_protocolo recibido ){
         enviar.x = this->Jugadores[ jugador ].getPosicion().get_x();
         enviar.y = this->Jugadores[ jugador ].getPosicion().get_y();
     } else {
-        enviar.id = 0;
+        enviar.id = 'f';
         enviar.posicion = jugador;
         enviar.x = 0;
         enviar.y = 0;

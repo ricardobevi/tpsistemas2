@@ -132,7 +132,7 @@ void * procesador(void * args){
 
             enviar = Servidor.procesarAccion( recibido );
             
-            if( enviar.id != 0 ){
+            if( enviar.id != 'f' ){
                 pthread_mutex_lock(&QEnviarMutex);
                 QEnviar.push(enviar);
                 pthread_mutex_unlock(&QEnviarMutex);
