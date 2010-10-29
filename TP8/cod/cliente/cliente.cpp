@@ -82,7 +82,24 @@ int main(int argc, const char *argv[]){
         //pthread_cond_wait(&CondicionActualizar, &actualizar);    
         
         pthread_mutex_lock(&SemColaNovedades); 
+            
+        /*    las siguientes lineas son las encargadas de la pantalla del timeout al ingreso del juego
+        // envia al servidor cual es su timeout y
+        // espera ese tiempo de timeout como maximo para esperar otros jugadores
         
+        t_protocolo accion;
+        
+        clienteBomberman.enviarSolicitud ( clienteBomberman.get_timeout() );    
+        
+        clienteBomberman.recivirAccion( &accion, sizeof(t_protocolo) );
+        
+        while ( accion.id != 'i' )
+        {
+                clienteBomberman.esperaDeJugadores(  accion.x );
+                clienteBomberman.recivirAccion( &accion, sizeof(t_protocolo) );          
+        }
+   
+        */
         
         pthread_create( &recver_t, NULL, recver, NULL);
         pthread_create( &sender_t, NULL, sender, NULL);
@@ -101,11 +118,9 @@ void * recver(void * args)
 {   
     t_protocolo accion;
     
-    
     // espera a recivir todo el escenario
     // hasta que se le indica 'i' como informe de fin de datos,entonces guarda el nombre del jugador 
     // y habilita la ejecucion de lectura de teclado y refresco de pantalla
-    
     clienteBomberman.recivirAccion( &accion, sizeof(t_protocolo) );
     
     while ( accion.id != 'i' )
@@ -120,7 +135,11 @@ void * recver(void * args)
     
     // comienzo el juego ( habilito teclado y pantalla )
     pthread_mutex_unlock(&inicioPantalla);
-    pthread_mutex_unlock(&inicioTeclado);
+    
+    // si espectador devuelve true significa que el jugador no podra jugar y solo observara la partida
+    // por lo tanto no se le activara el hilo de lectura de teclado al mismo
+    if ( clienteBomberman.espectador() == false ) 
+                    pthread_mutex_unlock(&inicioTeclado);
     
     pthread_cond_broadcast( &CondicionActualizar );
     
@@ -138,11 +157,16 @@ void * recver(void * args)
             /*cout << "id = " << accion.id << " pos = " << accion.posicion
                  << " (" << accion.x << "," << accion.y << ")"  << endl;*/
             
+            
+            
                 pthread_mutex_lock( &SemColaNovedades );
             
                        colaNovedades.push(accion);
                 
                 pthread_mutex_unlock( &SemColaNovedades );
+                
+                
+                
                 
                 pthread_cond_broadcast( &CondicionActualizar );
                           

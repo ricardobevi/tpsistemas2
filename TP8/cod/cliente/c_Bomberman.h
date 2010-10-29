@@ -40,9 +40,37 @@ class Bomberman
          void ComunicarServidor();
          
          void finalizarBomberman(void);
+         
+         bool espectador(void);
+         
+         void esperaDeJugadores(  int timeout  );
+         
+         int get_timeout();
                    
 };
 
+
+int  Bomberman :: get_timeout()
+{
+    return this-> timeOut;
+}
+
+
+
+void Bomberman ::  esperaDeJugadores(  int timeout  )
+{
+    entornoCliente.dibujarTimeOut(timeout);
+}
+
+bool Bomberman :: espectador(void)
+{
+    bool espectador =false;
+    
+    if (idJugador == -1)
+        espectador = true;
+    
+    return espectador;
+}
 
 // envia la tecla que se presiono al servidor a travez de 
 // un objeto t_protocolo:
@@ -75,7 +103,8 @@ void Bomberman :: set_idJugador( int jugador )
 
 Bomberman :: Bomberman()
 {
-   
+    int conexionExitosa;
+    
     ifstream configuracion("c_bomberman.conf");
     
     if( !configuracion.good() )
@@ -90,10 +119,21 @@ Bomberman :: Bomberman()
     configuracion >> timeOut;
        
     configuracion.close();
-
-    entornoCliente.cargarEntorno( &escenarioCliente );
     
-    connectionCliente.Connect( ipServidor , puerto );
+    conexionExitosa = connectionCliente.Connect( ipServidor , puerto );
+    
+    if ( conexionExitosa == -1  )
+    {
+        ofstream error("errores.err");
+        error << endl <<"ERROR: Fallo la conexion al socket o el servidor no esta activo " << endl ;
+        error.close();
+        cout << endl <<"ERROR: Fallo la conexion al socket o el servidor no esta activo " << endl << endl << "El cliente ha finalizado" << endl << endl ;
+        exit (0);
+        
+    }
+
+    entornoCliente.cargarEntorno( &escenarioCliente );     
+         
 }
 
 
@@ -180,6 +220,8 @@ void Bomberman :: actualizarNovedades( t_protocolo * accion )
                    V :     vector < Coordenada > premiosVida;
                    E :     vector < Coordenada > premiosExplosion;
                    R :     vector < Coordenada > premiosVelocidad;
+                   
+                   F:      fin de partida: x-  numero de jugador -  y posicion
                   
 
             */
@@ -298,9 +340,9 @@ void Bomberman :: actualizarNovedades( t_protocolo * accion )
                         //
                         //                  posicion no existente:  introduce dicho valor al final del vector como una nueva explosion
 
-                    
                         if ( accion->posicion >=  escenarioCliente.explosiones.size() )
                         {
+                            // esta seria el primer valor de una explosion (-1,-1) , crea la explosion
                             vector < Coordenada >  aux ;
                             aux.push_back( Coordenada( accion->x, accion->y) );
                             escenarioCliente.explosiones.push_back( aux );
@@ -308,15 +350,23 @@ void Bomberman :: actualizarNovedades( t_protocolo * accion )
                         else
                         {
                              
-                            if (  accion->x != -1)
-                            {
-                                escenarioCliente.explosiones[accion->posicion].push_back(  Coordenada( accion->x, accion->y) ) ;
-                            }
-                            else
+                            if (  accion->x == -1) // eliminar una explosion
                             {
                                 vector < vector < Coordenada >  > :: iterator  it =escenarioCliente.explosiones.begin();
                                 it += accion->posicion -1 ;
                                 escenarioCliente.explosiones.erase( it )  ;
+                               
+                            }
+                            else
+                            {
+                                if (  accion->posicion != 0 )
+                                {
+                                    escenarioCliente.explosiones[accion->posicion].push_back(  Coordenada( accion->x, accion->y) ) ; // agrego cuadraditos a una explosion
+                                }
+                                {
+                                    escenarioCliente.explosiones[accion->posicion][0] = Coordenada( accion->x, accion->y) ; // informa fin de envio de explosion para mostrar en pantalla
+                                }
+                                
                             }
                             
                         }      
@@ -437,8 +487,16 @@ void Bomberman :: actualizarNovedades( t_protocolo * accion )
                     
                     
                         break;
-                               
-                
+                        
+                        
+                 case 'F':
+                        
+                        //Jugador Numero :  x      Puesto : y
+                        //Jugador Numero :  x      Puesto : y
+                        //Jugador Numero :  x      Puesto : y
+                        //Jugador Numero :  x      Puesto : y
+                       
+                        break;
 
             }
             
