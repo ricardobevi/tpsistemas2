@@ -77,7 +77,7 @@ int main(int argc, const char *argv[]){
         pthread_mutex_lock(&inicioPantalla); 
         pthread_mutex_lock(&inicioTeclado);   
                                                                           
-        pthread_cond_wait(&CondicionActualizar, &actualizar);    
+        //pthread_cond_wait(&CondicionActualizar, &actualizar);    
         
         pthread_mutex_lock(&SemColaNovedades); 
         
@@ -198,7 +198,7 @@ void * screen(void * args)
          
             pthread_mutex_lock( &SemColaNovedades );
             
-                //if( ! colaNovedades.empty() )
+                if( ! colaNovedades.empty() )
                 {
                     accion = colaNovedades.front();
                     
