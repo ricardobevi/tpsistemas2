@@ -222,9 +222,11 @@ void Bomberman :: actualizarNovedades( t_protocolo * accion )
                    R :     vector < Coordenada > premiosVelocidad;
                    
                    F:      fin de partida: x-  numero de jugador -  y posicion
+                   
+                   a:      Actualizar explosion para mostrarla en pantalla 
                   
 
-            */
+       */
             
             ofstream error("errores.err");
             // el siguiente switch determina que operaciones deben realizarce en base a que novedad ah sido enviada
@@ -359,14 +361,9 @@ void Bomberman :: actualizarNovedades( t_protocolo * accion )
                             }
                             else
                             {
-                                if (  accion->posicion != 0 )
-                                {
-                                    escenarioCliente.explosiones[accion->posicion].push_back(  Coordenada( accion->x, accion->y) ) ; // agrego cuadraditos a una explosion
-                                }
-                                {
-                                    escenarioCliente.explosiones[accion->posicion][0] = Coordenada( accion->x, accion->y) ; // informa fin de envio de explosion para mostrar en pantalla
-                                }
-                                
+                                    // agrego cuadraditos a una explosion
+                                    escenarioCliente.explosiones[accion->posicion].push_back(  Coordenada( accion->x, accion->y) ) ; 
+   
                             }
                             
                         }      
@@ -374,6 +371,12 @@ void Bomberman :: actualizarNovedades( t_protocolo * accion )
                        
                         break;
                 
+                case 'a':
+                        
+                        // informa fin de envio de explosion para mostrar en pantalla
+                        escenarioCliente.explosiones[accion->posicion][0] = Coordenada( accion->x, accion->y) ; 
+                        break;
+                        
                 case 't':
                     
                         escenarioCliente.tiempo = accion -> x;
