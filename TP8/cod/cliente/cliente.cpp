@@ -160,14 +160,15 @@ void * sender(void * args)
     
     pthread_mutex_lock(&inicioTeclado);
     
-    int teclaPresionada;
+    // el siguiente codigo si bien es igual al actual lo sacamos porque no andaba :S
+    //int teclaPresionada;
+    //teclaPresionada = getch();    // esto por ahora es un getch
+    //fflush(stdin);
+    //clienteBomberman.enviarSolicitud ( getch() );
 
-    while (true)
-    {
-        teclaPresionada = clienteBomberman.leerTeclado();    // esto por ahora es un getch
-
-        clienteBomberman.enviarSolicitud (teclaPresionada);
-       
+    while ( true )
+    {   
+        clienteBomberman.enviarSolicitud ( getch() );     
     }
     
     return NULL; //solo para que no me tire warning

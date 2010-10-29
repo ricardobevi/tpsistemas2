@@ -35,14 +35,14 @@ class Entorno
 
 int Entorno :: leerTeclado()
 {
-    int aux;
+   /* int aux;
     
     usleep(300);
-    fflush( stdin );
-    //fflush( stdout );
+    //fflush( stdin );
     aux = getch(); 
-
-    return aux;
+    //fflush( stdin );
+    return aux;*/
+    return 1; // solo para evitar errores
 }
 
 Entorno :: Entorno()
@@ -64,12 +64,12 @@ void Entorno :: cargarEntorno ( Escenario * escenario )
    
    
    // inicializa caracteristicas del ncurses
+   //clearok(pantalla,true);
+   //nodelay(stdscr, TRUE);
    initscr();  
    cbreak();
    noecho();
    curs_set(0);
-   //clearok(pantalla,true);
-   //nodelay(stdscr, TRUE);
    nonl();
    keypad(stdscr, TRUE);
 
@@ -85,7 +85,7 @@ void Entorno :: cargarEntorno ( Escenario * escenario )
    init_pair(5, COLOR_BLACK, COLOR_WHITE   );        //pared fija
    init_pair(6, COLOR_BLACK, COLOR_CYAN    );        //pared destruible
    init_pair(7, COLOR_WHITE, COLOR_MAGENTA );        //premios
-   init_pair(8,COLOR_YELLOW, COLOR_RED     );        //Bomba y Explosion
+   init_pair(8, COLOR_YELLOW, COLOR_RED     );        //Bomba y Explosion
       
    
    
@@ -344,7 +344,7 @@ void Entorno :: actualizarPantalla( void )
     wattroff(pantalla,COLOR_PAIR(7));
      //--------------------------------------------------  FIN Actualizo Premios en pantalla ---------------------------------------------//
    
-    mvwprintw(pantalla, 21,0, " ERROR >>");
+    mvwprintw(pantalla, 21,0, " ERROR >>  ");
 
     //actualizo pantalla  
 
@@ -354,61 +354,6 @@ void Entorno :: actualizarPantalla( void )
     //  -------------------------------------------------- FIN LEO EL ESCENARIO Y ACTUALIZO LA PANTALLA--------------------------------- //
 
 }
-
-/*
-
-// El siguiente metodo permite leer el teclado y enviar acciones al entorno directamente sin depender de un servidor.
-// su creacion fue unicamente a modo de prueba para probar el correcto funcionamiento del entorno
-
-
-// Objetivo: lee constantemente el teclado a la espera de que se presione una tecla,
-// en dicho caso realiza la accion correspondiente
-
-
-char Entorno :: leerTeclado()
-{
- int tecla;
- unsigned int jugador = 0;
-    
-    while( (tecla = getch()) != 'q' )
-    {  
-        switch(tecla)
-        {   
-            case KEY_LEFT:
-                
-                (escenarioActual->jugadores).at( jugador ).get_y()--;
-                
-                break;
-                
-            case KEY_RIGHT:
-                                
-                (escenarioActual->jugadores).at( jugador ).get_y()++;
-                
-                break;
-                
-            case KEY_UP:
-                
-                (escenarioActual->jugadores).at( jugador ).get_x()--;
-                
-                break;
-                
-            case KEY_DOWN:
-                
-                (escenarioActual->jugadores).at( jugador ).get_x()++;
-                
-                break;  
-        }
-        
-        actualizarPantalla();
-
-    }
-    
-    finalizarPantalla( );
-    
-    return 'c';
-        
-}
-*/
 
 
 
