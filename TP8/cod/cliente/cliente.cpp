@@ -10,6 +10,7 @@
 #include <signal.h>
 #include <queue>
 #include <sys/types.h>
+#include <ctime>
 
 
 #include "c_Bomberman.h"
@@ -63,6 +64,7 @@ int main(int argc, const char *argv[]){
     term.sa_flags = SA_SIGINFO | SA_NODEFER;
     sigaction(SIGINT, &term, NULL);
 
+    srand(unsigned(time(NULL)));
     
     pthread_t sender_t,                                               // creo los hilos correspondientes para la ejecucion:
               recver_t,                                               // receptor de datos, emisor de datos , y gestor de pantalla
