@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
     // ****************  DATOS ESCENARIO ********************* //
     /*
 
-        vector < unsigned int > vidas;
+        vector <  int > vidas;
         vector < Coordenada > jugadores;
         vector < Coordenada > paredesFijas;
         vector < Coordenada > paredesDestruibles;
