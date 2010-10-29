@@ -11,8 +11,6 @@
 #include <stdlib.h>
 #include <queue>
 
-#define MUTEX_PTHREAD PTHREAD_MUTEX_INITIALIZER
-
 #include "Bomberman.h"
 
 Bomberman Servidor;
@@ -29,18 +27,18 @@ pthread_t procesadorThread,
 queue<t_protocolo> QRecibido;
 queue<t_protocolo> QEnviar;
 
-pthread_mutex_t ProcesadorMutex = MUTEX_PTHREAD;
+pthread_mutex_t ProcesadorMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t  ProcesadorCond  = PTHREAD_COND_INITIALIZER;
 
-pthread_mutex_t SenderMutex = MUTEX_PTHREAD;
+pthread_mutex_t SenderMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t  SenderCond  = PTHREAD_COND_INITIALIZER;
 
-pthread_mutex_t ClockMutex = MUTEX_PTHREAD;
-pthread_mutex_t ClockStartMutex = MUTEX_PTHREAD;
+pthread_mutex_t ClockMutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t ClockStartMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t  ClockStartCond  = PTHREAD_COND_INITIALIZER;
 
-pthread_mutex_t QRecibidoMutex = MUTEX_PTHREAD;
-pthread_mutex_t QEnviarMutex = MUTEX_PTHREAD;
+pthread_mutex_t QRecibidoMutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t QEnviarMutex = PTHREAD_MUTEX_INITIALIZER;
 
 
 int main(){
@@ -174,10 +172,12 @@ void * sender( void * args ){
             enviar.y = 0;
             
             pthread_mutex_lock(&QEnviarMutex);{
+                
                 if ( ! QEnviar.empty() ){
                     enviar = QEnviar.front();
                     QEnviar.pop();
                 }
+                
             }pthread_mutex_unlock(&QEnviarMutex);
             
             Servidor.update( enviar );
