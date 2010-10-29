@@ -27,10 +27,31 @@ class Entorno
          void finalizarPantalla( void );             // Elimina la pantalla
          
          ~Entorno ();
-
+         
+         void dibujarTimeOut(int timeout);
                            
 };
 
+void Entorno ::  dibujarTimeOut(int timeout)
+{
+    //actualizo pantalla            
+    if ( timeout == -1) 
+    {
+        attron(COLOR_PAIR(2));
+        mvwprintw(pantalla, 11, 25, " Espere mientras el cliente se conecta y carga el escenario");
+        attroff(COLOR_PAIR(2));
+    }
+    else
+    {
+            attron(COLOR_PAIR(1));
+            mvwprintw(pantalla, 11, 35, " %d ", timeout);
+            attroff(COLOR_PAIR(1));
+    }
+  
+    refresh();
+    wrefresh( pantalla ); 
+    
+}
 
 
 Entorno :: Entorno()
@@ -76,7 +97,9 @@ void Entorno :: cargarEntorno ( Escenario * escenario )
    init_pair(8, COLOR_YELLOW, COLOR_RED     );        //Bomba y Explosion
       
    
+   pantalla = newwin(filas,columnas,starty, startx);
    
+   box(pantalla,0 ,0);      
    
    // descomentar la siguiente linea permite ver que el entorno se crea con exito 
    //ubicando la pantalla y los jugadores en sus respectivas posiciones
@@ -108,6 +131,7 @@ void Entorno :: actualizarPantalla( void )
     vector < Coordenada > :: iterator it;
     vector < vector <Coordenada> > :: iterator explosion;
     int posX, posY;
+    Coordenada explosionEnviada;
     //----------------------------------- FIN variables e iteradores auxiliares para la actualizacion de la pantalla -------------------- //
     
     
@@ -260,16 +284,22 @@ void Entorno :: actualizarPantalla( void )
     wattron(pantalla,COLOR_PAIR(1));
     for(explosion = escenarioActual->explosiones.begin() ; explosion != escenarioActual->explosiones.end() ; explosion++)
     {
-        for(it = explosion->begin() ; it != explosion->end() ; it++)
-        {
-       
-            x = 2 * it->get_x() +1;
-            y = 2 * it->get_y() +1;
-
+        explosionEnviada = *( explosion->begin() ); 
+        
+        if (  explosionEnviada.coordenadaBandera()  )  // si la posicion cero es distinta de -1 -1 significa que 
+        {                                              // la explosion esta completa y debo imprimirla en pantalla
+        
+                for(it = explosion->begin() ; it != explosion->end() ; it++)
+                {
             
-            mvwprintw(pantalla, y  ,x, "  ");
-            mvwprintw(pantalla, y+1,x, "  ");
-        }   
+                        x = 2 * it->get_x() +1;
+                        y = 2 * it->get_y() +1;
+
+                        
+                        mvwprintw(pantalla, y  ,x, "  ");
+                        mvwprintw(pantalla, y+1,x, "  ");
+                }   
+        }
         
     }
     wattroff(pantalla,COLOR_PAIR(1));
