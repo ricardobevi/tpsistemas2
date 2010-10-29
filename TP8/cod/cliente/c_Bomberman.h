@@ -31,7 +31,7 @@ class Bomberman
          Bomberman();
          ~Bomberman();
          
-         int  leerTeclado();
+         int  leerTeclado( int tipoTeclado = 1);
          void set_idJugador( int jugador );
          void dibujarPantalla();
          void recivirAccion(t_protocolo * accion, size_t tam );
@@ -111,10 +111,21 @@ void Bomberman :: finalizarBomberman( void )
 
 
 // lee la tecla presionada por el usuario y devuelve la misma como resultado ( por ahora solo eso )
-int  Bomberman ::leerTeclado()
+int  Bomberman ::leerTeclado( int tipoTeclado )
 {
     int aux;
-    aux = entornoCliente.leerTeclado();
+    usleep( 250 );
+    //fflush(stdin);
+    
+    if ( tipoTeclado )
+    {
+        aux = getchar();
+    }
+    else
+    {
+        //teclado automatico
+    }
+    
     return aux;
 }
 
@@ -208,7 +219,7 @@ void Bomberman :: actualizarNovedades( t_protocolo * accion )
                         //                  posicion no existente:  introduce dicho valor al final del vector
                         //
                         
-                        if (  accion->posicion >= escenarioCliente.paredesDestruibles.size())
+                        if (  accion->posicion >= escenarioCliente.paredesDestruibles.size() )
                         {
                             escenarioCliente.paredesDestruibles.push_back( Coordenada( accion->x, accion->y) );
                         }
