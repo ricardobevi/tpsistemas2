@@ -14,7 +14,7 @@ class Escenario
         
         Escenario();
                 
-        vector < unsigned int > vidas;
+        vector < int > vidas;
         vector < Coordenada > jugadores;
         vector < Coordenada > paredesFijas;
         vector < Coordenada > paredesDestruibles;
@@ -26,7 +26,7 @@ class Escenario
         vector < Coordenada > premiosVelocidad;
         vector < vector < Coordenada >  > explosiones;
         
-        unsigned int    tiempo;
+        int    tiempo;
         
         
 

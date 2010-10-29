@@ -1,15 +1,3 @@
-/************************************/
-/* Nombre: cliente.cpp              */
-/* Trabajo: Threads y Sockets       */
-/* Numero de ejercicio: 4           */
-/* Entrega: Primer Entrega          */
-/*                                  */
-/* Grupo N 63                       */
-/* D'Aranno Facundo      34.842.320 */
-/* Marcela A. Uslenghi   26.920.315 */
-/* Bevilacqua Ricardo    34.304.983 */
-/************************************/
-
 #include <unistd.h>
 #include <iostream>
 #include <fstream>
@@ -20,6 +8,8 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <queue>
+#include <sys/types.h>
 
 
 #include "c_Bomberman.h"
@@ -31,13 +21,28 @@ void * sender (void * args);
 void * screen (void * args);
 void * recver (void * args);
 
+/*
+
+­pthread_mutex_t ProcesadorMutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t  ProcesadorCond  = PTHREAD_COND_INITIALIZER;
+­pthread_cond_wait(&ProcesadorCond, &actualizar);
+­pthread_cond_broadcast(&CondicionActualizar);
+
+*/
+
 
 // Objeto cliente bomberman
 Bomberman clienteBomberman;
+queue <t_protocolo>  colaNovedades;
 
-pthread_mutex_t inicioPantalla  = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t inicioTeclado = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t pantalla = PTHREAD_MUTEX_INITIALIZER;
+
+pthread_mutex_t SemColaNovedades     = PTHREAD_MUTEX_INITIALIZER;
+
+pthread_mutex_t inicioPantalla       = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t inicioTeclado        = PTHREAD_MUTEX_INITIALIZER;
+
+pthread_mutex_t actualizar           = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t  CondicionActualizar  = PTHREAD_COND_INITIALIZER;
 
 
 void finalizarCliente(int iNumSen, siginfo_t  * info, void *ni)
@@ -62,10 +67,20 @@ int main(int argc, const char *argv[]){
     pthread_t sender_t,                                               // creo los hilos correspondientes para la ejecucion:
               recver_t,                                               // receptor de datos, emisor de datos , y gestor de pantalla
               screen_t;
-   
+              
+              
+              
+        // mediante estos mutex freno a los hilos de emision y pantalla    
+        // hasta q comience la partida (inicio) o haya q actualizar la pantalla (pantalla)
+        
+
         pthread_mutex_lock(&inicioPantalla); 
-        pthread_mutex_lock(&inicioTeclado);                          // mediante estos mutex freno a los hilos de emision y pantalla :     
-        pthread_mutex_lock(&pantalla);                                // hasta q comience la partida (inicio) o haya q actualizar la pantalla (pantalla)
+        pthread_mutex_lock(&inicioTeclado);   
+                                                                          
+        pthread_cond_wait(&CondicionActualizar, &actualizar);    
+        
+        pthread_mutex_lock(&SemColaNovedades); 
+        
         
         pthread_create( &recver_t, NULL, recver, NULL);
         pthread_create( &sender_t, NULL, sender, NULL);
@@ -105,21 +120,30 @@ void * recver(void * args)
     pthread_mutex_unlock(&inicioPantalla);
     pthread_mutex_unlock(&inicioTeclado);
     
+    pthread_cond_broadcast( &CondicionActualizar );
+    
     // realiza un bucle infinito reciviendo acciones desde el servidor
     // actualiza el escenario con dichas acciones e informa (al hilo encargado de la pantalla)
     // mediante el semaforo  que debe realizar un refresco.
     
+    pthread_mutex_unlock(&SemColaNovedades); 
+    
     while ( true )
-    {
+    {   
+            
             clienteBomberman.recivirAccion( &accion, sizeof(t_protocolo) );
             
             /*cout << "id = " << accion.id << " pos = " << accion.posicion
                  << " (" << accion.x << "," << accion.y << ")"  << endl;*/
-                 
-            clienteBomberman.actualizarNovedades( &accion );
             
-            if ( pthread_mutex_trylock( &pantalla ) !=  0 )
-                    pthread_mutex_unlock( &pantalla );
+                pthread_mutex_lock( &SemColaNovedades );
+            
+                       colaNovedades.push(accion);
+                
+                pthread_mutex_unlock( &SemColaNovedades );
+                
+                pthread_cond_broadcast( &CondicionActualizar );
+                          
     }
     
     
@@ -130,32 +154,22 @@ void * recver(void * args)
 // hilo emisor de datos hacia el servidor
 void * sender(void * args)
 {
-    pthread_mutex_lock(&inicioTeclado);
-    
-    int teclaPresionada;
-    
-    
     // espera mediante el semaforo inicio a que se habilite la ejecucion del hilo
     // una vez habilitado comienza un bucle infinito a la espera de que se presione una tecla
     // si esto sucede, envia la solicitud de presionado de esa tecla al servidor
-       
+    
+    pthread_mutex_lock(&inicioTeclado);
+    
+    int teclaPresionada;
+
     while (true)
     {
         teclaPresionada = clienteBomberman.leerTeclado();    // esto por ahora es un getch
 
-        /*Imprimo errores*/{
-        ofstream errores;
-
-        errores.open ("errores.err", fstream::in | fstream::out | fstream::app);
-        errores << teclaPresionada << endl;
-        errores.close();
-        }
-          
         clienteBomberman.enviarSolicitud (teclaPresionada);
        
     }
     
-
     return NULL; //solo para que no me tire warning
 
 }
@@ -171,10 +185,47 @@ void * screen(void * args)
     
     pthread_mutex_lock(&inicioPantalla);
     
+    t_protocolo accion;
+    
+    bool colaVacia;
+    
     while ( true )
     {
-         clienteBomberman.dibujarPantalla();
-         pthread_mutex_lock(&pantalla);
+         
+
+         
+         do{
+         
+            pthread_mutex_lock( &SemColaNovedades );
+            
+                //if( ! colaNovedades.empty() )
+                {
+                    accion = colaNovedades.front();
+                    
+                    colaNovedades.pop();
+                }
+                    
+            pthread_mutex_unlock( &SemColaNovedades );
+        
+            
+            
+            clienteBomberman.actualizarNovedades( &accion ); 
+            
+            clienteBomberman.dibujarPantalla();
+            
+            
+            
+            pthread_mutex_lock( &SemColaNovedades );
+            
+            colaVacia = colaNovedades.empty();
+                
+            pthread_mutex_unlock( &SemColaNovedades );
+            
+          
+         }while ( !colaVacia );
+                  
+        pthread_cond_wait(&CondicionActualizar, &actualizar);
+          
     }
     
     return NULL; //solo para que no me tire warning

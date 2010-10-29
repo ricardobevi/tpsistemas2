@@ -19,7 +19,7 @@ class Bomberman
         
         string ipServidor ;
         unsigned int puerto;
-        unsigned int timeOut;
+        int timeOut;
         
         int idJugador;
         
@@ -139,13 +139,13 @@ void Bomberman :: actualizarNovedades( t_protocolo * accion )
 {
      /*
 
-                   v :     vector < unsigned int > vidas;
+                   v :     vector < int > vidas;
                    j :     vector < Coordenada > jugadores;
                    f :     vector < Coordenada > paredesFijas;
                    d :     vector < Coordenada > paredesDestruibles;
                    b :     vector < Coordenada > bombas;
                    e :     vector < vector < Coordenada >  > explosiones;  
-                   t :     unsigned int    tiempo;
+                   t :     int    tiempo;
                    
                    B ;     vector < Coordenada > premiosBomba;
                    V :     vector < Coordenada > premiosVida;
@@ -155,19 +155,48 @@ void Bomberman :: actualizarNovedades( t_protocolo * accion )
 
             */
             
+            ofstream error("errores.err");
             // el siguiente switch determina que operaciones deben realizarce en base a que novedad ah sido enviada
             switch ( accion->id )
             {
                 case 'v':
-                        escenarioCliente.vidas[accion->posicion]= accion->x;
+                    
+                        if(accion->posicion <  escenarioCliente.vidas.size() )
+                            escenarioCliente.vidas[accion->posicion]= accion->x;
+                        else
+                        {
+                            error << endl <<"Fallo de segmentacion en vector: vidas"<< endl << "pos: " << accion->posicion << endl << "x: " << accion->x << endl << "y: "<< accion->y;
+                            error.close();
+                            kill(SIGINT, getpid() );
+                        }
+                            
+                            
                         break;
                         
                 case 'j':
-                        escenarioCliente.jugadores[accion->posicion].set_coordenada( accion->x, accion->y);
+                    
+                        if( accion->posicion < escenarioCliente.jugadores.size() )
+                            escenarioCliente.jugadores[accion->posicion].set_coordenada( accion->x, accion->y);
+                        else
+                        {
+                            error << endl <<"Fallo de segmentacion en vector: jugadores"<< endl << "pos: " << accion->posicion << endl << "x: " << accion->x << endl << "y: "<< accion->y;
+                            error.close();
+                            kill(SIGINT, getpid() );
+                        }
+                        
                         break;
                 
                 case 'f':
-                        escenarioCliente.paredesFijas.push_back( Coordenada( accion->x, accion->y) );
+                    
+                        //if( accion->posicion >= escenarioCliente.paredesFijas.size() )
+                            escenarioCliente.paredesFijas.push_back( Coordenada( accion->x, accion->y) );
+                        /*else
+                        {
+                            error << endl <<"Fallo de segmentacion en vector: jugadores"<< endl << "pos: " << accion->posicion << endl << "x: " << accion->x << endl << "y: "<< accion->y;
+                            error.close();
+                            kill(SIGINT, getpid() );
+                        }*/
+                        
                         break;
                     
                 case 'd':
@@ -179,7 +208,7 @@ void Bomberman :: actualizarNovedades( t_protocolo * accion )
                         //                  posicion no existente:  introduce dicho valor al final del vector
                         //
                         
-                        if ( escenarioCliente.paredesDestruibles.size() <=  accion->posicion )
+                        if (  accion->posicion >= escenarioCliente.paredesDestruibles.size())
                         {
                             escenarioCliente.paredesDestruibles.push_back( Coordenada( accion->x, accion->y) );
                         }
@@ -207,7 +236,7 @@ void Bomberman :: actualizarNovedades( t_protocolo * accion )
                     
                         // idem anterior
                     
-                        if ( escenarioCliente.bombas.size() <=  accion->posicion )
+                        if ( accion->posicion >=  escenarioCliente.bombas.size()  )
                         {
                             escenarioCliente.bombas.push_back( Coordenada( accion->x, accion->y) );
                         }
@@ -241,7 +270,7 @@ void Bomberman :: actualizarNovedades( t_protocolo * accion )
                         //                  posicion no existente:  introduce dicho valor al final del vector como una nueva explosion
 
                     
-                        if ( escenarioCliente.explosiones.size() <=  accion->posicion )
+                        if ( accion->posicion >=  escenarioCliente.explosiones.size() )
                         {
                             vector < Coordenada >  aux ;
                             aux.push_back( Coordenada( accion->x, accion->y) );
@@ -276,7 +305,7 @@ void Bomberman :: actualizarNovedades( t_protocolo * accion )
                     
                         // idem anterior
                     
-                        if ( escenarioCliente.premiosBomba.size() <=  accion->posicion )
+                        if (  accion->posicion >= escenarioCliente.premiosBomba.size() )
                         {
                             escenarioCliente.premiosBomba.push_back( Coordenada( accion->x, accion->y) );
                         }
@@ -302,7 +331,7 @@ void Bomberman :: actualizarNovedades( t_protocolo * accion )
                     
                         // idem anterior                    
                     
-                        if ( escenarioCliente.premiosVida.size() <=  accion->posicion )
+                        if (  accion->posicion <= escenarioCliente.premiosVida.size()  )
                         {
                             escenarioCliente.premiosVida.push_back( Coordenada( accion->x, accion->y) );
                         }
@@ -329,7 +358,7 @@ void Bomberman :: actualizarNovedades( t_protocolo * accion )
 
                         // idem anterior
                         
-                        if ( escenarioCliente.premiosExplosion.size() <=  accion->posicion )
+                        if ( accion->posicion <= escenarioCliente.premiosExplosion.size() )
                         {
                             escenarioCliente.premiosExplosion.push_back( Coordenada( accion->x, accion->y) );
                         }
@@ -357,7 +386,7 @@ void Bomberman :: actualizarNovedades( t_protocolo * accion )
 
                         // idem anterior
                         
-                        if ( escenarioCliente.premiosVelocidad.size() <=  accion->posicion )
+                        if ( accion->posicion <= escenarioCliente.premiosVelocidad.size() )
                         {
                             escenarioCliente.premiosVelocidad.push_back( Coordenada( accion->x, accion->y) );
                         }

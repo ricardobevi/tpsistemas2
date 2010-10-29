@@ -37,7 +37,9 @@ int Entorno :: leerTeclado()
 {
     int aux;
     
+    usleep(300);
     fflush( stdin );
+    //fflush( stdout );
     aux = getch(); 
 
     return aux;
@@ -66,8 +68,11 @@ void Entorno :: cargarEntorno ( Escenario * escenario )
    cbreak();
    noecho();
    curs_set(0);
-   keypad(stdscr, TRUE);
+   //clearok(pantalla,true);
    //nodelay(stdscr, TRUE);
+   nonl();
+   keypad(stdscr, TRUE);
+
    
    
    // inicializa los colores a utilizar
@@ -111,10 +116,10 @@ void Entorno :: actualizarPantalla( void )
 {
     
     //----------------------------------- variables e iteradores auxiliares para la actualizacion de la pantalla ------------------------ //
-    unsigned int x,y;
+    int x,y;
     vector < Coordenada > :: iterator it;
     vector < vector <Coordenada> > :: iterator explosion;
-    unsigned int posX, posY;
+    int posX, posY;
     //----------------------------------- FIN variables e iteradores auxiliares para la actualizacion de la pantalla -------------------- //
     
     
@@ -122,7 +127,7 @@ void Entorno :: actualizarPantalla( void )
     
      //------------------------------------------ Cabecera de pantalla ( vidas y tiempo de juego ) --------------------------------------//
      
-     mvprintw(0,36,"Time %d", escenarioActual->tiempo);
+    
        
     // jugador1 : Rojo
     attron(COLOR_PAIR(1));
@@ -133,7 +138,9 @@ void Entorno :: actualizarPantalla( void )
     attron(COLOR_PAIR(2));
     mvprintw(0,16,"Jug 2: %d" ,(escenarioActual->vidas).at(1) );
     attroff(COLOR_PAIR(2));
-
+   
+    mvprintw(0,36,"Time %d", escenarioActual->tiempo);
+         
     // jugador3 : Amarillo
     attron(COLOR_PAIR(3));
     mvprintw(0,53,"Jug 3: %d" ,(escenarioActual->vidas).at(2));
@@ -173,6 +180,7 @@ void Entorno :: actualizarPantalla( void )
    */
 
     for( unsigned i = 0 ; i < escenarioActual->jugadores.size() ; i++ ){
+        
         posX = (escenarioActual->jugadores).at(i).get_x() ;
         posY = (escenarioActual->jugadores).at(i).get_y() ;
 
@@ -336,9 +344,10 @@ void Entorno :: actualizarPantalla( void )
     wattroff(pantalla,COLOR_PAIR(7));
      //--------------------------------------------------  FIN Actualizo Premios en pantalla ---------------------------------------------//
    
- 
+    mvwprintw(pantalla, 21,0, " ERROR >>");
 
-    //actualizo pantalla   
+    //actualizo pantalla  
+
     refresh();
     wrefresh( pantalla ); 
 
