@@ -27,23 +27,11 @@ class Entorno
          void finalizarPantalla( void );             // Elimina la pantalla
          
          ~Entorno ();
-         
-         int leerTeclado();                         // lee contantemente el teclado a la espera de que se presione una tecla,
-                                                     //en dicho caso realiza la accion correspondiente
+
                            
 };
 
-int Entorno :: leerTeclado()
-{
-   /* int aux;
-    
-    usleep(300);
-    //fflush( stdin );
-    aux = getch(); 
-    //fflush( stdin );
-    return aux;*/
-    return 1; // solo para evitar errores
-}
+
 
 Entorno :: Entorno()
 {
