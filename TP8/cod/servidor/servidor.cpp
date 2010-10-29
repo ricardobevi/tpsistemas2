@@ -11,6 +11,8 @@
 #include <stdlib.h>
 #include <queue>
 
+#define MUTEX_PTHREAD PTHREAD_MUTEX_INITIALIZER
+
 #include "Bomberman.h"
 
 Bomberman Servidor;
@@ -20,17 +22,25 @@ void * procesador( void * args );
 void * sender( void * args );
 void * timer( void * args );
 
+pthread_t procesadorThread,
+          senderThread,
+          timerThread;
+
 queue<t_protocolo> QRecibido;
 queue<t_protocolo> QEnviar;
 
-pthread_mutex_t ProcesadorMutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t SenderMutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t ProcesadorMutex = MUTEX_PTHREAD;
+pthread_cond_t  ProcesadorCond  = PTHREAD_COND_INITIALIZER;
 
-pthread_mutex_t ClockMutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t ClockStartMutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t SenderMutex = MUTEX_PTHREAD;
+pthread_cond_t  SenderCond  = PTHREAD_COND_INITIALIZER;
 
-pthread_mutex_t QRecibidoMutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t QEnviarMutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t ClockMutex = MUTEX_PTHREAD;
+pthread_mutex_t ClockStartMutex = MUTEX_PTHREAD;
+pthread_cond_t  ClockStartCond  = PTHREAD_COND_INITIALIZER;
+
+pthread_mutex_t QRecibidoMutex = MUTEX_PTHREAD;
+pthread_mutex_t QEnviarMutex = MUTEX_PTHREAD;
 
 
 int main(){
@@ -45,9 +55,6 @@ int main(){
     pthread_mutex_lock(&ClockStartMutex);
 
     vector<pthread_t> recvJugadores;
-    pthread_t procesadorThread,
-              senderThread,
-              timerThread;
 
     pthread_create( &procesadorThread, NULL, procesador, NULL );
     pthread_create( &senderThread, NULL, sender, NULL );
@@ -64,8 +71,7 @@ int main(){
 
         pthread_create( &newRecver, NULL, recver, (void *) (&numJugador) );
 
-        if( pthread_mutex_trylock(&ClockStartMutex) != 0 )
-                pthread_mutex_unlock(&ClockStartMutex);
+        pthread_cond_broadcast(&ClockStartCond);
 
         recvJugadores.push_back( newRecver );
     }
@@ -93,8 +99,7 @@ void * recver(void * args){
         QRecibido.push(recibido);
         pthread_mutex_unlock(&QRecibidoMutex);
 
-        if( pthread_mutex_trylock(&ProcesadorMutex) != 0 )
-            pthread_mutex_unlock(&ProcesadorMutex);
+        pthread_cond_broadcast(&ProcesadorCond);
 
         recibido = Servidor.getJugador( jugador ).recv();
     }
@@ -106,8 +111,8 @@ void * recver(void * args){
         QEnviar.push(recibido);
         pthread_mutex_unlock(&QEnviarMutex);
 
-        if( pthread_mutex_trylock(&SenderMutex) != 0 )
-                pthread_mutex_unlock(&SenderMutex);
+        pthread_cond_broadcast(&SenderCond);
+        
     }
 
     cout << "Se desconecto el jugador " << jugador << endl;
@@ -121,14 +126,18 @@ void * procesador(void * args){
                 enviar;
 
     while(1){
-        pthread_mutex_lock(&ProcesadorMutex);
+        pthread_cond_wait(&ProcesadorCond, &ProcesadorMutex);
         bool empty = true;
 
         do{
-            pthread_mutex_lock(&QRecibidoMutex);
-            recibido = QRecibido.front();
-            QRecibido.pop();
-            pthread_mutex_unlock(&QRecibidoMutex);
+            pthread_mutex_lock(&QRecibidoMutex);{
+            
+                if( ! QRecibido.empty() ){
+                    recibido = QRecibido.front();
+                    QRecibido.pop();
+                }
+            
+            }pthread_mutex_unlock(&QRecibidoMutex);
 
             enviar = Servidor.procesarAccion( recibido );
             
@@ -137,8 +146,7 @@ void * procesador(void * args){
                 QEnviar.push(enviar);
                 pthread_mutex_unlock(&QEnviarMutex);
 
-                if( pthread_mutex_trylock(&SenderMutex) != 0 )
-                    pthread_mutex_unlock(&SenderMutex);
+                pthread_cond_broadcast(&SenderCond);
             }
 
             pthread_mutex_lock(&QEnviarMutex);
@@ -154,7 +162,7 @@ void * procesador(void * args){
 void * sender( void * args ){
 
     while(1){
-        pthread_mutex_lock(&SenderMutex);
+        pthread_cond_wait(&SenderCond, &SenderMutex);
         bool empty = true;
         
         do{
@@ -165,10 +173,12 @@ void * sender( void * args ){
             enviar.x = 0;
             enviar.y = 0;
             
-            pthread_mutex_lock(&QEnviarMutex);
-            enviar = QEnviar.front();
-            QEnviar.pop();
-            pthread_mutex_unlock(&QEnviarMutex);
+            pthread_mutex_lock(&QEnviarMutex);{
+                if ( ! QEnviar.empty() ){
+                    enviar = QEnviar.front();
+                    QEnviar.pop();
+                }
+            }pthread_mutex_unlock(&QEnviarMutex);
             
             Servidor.update( enviar );
 
@@ -185,7 +195,7 @@ void * sender( void * args ){
 void * timer( void * args ){
     t_protocolo clock;
 
-    pthread_mutex_lock(&ClockStartMutex);
+    pthread_cond_wait(&ClockStartCond, &ClockStartMutex);
 
     while(1){
         sleep(1);
@@ -197,8 +207,8 @@ void * timer( void * args ){
         QEnviar.push(clock);
         pthread_mutex_unlock(&QEnviarMutex);
 
-        if( pthread_mutex_trylock(&SenderMutex) != 0 )
-                pthread_mutex_unlock(&SenderMutex);
+        pthread_cond_broadcast(&SenderCond);
+        
     }
     
     return NULL;
