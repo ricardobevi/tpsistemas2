@@ -258,7 +258,7 @@ unsigned Bomberman :: getNumJugadores(){
 t_protocolo Bomberman :: procesarAccion( t_protocolo recibido ){
     t_protocolo enviar;
 
-    bool move = false;
+    bool accion = false;
     
     unsigned jugador = recibido.posicion;
 
@@ -267,45 +267,66 @@ t_protocolo Bomberman :: procesarAccion( t_protocolo recibido ){
 
     switch( recibido.x ){
         case 'w':
-            if ( y > 0 && Escenario[x][y - 1] == LUGAR_VACIO ){
-                this->Jugadores[ jugador ].moverArriba();
-                move = true;
+            if ( y > 0 &&
+                ( Escenario[x][y - 1] == LUGAR_VACIO ||
+                  Escenario[x][y - 1] <= 3 ) ){
+
+                this->Jugadores[ jugador ].moverrArriba();
+                accion = true;
+            
             }
             break;
 
         case 's':
-            if ( (unsigned) y < Y_MAX && Escenario[x][y + 1] == LUGAR_VACIO ){
+            if ( (unsigned) y < Y_MAX &&
+                ( Escenario[x][y + 1] == LUGAR_VACIO ||
+                  Escenario[x][y + 1] <= 3 )  ){
+
                 this->Jugadores[ jugador ].moverAbajo();
-                move = true;
+                accion = true;
+            
             }
             break;
 
         case 'a':
-            if (  x > 0 && Escenario[x - 1][y] == LUGAR_VACIO ){
+            if (  x > 0 &&
+                ( Escenario[x - 1][y] == LUGAR_VACIO ||
+                  Escenario[x - 1][y] <= 3 ) ){
+
                 this->Jugadores[ jugador ].moverIzquierda();
-                move = true;
+                accion = true;
+            
             }
             break;
 
         case 'd':
-            if ( (unsigned) x < X_MAX && Escenario[x + 1][y] == LUGAR_VACIO ){
+            if ( (unsigned) x < X_MAX &&
+                ( Escenario[x + 1][y] == LUGAR_VACIO ||
+                  Escenario[x + 1][y] <= 3 )
+               ){
+                
                 this->Jugadores[ jugador ].moverDerecha();
-                move = true;
+                accion = true;
+            
             }
             break;
 
     }
 
-    if( move == true ){
+    if( accion == true ){
+        
         enviar.id = 'j';
         enviar.posicion = jugador;
         enviar.x = this->Jugadores[ jugador ].getPosicion().get_x();
         enviar.y = this->Jugadores[ jugador ].getPosicion().get_y();
+        
     } else {
+        
         enviar.id = 0;
         enviar.posicion = jugador;
         enviar.x = 0;
         enviar.y = 0;
+        
     }
 
     return enviar;

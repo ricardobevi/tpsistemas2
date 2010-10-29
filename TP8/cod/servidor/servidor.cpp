@@ -20,6 +20,12 @@ void * procesador( void * args );
 void * sender( void * args );
 void * timer( void * args );
 
+void pushQRecibido(t_protocolo recibido);
+void pushQEnviar(t_protocolo enviar);
+t_protocolo popQRecibido();
+t_protocolo popQEnviar();
+
+
 pthread_t procesadorThread,
           senderThread,
           timerThread;
@@ -65,6 +71,15 @@ int main(){
         
         numJugador = Servidor.nuevoJugador();
 
+        t_protocolo enviar;
+
+        enviar.id = 'j';
+        enviar.posicion = numJugador;
+        enviar.x = Servidor.getJugador(numJugador).getPosicion().get_x();
+        enviar.y = Servidor.getJugador(numJugador).getPosicion().get_y();
+
+        pushQEnviar(enviar);
+
         cout << "Conectado jugador " << numJugador << endl;
 
         pthread_create( &newRecver, NULL, recver, (void *) (&numJugador) );
@@ -93,25 +108,14 @@ void * recver(void * args){
 
         recibido.posicion = jugador;
 
-        pthread_mutex_lock(&QRecibidoMutex);
-        QRecibido.push(recibido);
-        pthread_mutex_unlock(&QRecibidoMutex);
-
-        pthread_cond_broadcast(&ProcesadorCond);
+        pushQRecibido(recibido);
 
         recibido = Servidor.getJugador( jugador ).recv();
     }
 
     recibido = Servidor.eliminarJugador( jugador );
 
-    /*Envio la eliminacion del jugador*/{
-        pthread_mutex_lock(&QEnviarMutex);
-        QEnviar.push(recibido);
-        pthread_mutex_unlock(&QEnviarMutex);
-
-        pthread_cond_broadcast(&SenderCond);
-        
-    }
+    pushQEnviar(recibido);
 
     cout << "Se desconecto el jugador " << jugador << endl;
     
@@ -128,24 +132,13 @@ void * procesador(void * args){
         bool empty = true;
 
         do{
-            pthread_mutex_lock(&QRecibidoMutex);{
-            
-                if( ! QRecibido.empty() ){
-                    recibido = QRecibido.front();
-                    QRecibido.pop();
-                }
-            
-            }pthread_mutex_unlock(&QRecibidoMutex);
+
+            recibido = popQRecibido();
 
             enviar = Servidor.procesarAccion( recibido );
             
-            if( enviar.id != 0 ){
-                pthread_mutex_lock(&QEnviarMutex);
-                QEnviar.push(enviar);
-                pthread_mutex_unlock(&QEnviarMutex);
-
-                pthread_cond_broadcast(&SenderCond);
-            }
+            if( enviar.id != 0 )
+                pushQEnviar(enviar);
 
             pthread_mutex_lock(&QEnviarMutex);
             empty = QRecibido.empty();
@@ -166,19 +159,7 @@ void * sender( void * args ){
         do{
             t_protocolo enviar;
 
-            enviar.id = 0;
-            enviar.posicion = 0;
-            enviar.x = 0;
-            enviar.y = 0;
-            
-            pthread_mutex_lock(&QEnviarMutex);{
-                
-                if ( ! QEnviar.empty() ){
-                    enviar = QEnviar.front();
-                    QEnviar.pop();
-                }
-                
-            }pthread_mutex_unlock(&QEnviarMutex);
+            enviar = popQEnviar();
             
             Servidor.update( enviar );
 
@@ -203,13 +184,60 @@ void * timer( void * args ){
         clock = Servidor.clockTick();
         pthread_mutex_unlock(&ClockMutex);
 
-        pthread_mutex_lock(&QEnviarMutex);
-        QEnviar.push(clock);
-        pthread_mutex_unlock(&QEnviarMutex);
-
-        pthread_cond_broadcast(&SenderCond);
+        pushQEnviar(clock);
         
     }
     
     return NULL;
+}
+
+void pushQRecibido(t_protocolo recibido){
+    pthread_mutex_lock(&QRecibidoMutex);
+    QRecibido.push(recibido);
+    pthread_mutex_unlock(&QRecibidoMutex);
+
+    pthread_cond_broadcast(&ProcesadorCond);
+}
+
+void pushQEnviar(t_protocolo enviar){
+    pthread_mutex_lock(&QEnviarMutex);
+    QEnviar.push(enviar);
+    pthread_mutex_unlock(&QEnviarMutex);
+
+    pthread_cond_broadcast(&SenderCond);
+}
+
+t_protocolo popQRecibido(){
+    t_protocolo recibido;
+
+    pthread_mutex_lock(&QRecibidoMutex);{
+
+        if( ! QRecibido.empty() ){
+            recibido = QRecibido.front();
+            QRecibido.pop();
+        }
+
+    }pthread_mutex_unlock(&QRecibidoMutex);
+
+    return recibido;
+}
+
+t_protocolo popQEnviar(){
+    t_protocolo enviar;
+    
+    enviar.id = 0;
+    enviar.posicion = 0;
+    enviar.x = 0;
+    enviar.y = 0;
+
+    pthread_mutex_lock(&QEnviarMutex);{
+
+        if ( ! QEnviar.empty() ){
+            enviar = QEnviar.front();
+            QEnviar.pop();
+        }
+
+    }pthread_mutex_unlock(&QEnviarMutex);
+
+    return enviar;
 }
