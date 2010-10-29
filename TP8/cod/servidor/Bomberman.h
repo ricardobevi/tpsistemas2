@@ -142,8 +142,6 @@ int Bomberman :: nuevoJugador(){
 
     playerCon = this->Socket.getConn( numCon );
 
-    Coordenada coord(0,0);
-
     /*Saco numero de jugador*/{
         unsigned i = 0;
         
@@ -155,7 +153,27 @@ int Bomberman :: nuevoJugador(){
             return -1;
         else
             numJugador = i;
-    }   
+    }
+
+    Coordenada coord(0,0);
+
+    switch(numJugador){
+        case 0:
+            coord.set_coordenada(0,0);
+            break;
+            
+        case 1:
+            coord.set_coordenada(X_MAX, 0);
+            break;
+            
+        case 2:
+            coord.set_coordenada(X_MAX, Y_MAX);
+            break;
+            
+        case 3:
+            coord.set_coordenada(0, Y_MAX);
+            break;
+    }
 
     Jugador Player( numJugador,
                     this->VidaInicial,
@@ -173,7 +191,7 @@ int Bomberman :: nuevoJugador(){
         
     }
 
-    //Escenario[0][0] = numJugador;
+    Escenario[0][0] = numJugador;
 
     this->sendEscenario( numJugador );
 
