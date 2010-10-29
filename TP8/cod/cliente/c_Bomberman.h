@@ -124,6 +124,24 @@ int  Bomberman ::leerTeclado( int tipoTeclado )
     else
     {
         //teclado automatico
+        aux = rand() % 4;
+
+        switch( aux ){
+            case 0:
+                aux = 'w';
+                break;
+            case 1:
+                aux = 's';
+                break;
+            case 2:
+                aux = 'a';
+                break;
+            case 3:
+                aux = 'd';
+                break;
+        }
+
+        usleep(10000);
     }
     
     return aux;
