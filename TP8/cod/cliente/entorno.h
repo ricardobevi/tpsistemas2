@@ -285,7 +285,7 @@ void Entorno :: actualizarPantalla( void )
     for(explosion = escenarioActual->explosiones.begin() ; explosion != escenarioActual->explosiones.end() ; explosion++)
     {
         explosionEnviada = *( explosion->begin() ); 
-        
+        /*
         if (  explosionEnviada.coordenadaBandera()  )  // si la posicion cero es distinta de -1 -1 significa que 
         {                                              // la explosion esta completa y debo imprimirla en pantalla
         
@@ -299,7 +299,7 @@ void Entorno :: actualizarPantalla( void )
                         mvwprintw(pantalla, y  ,x, "  ");
                         mvwprintw(pantalla, y+1,x, "  ");
                 }   
-        }
+        }*/
         
     }
     wattroff(pantalla,COLOR_PAIR(1));
