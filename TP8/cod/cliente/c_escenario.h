@@ -25,7 +25,7 @@ class Escenario
         vector < Coordenada > premiosVida;
         vector < Coordenada > premiosExplosion;
         vector < Coordenada > premiosVelocidad;
-        vector < vector < Coordenada >  > explosiones;
+        map < int , vector < Coordenada >  > explosiones;
         
         int    tiempo;
         

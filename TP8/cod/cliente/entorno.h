@@ -129,10 +129,7 @@ void Entorno :: actualizarPantalla( void )
     //----------------------------------- variables e iteradores auxiliares para la actualizacion de la pantalla ------------------------ //
     int x,y;
     vector < Coordenada > :: iterator it;
-    map < int , Coordenada > :: iterator mapIt;
-    vector < vector <Coordenada> > :: iterator explosion;
     int posX, posY;
-    Coordenada explosionEnviada;
     //----------------------------------- FIN variables e iteradores auxiliares para la actualizacion de la pantalla -------------------- //
     
     
@@ -284,26 +281,30 @@ void Entorno :: actualizarPantalla( void )
     // Explosiones
     
     wattron(pantalla,COLOR_PAIR(1));
-    for(explosion = escenarioActual->explosiones.begin() ; explosion != escenarioActual->explosiones.end() ; explosion++)
+   
+    
+    for( unsigned int i = 0 ; i < escenarioActual->explosiones.size() ; i++)
     {
-        explosionEnviada = *( explosion->begin() ); 
         
-        if (  explosionEnviada.coordenadaBandera()  )  // si la posicion cero es distinta de -1 -1 significa que 
-        {                                              // la explosion esta completa y debo imprimirla en pantalla
+        if (  escenarioActual->explosiones[i][0].coordenadaBandera()  )   // si la posicion cero es distinta de -1 -1 significa que 
+        {                                                                 // la explosion esta completa y debo imprimirla en pantalla
         
-                for(it = explosion->begin() ; it != explosion->end() ; it++)
+                for( unsigned puntoExplosion  = 0 ; puntoExplosion < escenarioActual->explosiones[i].size() ; puntoExplosion++)
                 {
-            
-                        x = 2 * it->get_x() +1;
-                        y = 2 * it->get_y() +1;
-
+           
+                        x =   escenarioActual->explosiones[i][ puntoExplosion ].get_x() ; 
+                        y =   escenarioActual->explosiones[i][ puntoExplosion ].get_y() ;
                         
-                        mvwprintw(pantalla, y  ,x, "  ");
-                        mvwprintw(pantalla, y+1,x, "  ");
+                        x = 2 * x + 1;
+                        y = 2 * y + 1;
+                       
+                        mvwprintw(pantalla, y    ,x, "  ");
+                        mvwprintw(pantalla, y+1  ,x, "  ");
                 }   
         }
         
     }
+    
     wattroff(pantalla,COLOR_PAIR(1));
     
     //------------------------------------------------------ FIN Actualizo explosiones en pantalla ---------------------------------------//
