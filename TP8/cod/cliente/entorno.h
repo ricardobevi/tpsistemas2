@@ -129,6 +129,7 @@ void Entorno :: actualizarPantalla( void )
     //----------------------------------- variables e iteradores auxiliares para la actualizacion de la pantalla ------------------------ //
     int x,y;
     vector < Coordenada > :: iterator it;
+    map < int , Coordenada > :: iterator mapIt;
     vector < vector <Coordenada> > :: iterator explosion;
     int posX, posY;
     Coordenada explosionEnviada;
@@ -225,8 +226,8 @@ void Entorno :: actualizarPantalla( void )
         x = 2 * it->get_x() +1;
         y = 2 * it->get_y() +1;
     
-        mvwprintw(pantalla, y    , x, "XX");
-        mvwprintw(pantalla, y + 1, x, "XX");
+        mvwprintw(pantalla, y    , x, "  ");
+        mvwprintw(pantalla, y + 1, x, "  ");
     }
     wattroff(pantalla,COLOR_PAIR(5));   
     
@@ -244,8 +245,8 @@ void Entorno :: actualizarPantalla( void )
         x = 2 * it->get_x() +1;
         y = 2 * it->get_y() +1;
 
-        mvwprintw(pantalla, y    , x, "  ");
-        mvwprintw(pantalla, y + 1, x, "  ");
+        mvwprintw(pantalla, y    , x, "xx");
+        mvwprintw(pantalla, y + 1, x, "xx");
         
     }
     wattroff(pantalla,COLOR_PAIR(6));
@@ -259,10 +260,11 @@ void Entorno :: actualizarPantalla( void )
     // Bombas
 
     wattron(pantalla,COLOR_PAIR(8));
-    for(it = escenarioActual->bombas.begin() ; it != escenarioActual->bombas.end() ; it++)
+   
+    for( unsigned int i = 0;  i < escenarioActual->bombas.size() ;  i++)
     {
-        x = 2 * it->get_x() +1;
-        y = 2 * it->get_y() +1;
+        x = 2 *  escenarioActual->bombas[i].get_x() +1;
+        y = 2 *  escenarioActual->bombas[i].get_y() +1;
 
         
         //mvwchgat(pantalla,  x,  y, 2, A_BLINK, 1,NULL );
@@ -285,7 +287,7 @@ void Entorno :: actualizarPantalla( void )
     for(explosion = escenarioActual->explosiones.begin() ; explosion != escenarioActual->explosiones.end() ; explosion++)
     {
         explosionEnviada = *( explosion->begin() ); 
-        /*
+        
         if (  explosionEnviada.coordenadaBandera()  )  // si la posicion cero es distinta de -1 -1 significa que 
         {                                              // la explosion esta completa y debo imprimirla en pantalla
         
@@ -299,7 +301,7 @@ void Entorno :: actualizarPantalla( void )
                         mvwprintw(pantalla, y  ,x, "  ");
                         mvwprintw(pantalla, y+1,x, "  ");
                 }   
-        }*/
+        }
         
     }
     wattroff(pantalla,COLOR_PAIR(1));

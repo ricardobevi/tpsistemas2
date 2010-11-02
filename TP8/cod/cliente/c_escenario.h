@@ -2,6 +2,7 @@
 #define ESCENARIO_H
 
 #include <vector>
+#include <map>
 #include "../include/Coordenada.h"
 #include <stdlib.h>
 
@@ -18,7 +19,7 @@ class Escenario
         vector < Coordenada > jugadores;
         vector < Coordenada > paredesFijas;
         vector < Coordenada > paredesDestruibles;
-        vector < Coordenada > bombas;
+        map < int, Coordenada > bombas;
          
         vector < Coordenada > premiosBomba;
         vector < Coordenada > premiosVida;
