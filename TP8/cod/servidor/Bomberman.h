@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <queue>
 
 // Librerias para el generador de numeros aleatorios.
 #include <ctime>
@@ -17,6 +18,9 @@
 
 #include "../include/Comm.h"
 #include "../include/Connection.h"
+
+#define ACCION_MOVE 1
+#define ACCION_BOMB 2
 
 //#include "../include/t_protocolo.h"
 
@@ -41,6 +45,8 @@ class Bomberman {
 
         t_protocolo procesarAccion( t_protocolo data );
 
+        t_protocolo explotarBomba();
+
         int update( t_protocolo data );
 
         t_protocolo eliminarJugador( unsigned jugador );
@@ -53,9 +59,10 @@ class Bomberman {
 
     private:
         int Timer;
+        unsigned long int HDTimer;
         
         vector < Jugador >    Jugadores;
-        vector < Bomba >      Bombas;
+        queue  < Bomba >      Bombas;
         vector < Explosion >  Explosiones;
         vector < Premio >     Premios;
         vector < Coordenada > Paredes;
@@ -65,6 +72,7 @@ class Bomberman {
 
         int VidaInicial;
         int MaxBombInicial;
+        unsigned long int TiempoBomba;
 
         unsigned NumJugadores;
 
@@ -95,7 +103,7 @@ void Bomberman :: activar( long int puerto, string archivoEscenario ){
     this->Timer = 0;
     this->VidaInicial = 3;
     this->MaxBombInicial = 1;
-
+    this->TiempoBomba = 50;
     this->NumJugadores = 0;
 
     MoverArriba = 'w';
@@ -191,8 +199,7 @@ int Bomberman :: nuevoJugador(){
     Jugador Player( numJugador,
                     this->VidaInicial,
                     coord,
-                    this->MaxBombInicial,
-                    playerCon );
+                    playerCon, 1, 20 );
 
     if ( numJugador == Jugadores.size() ){
         
@@ -286,7 +293,7 @@ t_protocolo Bomberman :: procesarAccion( t_protocolo recibido ){
                   Escenario[x][y - 1] <= 3 ) ){
 
                 this->Jugadores[ jugador ].moverArriba();
-                accion = 1;
+                accion = ACCION_MOVE;
             
             }
 
@@ -297,7 +304,7 @@ t_protocolo Bomberman :: procesarAccion( t_protocolo recibido ){
                   Escenario[x][y + 1] <= 3 )  ){
 
                 this->Jugadores[ jugador ].moverAbajo();
-                accion = 1;
+                accion = ACCION_MOVE;
             
             }
             
@@ -308,7 +315,7 @@ t_protocolo Bomberman :: procesarAccion( t_protocolo recibido ){
                   Escenario[x - 1][y] <= 3 ) ){
 
                 this->Jugadores[ jugador ].moverIzquierda();
-                accion = 1;
+                accion = ACCION_MOVE;
             
             }
             
@@ -320,27 +327,42 @@ t_protocolo Bomberman :: procesarAccion( t_protocolo recibido ){
                ){
                 
                 this->Jugadores[ jugador ].moverDerecha();
-                accion = 1;
+                accion = ACCION_MOVE;
             
             }
             
         }else if (recibido.x == PonerBomba){
-            accion = 2;
+            accion = ACCION_BOMB;
         }
 
 
-    if( accion == 1 ){
+    if( accion == ACCION_MOVE ){
         
         enviar.id = 'j';
         enviar.posicion = jugador;
         enviar.x = this->Jugadores[ jugador ].getPosicion().get_x();
         enviar.y = this->Jugadores[ jugador ].getPosicion().get_y();
         
-    }else if( accion == 2 ){
-        enviar.id = 'b';
-        enviar.posicion = 0;
-        enviar.x = this->Jugadores[ jugador ].getPosicion().get_x();
-        enviar.y = this->Jugadores[ jugador ].getPosicion().get_y();
+    }else if( accion == ACCION_BOMB ){
+        
+        if( Jugadores[ jugador ].puedePonerBomba() ){
+            unsigned tam = Bombas.size();
+            Bomba bomb;
+
+            bomb = Jugadores[ jugador ].ponerBomba( tam );
+
+            bomb.activar( HDTimer + TiempoBomba );
+            
+            Bombas.push( bomb );
+
+            enviar.id = 'b';
+            enviar.posicion = tam;
+            bomb.getPos().get_coordenada(enviar.x, enviar.y);
+            
+        }else{
+            enviar.id = 0;
+        }
+
 
     }else {
         
@@ -353,6 +375,29 @@ t_protocolo Bomberman :: procesarAccion( t_protocolo recibido ){
 
     return enviar;
 
+}
+
+t_protocolo Bomberman :: explotarBomba(){
+    t_protocolo enviar;
+    
+    if( Bombas.size() > 0 ) {
+        
+        Bomba bomb;
+        
+        bomb = Bombas.front();     
+        
+        usleep( ( bomb.getTiempoExplosion() - HDTimer ) * 100000 );
+
+        enviar.id = 'b';
+        enviar.posicion = bomb.getNumero();
+        enviar.x = enviar.y = -2;
+        
+        Bombas.pop();
+    } else {
+        enviar.id = 0;
+    }
+
+    return enviar;
 }
 
 int Bomberman :: update( t_protocolo data ) {
@@ -392,6 +437,11 @@ t_protocolo Bomberman :: eliminarJugador( unsigned jugador ){
 
 t_protocolo Bomberman :: clockTick(){
     t_protocolo enviar;
+
+    for( int i = 0 ; i < 10 ; i++ ){
+        usleep( 100000 );
+        this->HDTimer++;
+    }
     
     this->Timer++;
 

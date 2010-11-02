@@ -1,6 +1,8 @@
 #ifndef JUGADOR_H
 #define JUGADOR_H
 
+#include "Bomba.h"
+
 #include "../include/Coordenada.h"
 #include "../include/Connection.h"
 
@@ -13,12 +15,13 @@ class Jugador {
         Jugador( int Numero,
                  int Vida,
                  Coordenada Posicion,
-                 int BombasMax,
-                 Connection<char>& Socket);
-
+                 Connection<char>& Socket,
+                 int Velocidad = 1,
+                 int BombasMax = 1,
+                 int TipoBomba = 1 );
+                    
         ~Jugador();
 
-        bool ponerBomba();
         int restarVida();
         int sumarVida(int cant);
 
@@ -35,6 +38,10 @@ class Jugador {
 
         t_protocolo recv();
 
+        bool puedePonerBomba();
+        Bomba ponerBomba(unsigned numBomba);
+        void explotoBomba();
+
         void setEnvioEscenario( bool envio );
         bool getEnvioEscenario();
 
@@ -46,8 +53,10 @@ class Jugador {
         int Numero;
         int Vida;
         Coordenada Posicion;
+        int Velocidad;
         int BombasColocadas;
         int BombasMax;
+        int TipoBomba;
 
         bool EnvioEscenario;
         
@@ -58,28 +67,27 @@ class Jugador {
 Jugador :: Jugador( int Numero,
                     int Vida,
                     Coordenada Posicion,
+                    Connection<char>& Socket,
+                    int Velocidad,
                     int BombasMax,
-                    Connection<char>& Socket){
+                    int TipoBomba ){
 
     this->Socket = Socket;
 
     this->Numero = Numero;
     this->Vida = Vida;
     this->Posicion = Posicion;
-    this->BombasMax = BombasMax;
-
+    this->Velocidad = Velocidad;
     this->BombasColocadas = 0;
+    this->BombasMax = BombasMax;
+    this->TipoBomba = TipoBomba;
+    
 
     EnvioEscenario = false;
 
 }
 
 Jugador :: ~Jugador(){
-}
-
-bool Jugador :: ponerBomba(){
-
-    return true;
 }
 
 int Jugador :: restarVida(){
@@ -121,14 +129,14 @@ Coordenada Jugador :: getPosicion(){
 }
 
 void Jugador :: send( t_protocolo data ){
-    /*
+    
     cout << "Enviando a jugador " << this->Numero << endl;
     
     cout << "id = "<< data.id << endl
          << "posicion = "<< data.posicion << endl
          << "x = "<< data.x << endl
          << "y = "<< data.y << endl;
-    */
+    
     
     Socket.Send ( (char*) &data, sizeof(t_protocolo) );
 }
@@ -147,6 +155,22 @@ t_protocolo Jugador :: recv(){
     */
     return recibido;
     
+}
+
+bool Jugador :: puedePonerBomba(){
+    return ( BombasColocadas < BombasMax );
+}
+
+Bomba Jugador :: ponerBomba(unsigned numBomba){
+    Bomba bomb(Posicion, TipoBomba, Numero, numBomba);
+
+    BombasColocadas++;
+    
+    return bomb;
+}
+
+void Jugador :: explotoBomba(){
+    BombasColocadas--;
 }
 
 void Jugador :: setEnvioEscenario( bool envio ){
