@@ -292,9 +292,8 @@ void Entorno :: actualizarPantalla( void )
                 for( unsigned puntoExplosion  = 0 ; puntoExplosion < escenarioActual->explosiones[i].size() ; puntoExplosion++)
                 {
            
-                        x =   escenarioActual->explosiones[i][ puntoExplosion ].get_x() ; 
-                        y =   escenarioActual->explosiones[i][ puntoExplosion ].get_y() ;
-                        
+                        escenarioActual->explosiones[i][ puntoExplosion ].get_coordenada(x,y) ; 
+
                         x = 2 * x + 1;
                         y = 2 * y + 1;
                        

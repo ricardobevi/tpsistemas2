@@ -331,47 +331,19 @@ void Bomberman :: actualizarNovedades( t_protocolo * accion )
                         //
                         //                  posicion no existente:  introduce dicho valor al final del vector como una nueva explosion
 
-<<<<<<< .mine
-=======
-                        if ( accion->posicion >=  escenarioCliente.explosiones.size() )
-                        {
-                            // esta seria el primer valor de una explosion (-1,-1) , crea la explosion
-                            vector < Coordenada >  aux ;
-                            aux.push_back( Coordenada( accion->x, accion->y) );
-                            escenarioCliente.explosiones.push_back( aux );
-                        }
-                        else
-                        {
->>>>>>> .r164
                              
                             if (  accion->x == -1) // eliminar una explosion
                             {
-<<<<<<< .mine
                                 escenarioCliente.explosiones.erase( accion->posicion )  ;
                                
                             }
                             else
                             {
-=======
->>>>>>> .r164
                                     // agrego cuadraditos a una explosion
                                      escenarioCliente.explosiones[ accion->posicion ].push_back( Coordenada( accion->x, accion->y) ); 
    
-                               
                             }
-<<<<<<< .mine
 
-=======
-                            else
-                            {
-                                    // agrego cuadraditos a una explosion
-                                    escenarioCliente.explosiones[accion->posicion].push_back(  Coordenada( accion->x, accion->y) ) ; 
-   
-                            }
-                            
-                        }      
-                    
->>>>>>> .r164
                        
                         break;
                 
