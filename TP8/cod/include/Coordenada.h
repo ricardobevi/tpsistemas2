@@ -15,6 +15,8 @@ class Coordenada
         Coordenada( const Coordenada& );
         ~Coordenada();
         
+        bool coordenadaBandera(); 
+        
         void set_coordenada( int x , int y );
         void set_x ( int x );
         void set_y ( int y );
@@ -24,6 +26,12 @@ class Coordenada
         Coordenada operator = ( const Coordenada& );
 };
 
+
+bool Coordenada ::  coordenadaBandera() 
+{
+    return (this->x != -1 || this->y != -1 );
+    
+}
 
 Coordenada :: Coordenada( int x , int y)
 {
@@ -80,6 +88,8 @@ Coordenada Coordenada :: operator = ( const Coordenada& obj)
     
     return *this;
 }
+
+
 
 
 #endif
