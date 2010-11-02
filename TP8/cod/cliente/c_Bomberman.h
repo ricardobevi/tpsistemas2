@@ -308,26 +308,15 @@ void Bomberman :: actualizarNovedades( t_protocolo * accion )
                 case 'b':
                     
                         // idem anterior
-                    
-                        if ( accion->posicion >=  escenarioCliente.bombas.size()  )
+                      
+                        if (  accion->x != -1)
                         {
-                            escenarioCliente.bombas.push_back( Coordenada( accion->x, accion->y) );
+                            escenarioCliente.bombas[accion->posicion] =  Coordenada( accion->x, accion->y) ;
                         }
                         else
                         {
-                             
-                            if (  accion->x != -1)
-                            {
-                                escenarioCliente.bombas[accion->posicion] =  Coordenada( accion->x, accion->y) ;
-                            }
-                            else
-                            {
-                                vector < Coordenada > :: iterator  it =escenarioCliente.bombas.begin();
-                                it += accion->posicion -1 ;
-                                escenarioCliente.bombas.erase( it )  ;
-                            }
-                            
-                        }                     
+                            escenarioCliente.bombas.erase( accion->posicion )  ;
+                        }                   
 
                         
                         break;
