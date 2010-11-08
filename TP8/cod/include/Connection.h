@@ -1,7 +1,7 @@
 /*
  * Clase Connection
  * Version: 0.2
- * Ultima revision: 19-10-2010
+ * Ultima revision: 4-11-2010
  *
  */
 
@@ -19,8 +19,11 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <stdio.h>
+#include <errno.h>
 
 #include <iostream>
+#include <fstream>
 #include <cstring>
 #include <string>
 

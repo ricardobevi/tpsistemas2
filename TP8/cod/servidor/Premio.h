@@ -1,5 +1,12 @@
-#ifndef PREMIO_H
-#define PREMIO_H
+/*
+ * Premio.h
+ *
+ *  Created on: 04/11/2010
+ *      Author: ric
+ */
+
+#ifndef PREMIO_H_
+#define PREMIO_H_
 
 #include <ctime>
 #include <cstdlib>
@@ -8,49 +15,20 @@
 
 class Premio {
     public:
-        Premio(Coordenada& Pos = *(new Coordenada));
+        Premio(Coordenada Pos = *(new Coordenada), unsigned id = 0);
+        Premio( const Premio& obj);
         ~Premio();
 
         char getTipo();
-        
+        char getId();
+        Coordenada getPos();
+
     private:
         char Tipo;
         Coordenada Pos;
+        unsigned id;
 
 
 };
 
-Premio :: Premio(Coordenada& Pos){
-    int randomType = rand() % 3;
-
-    this->Pos = Pos;
-
-    switch ( randomType ) {
-        case 0:
-            this->Tipo = 'B'; //Bomba
-            break;
-            
-        case 1:
-            this->Tipo = 'V'; //Vida
-            break;
-            
-        case 2:
-            this->Tipo = 'E'; //Explosion
-            break;
-            
-        case 3:
-            this->Tipo = 'S'; //Speed (velocidad)
-            
-    }
-    
-}
-
-Premio :: ~Premio(){
-
-}
-
-char Premio :: getTipo(){
-    return this->Tipo;
-}
-
-#endif
+#endif /* PREMIO_H_ */

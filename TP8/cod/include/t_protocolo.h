@@ -1,3 +1,6 @@
+#ifndef T_PROTOCOLO_H_
+#define T_PROTOCOLO_H_
+
 typedef struct
 {
   char id;
@@ -6,3 +9,5 @@ typedef struct
   int  y;
   
 }t_protocolo;
+
+#endif

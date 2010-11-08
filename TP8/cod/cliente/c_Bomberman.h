@@ -164,7 +164,7 @@ int  Bomberman ::leerTeclado( int tipoTeclado )
     else
     {
         //teclado automatico
-        aux = rand() % 4;
+        aux = rand() % 5;
 
         switch( aux ){
             case 0:
@@ -179,9 +179,12 @@ int  Bomberman ::leerTeclado( int tipoTeclado )
             case 3:
                 aux = 'd';
                 break;
+            case 4:
+                aux = 'b';
+                break;
         }
 
-        usleep(10000);
+        usleep(300000);
     }
     
     return aux;
@@ -363,51 +366,35 @@ void Bomberman :: actualizarNovedades( t_protocolo * accion )
                     
                         // idem anterior
                     
-                        if (  accion->posicion >= escenarioCliente.premiosBomba.size() )
+                        if (  accion->x == -1) // eliminar un premio Bomba
                         {
-                            escenarioCliente.premiosBomba.push_back( Coordenada( accion->x, accion->y) );
+                            escenarioCliente.premiosBomba.erase( accion->posicion )  ;
+
                         }
                         else
                         {
-                             
-                            if (  accion->x != -1)
-                            {
-                                escenarioCliente.premiosBomba[accion->posicion] =  Coordenada( accion->x, accion->y) ;
-                            }
-                            else
-                            {
-                                vector < Coordenada > :: iterator  it = escenarioCliente.premiosBomba.begin();
-                                it += accion->posicion -1 ;
-                                escenarioCliente.premiosBomba.erase( it )  ;
-                            }
-                            
-                        }                     
+                                // agrego un premio Bomba
+                                 escenarioCliente.premiosBomba[ accion->posicion ] = Coordenada( accion->x, accion->y);
+
+                        }
 
                         break;
                 
                 case 'V':
                     
-                        // idem anterior                    
-                    
-                        if (  accion->posicion <= escenarioCliente.premiosVida.size()  )
+                        // idem anterior
+
+                        if (  accion->x == -1) // eliminar un premio Vida
                         {
-                            escenarioCliente.premiosVida.push_back( Coordenada( accion->x, accion->y) );
+                            escenarioCliente.premiosVida.erase( accion->posicion )  ;
+
                         }
                         else
                         {
-                             
-                            if (  accion->x != -1)
-                            {
-                                escenarioCliente.premiosVida[accion->posicion] =  Coordenada( accion->x, accion->y) ;
-                            }
-                            else
-                            {
-                                vector < Coordenada > :: iterator  it = escenarioCliente.premiosVida.begin();
-                                it += accion->posicion -1 ;
-                                escenarioCliente.premiosVida.erase( it )  ;
-                            }
-                            
-                        }                           
+                                // agrego un premio Vida
+                                 escenarioCliente.premiosVida[ accion->posicion ] = Coordenada( accion->x, accion->y);
+
+                        }
                     
                     
                         break;
@@ -415,26 +402,18 @@ void Bomberman :: actualizarNovedades( t_protocolo * accion )
                 case 'E':
 
                         // idem anterior
-                        
-                        if ( accion->posicion <= escenarioCliente.premiosExplosion.size() )
+
+                        if (  accion->x == -1) // eliminar un premio Explosion
                         {
-                            escenarioCliente.premiosExplosion.push_back( Coordenada( accion->x, accion->y) );
+                            escenarioCliente.premiosExplosion.erase( accion->posicion )  ;
+
                         }
                         else
                         {
-                             
-                            if (  accion->x != -1)
-                            {
-                                escenarioCliente.premiosExplosion[accion->posicion] =  Coordenada( accion->x, accion->y) ;
-                            }
-                            else
-                            {
-                                vector < Coordenada > :: iterator  it = escenarioCliente.premiosExplosion.begin();
-                                it += accion->posicion -1 ;
-                                escenarioCliente.premiosExplosion.erase( it )  ;
-                            }
-                            
-                        }                           
+                                // agrego un premio Explosion
+                                 escenarioCliente.premiosExplosion[ accion->posicion ] = Coordenada( accion->x, accion->y);
+
+                        }
                     
                     
                         break;
@@ -443,26 +422,18 @@ void Bomberman :: actualizarNovedades( t_protocolo * accion )
                 case 'R':
 
                         // idem anterior
-                        
-                        if ( accion->posicion <= escenarioCliente.premiosVelocidad.size() )
+
+                        if (  accion->x == -1) // eliminar un premio Velocidad
                         {
-                            escenarioCliente.premiosVelocidad.push_back( Coordenada( accion->x, accion->y) );
+                            escenarioCliente.premiosVelocidad.erase( accion->posicion )  ;
+
                         }
                         else
                         {
-                             
-                            if (  accion->x != -1)
-                            {
-                                escenarioCliente.premiosVelocidad[accion->posicion] =  Coordenada( accion->x, accion->y) ;
-                            }
-                            else
-                            {
-                                vector < Coordenada > :: iterator  it = escenarioCliente.premiosVelocidad.begin();
-                                it += accion->posicion -1 ;
-                                escenarioCliente.premiosVelocidad.erase( it )  ;
-                            }
-                            
-                        }                           
+                                // agrego un premio Velocidad
+                                 escenarioCliente.premiosVelocidad[ accion->posicion ] = Coordenada( accion->x, accion->y);
+
+                        }
                     
                     
                         break;

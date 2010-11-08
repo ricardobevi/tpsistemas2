@@ -21,10 +21,10 @@ class Escenario
         vector < Coordenada > paredesDestruibles;
         map < int, Coordenada > bombas;
          
-        vector < Coordenada > premiosBomba;
-        vector < Coordenada > premiosVida;
-        vector < Coordenada > premiosExplosion;
-        vector < Coordenada > premiosVelocidad;
+        map < int, Coordenada > premiosBomba;
+        map < int, Coordenada > premiosVida;
+        map < int, Coordenada > premiosExplosion;
+        map < int, Coordenada > premiosVelocidad;
         map < int , vector < Coordenada >  > explosiones;
         
         int    tiempo;
