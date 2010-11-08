@@ -19,10 +19,10 @@ class Jugador {
 
     public:
 
-        Jugador( int Numero,
-                 int Vida,
-                 Coordenada Posicion,
-                 Connection<char>& Socket,
+        Jugador( int Numero = -1,
+                 int Vida = 0,
+                 Coordenada Posicion = *(new Coordenada),
+                 Connection<char>& Socket = *(new Connection<char>),
                  int Velocidad = 1,
                  int BombasMax = 1,
                  int TipoBomba = 1 );

@@ -30,7 +30,8 @@ void Bomberman :: activar( long int puerto, string archivoEscenario ){
 
     this->NumJugadores = 0;
 
-    Jugadores.resize(4);
+    //Jugadores.resize(4);
+    //JugadorActivo.resize(4);
 
     MoverArriba = 'w';
     MoverAbajo = 's';
