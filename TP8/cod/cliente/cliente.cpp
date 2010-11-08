@@ -192,7 +192,7 @@ void * sender(void * args)
     
     while ( true )
     {   
-        teclaPresionada = clienteBomberman.leerTeclado();
+        teclaPresionada = clienteBomberman.leerTeclado(0);
         clienteBomberman.enviarSolicitud ( teclaPresionada );     
     }
     

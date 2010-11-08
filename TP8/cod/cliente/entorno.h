@@ -129,6 +129,7 @@ void Entorno :: actualizarPantalla( void )
     //----------------------------------- variables e iteradores auxiliares para la actualizacion de la pantalla ------------------------ //
     int x,y;
     vector < Coordenada > :: iterator it;
+    map< int, Coordenada >::iterator mit;
     int posX, posY;
     //----------------------------------- FIN variables e iteradores auxiliares para la actualizacion de la pantalla -------------------- //
     
@@ -239,11 +240,15 @@ void Entorno :: actualizarPantalla( void )
     wattron( pantalla,COLOR_PAIR(6) );
     for(it = escenarioActual->paredesDestruibles.begin() ; it != escenarioActual->paredesDestruibles.end() ; it++)
     {
-        x = 2 * it->get_x() +1;
-        y = 2 * it->get_y() +1;
+        if ( it->get_x() >= 0 ){
 
-        mvwprintw(pantalla, y    , x, "xx");
-        mvwprintw(pantalla, y + 1, x, "xx");
+            x = 2 * it->get_x() +1;
+            y = 2 * it->get_y() +1;
+
+            mvwprintw(pantalla, y    , x, "xx");
+            mvwprintw(pantalla, y + 1, x, "xx");
+            
+        }
         
     }
     wattroff(pantalla,COLOR_PAIR(6));
@@ -258,10 +263,10 @@ void Entorno :: actualizarPantalla( void )
 
     wattron(pantalla,COLOR_PAIR(8));
    
-    for( unsigned int i = 0;  i < escenarioActual->bombas.size() ;  i++)
+    for(mit = escenarioActual->bombas.begin() ; mit != escenarioActual->bombas.end() ; mit++)
     {
-        x = 2 *  escenarioActual->bombas[i].get_x() +1;
-        y = 2 *  escenarioActual->bombas[i].get_y() +1;
+        x = 2 *  (*mit).second.get_x() +1;
+        y = 2 *  (*mit).second.get_y() +1;
 
         
         //mvwchgat(pantalla,  x,  y, 2, A_BLINK, 1,NULL );
@@ -281,18 +286,19 @@ void Entorno :: actualizarPantalla( void )
     // Explosiones
     
     wattron(pantalla,COLOR_PAIR(1));
-   
+
+    map< int, vector< Coordenada > >::iterator meit;
     
-    for( unsigned int i = 0 ; i < escenarioActual->explosiones.size() ; i++)
+    for(meit = escenarioActual->explosiones.begin() ; meit != escenarioActual->explosiones.end() ; meit++)
     {
         
-        if (  escenarioActual->explosiones[i][0].coordenadaBandera()  )   // si la posicion cero es distinta de -1 -1 significa que 
+        if (  (*meit).second[0].coordenadaBandera()  )   // si la posicion cero es distinta de -1 -1 significa que
         {                                                                 // la explosion esta completa y debo imprimirla en pantalla
         
-                for( unsigned puntoExplosion  = 0 ; puntoExplosion < escenarioActual->explosiones[i].size() ; puntoExplosion++)
+                for( unsigned puntoExplosion  = 0 ; puntoExplosion < (*meit).second.size() ; puntoExplosion++)
                 {
            
-                        escenarioActual->explosiones[i][ puntoExplosion ].get_coordenada(x,y) ; 
+                        (*meit).second[ puntoExplosion ].get_coordenada(x,y) ;
 
                         x = 2 * x + 1;
                         y = 2 * y + 1;
@@ -318,10 +324,10 @@ void Entorno :: actualizarPantalla( void )
     wattron( pantalla,COLOR_PAIR(7) );
     
     //premios de vida
-    for(it = escenarioActual->premiosVida.begin() ; it != escenarioActual->premiosVida.end() ; it++)
+    for(mit = escenarioActual->premiosVida.begin() ; mit != escenarioActual->premiosVida.end() ; mit++)
     {
-        x = 2 * it->get_x() +1;
-        y = 2 * it->get_y() +1;
+        x = 2 * mit->second.get_x() +1;
+        y = 2 * mit->second.get_y() +1;
 
         mvwprintw(pantalla, y  ,x, "VI");
         mvwprintw(pantalla, y+1,x, "DA");
@@ -329,10 +335,10 @@ void Entorno :: actualizarPantalla( void )
     }
     
     //premios de explosion
-    for(it = escenarioActual->premiosExplosion.begin() ; it != escenarioActual->premiosExplosion.end() ; it++)
+    for(mit = escenarioActual->premiosExplosion.begin() ; mit != escenarioActual->premiosExplosion.end() ; mit++)
     {
-        x = 2 * it->get_x() +1;
-        y = 2 * it->get_y() +1;
+        x = 2 * mit->second.get_x() +1;
+        y = 2 * mit->second.get_y() +1;
 
         mvwprintw(pantalla, y  ,x, "++");
         mvwprintw(pantalla, y+1,x, "++");
@@ -340,10 +346,10 @@ void Entorno :: actualizarPantalla( void )
     }
     
     //premios de bombas
-    for(it = escenarioActual->premiosBomba.begin() ; it != escenarioActual->premiosBomba.end() ; it++)
+    for(mit = escenarioActual->premiosBomba.begin() ; mit != escenarioActual->premiosBomba.end() ; mit++)
     {
-        x = 2 * it->get_x() +1;
-        y = 2 * it->get_y() +1;
+        x = 2 * mit->second.get_x() +1;
+        y = 2 * mit->second.get_y() +1;
 
         mvwprintw(pantalla, y  ,x, "BO");
         mvwprintw(pantalla, y+1,x, "MB");
@@ -351,10 +357,10 @@ void Entorno :: actualizarPantalla( void )
     }
     
     //premios de velocidad
-    for(it = escenarioActual->premiosVelocidad.begin() ; it != escenarioActual->premiosVelocidad.end() ; it++)
+    for(mit = escenarioActual->premiosVelocidad.begin() ; mit != escenarioActual->premiosVelocidad.end() ; mit++)
     {
-        x = 2 * it->get_x() +1;
-        y = 2 * it->get_y() +1;
+        x = 2 * mit->second.get_x() +1;
+        y = 2 * mit->second.get_y() +1;
 
         mvwprintw(pantalla, y  ,x, ">>");
         mvwprintw(pantalla, y+1,x, ">>");
@@ -364,7 +370,7 @@ void Entorno :: actualizarPantalla( void )
     wattroff(pantalla,COLOR_PAIR(7));
      //--------------------------------------------------  FIN Actualizo Premios en pantalla ---------------------------------------------//
    
-    mvwprintw(pantalla, 21,0, " ERROR >>  ");
+    //mvwprintw(pantalla, 21,0, " ERROR >>  ");
 
     //actualizo pantalla  
 
