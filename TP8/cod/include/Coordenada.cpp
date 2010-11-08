@@ -68,3 +68,7 @@ Coordenada Coordenada :: operator = ( const Coordenada& obj)
 
     return *this;
 }
+
+bool Coordenada :: operator == (const Coordenada& obj){
+	return ( this->x == obj.x && this->y == obj.y );
+}
