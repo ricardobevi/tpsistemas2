@@ -8,7 +8,7 @@
 /* Descripcion:
  *
  * Esta clase se encarga del manejo de comuniaciones de parte del servidor.
- * Crea un socket que pone a la escucha de nuevas conexiones por parte de
+ * Crea un socket que lo pone a la escucha de nuevas conexiones por parte de
  * clientes y guarda estas conexiones en un vector. Luego, se puede acceder
  * a cada una de las posiciones del vector para comunicar con un cliente
  * particular. Los clientes se manejan con objetos Connection los cuales son

@@ -31,6 +31,8 @@ class Coordenada
         int&  get_x();
         int&  get_y();
         Coordenada operator = ( const Coordenada& );
+
+        bool operator == (const Coordenada& obj);
 };
 
 #endif /* COORDENADA_H_ */
