@@ -15,7 +15,7 @@
 
 class Premio {
     public:
-        Premio(Coordenada Pos = *(new Coordenada), unsigned id = 0);
+        Premio(Coordenada Pos = *(new Coordenada), unsigned long int id = 0);
         Premio( const Premio& obj);
         ~Premio();
 
@@ -26,7 +26,7 @@ class Premio {
     private:
         char Tipo;
         Coordenada Pos;
-        unsigned id;
+        unsigned long int id;
 
 
 };

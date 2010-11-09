@@ -33,6 +33,7 @@ class Bomberman
          
          int  leerTeclado( int tipoTeclado = 1);
          void set_idJugador( int jugador );
+         int get_idJugador();
          void dibujarPantalla();
          void recivirAccion(t_protocolo * accion, size_t tam );
          void actualizarNovedades( t_protocolo * accion );
@@ -64,9 +65,9 @@ void Bomberman ::  esperaDeJugadores(  int timeout  )
 
 bool Bomberman :: espectador(void)
 {
-    bool espectador =false;
+    bool espectador = false;
     
-    if (idJugador == -1)
+    if (idJugador <= -1)
         espectador = true;
     
     return espectador;
@@ -95,6 +96,10 @@ void  Bomberman :: enviarSolicitud ( int teclaPresionada )
 void Bomberman :: set_idJugador( int jugador )
 {
     idJugador = jugador ;
+}
+
+int Bomberman :: get_idJugador(){
+    return this->idJugador;
 }
     
 

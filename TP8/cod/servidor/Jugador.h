@@ -46,8 +46,9 @@ class Jugador {
         void setPosicion( Coordenada Posicion );
 
         Coordenada getPosicion();
+        int getNumero();
 
-        void send( t_protocolo data );
+        int send( t_protocolo data );
 
         t_protocolo recv();
 
@@ -61,6 +62,10 @@ class Jugador {
         void eliminar();
         bool eliminado();
 
+        bool isClosed();
+
+        void Close();
+
     private:
 
         int Numero;
@@ -72,6 +77,8 @@ class Jugador {
         int TipoBomba;
 
         bool EnvioEscenario;
+
+        bool Closed;
 
         Connection<char> Socket;
 
