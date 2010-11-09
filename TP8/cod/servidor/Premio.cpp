@@ -7,7 +7,7 @@
 
 #include "Premio.h"
 
-Premio :: Premio(Coordenada Pos , unsigned id){
+Premio :: Premio(Coordenada Pos , unsigned long int id){
     int randomType = rand() % 4;
 
     this->Pos = Pos;

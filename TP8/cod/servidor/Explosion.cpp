@@ -58,7 +58,7 @@ void Explosion ::  calcularExplosion( queue< t_protocolo >& tp_retorno,
 
 	while ( (startY - (int) i) >= 0 &&
 			i <= expancion &&
-			Escenario[startX][startY - i] == Bomberman::LUGAR_VACIO ) {
+			Escenario[startX][startY - i] >= Bomberman::LUGAR_VACIO ) {
 
 		enviar.x = startX;
 		enviar.y = startY - i;
@@ -89,7 +89,7 @@ void Explosion ::  calcularExplosion( queue< t_protocolo >& tp_retorno,
 
 	while ( (startY + i) <= this->max_y &&
 			i <= expancion &&
-		    Escenario[startX][startY + i] == Bomberman::LUGAR_VACIO ) {
+		    Escenario[startX][startY + i] >= Bomberman::LUGAR_VACIO ) {
 
 		enviar.x = startX;
 		enviar.y = startY + i;
@@ -120,7 +120,7 @@ void Explosion ::  calcularExplosion( queue< t_protocolo >& tp_retorno,
 
 	while ( (startX - (int) i) >= 0 &&
 			i <= expancion &&
-			Escenario[startX - i][startY] == Bomberman::LUGAR_VACIO ) {
+			Escenario[startX - i][startY] >= Bomberman::LUGAR_VACIO ) {
 
 		enviar.x = startX - i;
 		enviar.y = startY;
@@ -152,7 +152,7 @@ void Explosion ::  calcularExplosion( queue< t_protocolo >& tp_retorno,
 
 	while ( (startX + i) <= this->max_x &&
 			i <= expancion &&
-			Escenario[startX + i][startY] == Bomberman::LUGAR_VACIO ) {
+			Escenario[startX + i][startY] >= Bomberman::LUGAR_VACIO ) {
 
 		enviar.x = startX + i;
 		enviar.y = startY;
@@ -202,7 +202,7 @@ void Explosion ::  calcularExplosion( queue< t_protocolo >& tp_retorno,
 
 				tp_retorno.push( enviar );
 
-				Premio price( Coordenada( (*it).first, (*it).second[j] ), (unsigned) *timer );
+				Premio price( Coordenada( (*it).first, (*it).second[j] ), *timer );
 
 				premios.push_back( price );
 

@@ -40,75 +40,78 @@ class Bomberman {
         Bomberman();
         ~Bomberman();
 
-        void activar( long int puerto, string archivoEscenario );
+        void activar(long int puerto, string archivoEscenario);
 
         int nuevoJugador();
 
-        void sendEscenario( unsigned jugador );
+        queue<t_protocolo> sendEscenario(int jugador, bool toAll = false);
 
-        Jugador& getJugador( int jugador );
+        Jugador& getJugador(int jugador);
 
         unsigned getNumJugadores();
 
-        queue<t_protocolo> procesarAccion( t_protocolo data );
+        unsigned long int getTiempoEspera();
+
+        queue<t_protocolo> iniciarPartida();
+
+        queue<t_protocolo> procesarAccion(t_protocolo data);
 
         queue<t_protocolo> explotarBomba();
 
         t_protocolo expirarExplosion();
 
-        t_protocolo recvFrom( unsigned jugador );
+        t_protocolo recvFrom(unsigned jugador);
 
-        int update( t_protocolo data );
+        int update(t_protocolo data);
 
-        t_protocolo eliminarJugador( unsigned jugador );
+        t_protocolo eliminarJugador(unsigned jugador, bool close = false);
+
+        void eliminarEspectador(int espectador);
 
         t_protocolo clockTick();
+
+        void resetClock();
 
         static const unsigned JUGADORES_MAX = 4;
         static const unsigned X_MAX = 37;
         static const unsigned Y_MAX = 9;
 
+        static const unsigned BOMBA = 60001;
         static const unsigned LUGAR_VACIO = 60000;
-		static const unsigned PARED_FIJA = 59999;
+        static const unsigned PARED_FIJA = 59999;
 
     private:
         int Timer;
         unsigned long int HDTimer;
 
-        vector < Jugador >    Jugadores;
-        vector < bool > JugadorActivo;
-        vector < Jugador > Espectadores;
+        Jugador Jugadores[JUGADORES_MAX];
+        bool JugadoresActivos[JUGADORES_MAX];
 
-        queue  < Bomba >      Bombas;
-        queue  < Explosion >  Explosiones;
-        vector < Premio >     Premios;
-        vector < Coordenada > Paredes;
-        vector < Coordenada > ParedesDestruibles;
+        map<int, Jugador> Espectadores;
 
-        Comm< char > Socket;
+        queue<Bomba> Bombas;
+        queue<Explosion> Explosiones;
+        vector<Premio> Premios;
+        vector<Coordenada> Paredes;
+        vector<Coordenada> ParedesDestruibles;
+
+        Comm<char> Socket;
 
         int VidaInicial;
         int MaxBombInicial;
         int VelocidadInicial;
-        unsigned long int TiempoBomba,
-						  TiempoExplosion,
-						  TiempoEspera,
-						  TiempoPartida;
+        unsigned long int TiempoBomba, TiempoExplosion, TiempoEspera, TiempoPartida;
 
         bool PartidaIniciada;
 
         unsigned NumJugadores;
 
-        unsigned Escenario[ X_MAX + 1 ][ Y_MAX + 1 ];
+        unsigned Escenario[X_MAX + 1][Y_MAX + 1];
 
         /*Teclas de accion*/
-        int MoverArriba,
-            MoverAbajo,
-            MoverIzquierda,
-            MoverDerecha,
-            PonerBomba;
+        int MoverArriba, MoverAbajo, MoverIzquierda, MoverDerecha, PonerBomba;
 
-        queue<t_protocolo> tomaPremio( Coordenada coord, unsigned jugador );
+        queue<t_protocolo> tomaPremio(Coordenada coord, unsigned jugador);
 
 };
 

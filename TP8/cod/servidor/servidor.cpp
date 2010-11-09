@@ -15,147 +15,144 @@
 
 Bomberman Servidor;
 
-void * recver( void * args );
-void * procesador( void * args );
-void * sender( void * args );
-void * bomb( void * args );
-void * explosion( void * args );
-void * timer( void * args );
-
+void * recver(void * args);
+void * procesador(void * args);
+void * sender(void * args);
+void * bomb(void * args);
+void * explosion(void * args);
+void * timer(void * args);
+void * timeOut(void * args);
 
 void pushQRecibido(t_protocolo recibido);
 void pushQEnviar(t_protocolo enviar);
 t_protocolo popQRecibido();
 t_protocolo popQEnviar();
 
-
-pthread_t procesadorThread,
-          senderThread,
-          bombThread,
-          explosionThread,
-          timerThread;
+pthread_t procesadorThread, senderThread, bombThread, explosionThread, timerThread, timeOutThread;
 
 queue<t_protocolo> QRecibido;
 queue<t_protocolo> QEnviar;
+queue<int> QNumJugadores;
+
+vector<pthread_t> recvJugadores;
+
+/*
+pthread_mutex_t RecibirMutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t RecibirCond = PTHREAD_COND_INITIALIZER;
+*/
 
 pthread_mutex_t ProcesadorMutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t  ProcesadorCond  = PTHREAD_COND_INITIALIZER;
+pthread_cond_t ProcesadorCond = PTHREAD_COND_INITIALIZER;
 
 pthread_mutex_t SenderMutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t  SenderCond  = PTHREAD_COND_INITIALIZER;
+pthread_cond_t SenderCond = PTHREAD_COND_INITIALIZER;
 
 pthread_mutex_t BombMutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t  BombCond  = PTHREAD_COND_INITIALIZER;
+pthread_cond_t BombCond = PTHREAD_COND_INITIALIZER;
 
 pthread_mutex_t ExplosionMutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t  ExplosionCond  = PTHREAD_COND_INITIALIZER;
+pthread_cond_t ExplosionCond = PTHREAD_COND_INITIALIZER;
 
 pthread_mutex_t ClockMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t ClockStartMutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t  ClockStartCond  = PTHREAD_COND_INITIALIZER;
+pthread_cond_t ClockStartCond = PTHREAD_COND_INITIALIZER;
+
+pthread_mutex_t TimeOutMutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t TimeOutStartCond = PTHREAD_COND_INITIALIZER;
 
 pthread_mutex_t QRecibidoMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t QEnviarMutex = PTHREAD_MUTEX_INITIALIZER;
 
-int main(){
+int main() {
+
+    Servidor.activar(50003, "escenarios/e2.esc");
     
-    Servidor.activar( 50003, "escenarios/e2.esc" );
+    int numJugador = 0;
 
-    unsigned numJugador = 0;
 
-    vector<pthread_t> recvJugadores;
+    pthread_create(&procesadorThread, NULL, procesador, NULL );
+    pthread_create(&senderThread, NULL, sender, NULL );
+    pthread_create(&bombThread, NULL, bomb, NULL );
+    pthread_create(&explosionThread, NULL, explosion, NULL );
+    pthread_create(&timerThread, NULL, timer, NULL );
+    pthread_create(&timeOutThread, NULL, timeOut, NULL );
 
-    pthread_create( &procesadorThread, NULL, procesador, NULL );
-    pthread_create( &senderThread, NULL, sender, NULL );
-    pthread_create( &bombThread, NULL, bomb, NULL );
-    pthread_create( &explosionThread, NULL, explosion, NULL );
-    pthread_create( &timerThread, NULL, timer, NULL );
-
-    while( Servidor.getNumJugadores() < Bomberman::JUGADORES_MAX ){
-        pthread_t newRecver;
+    while ( 1 ) {
         
         cout << "Esperando Jugador..." << endl;
         
         numJugador = Servidor.nuevoJugador();
 
-        t_protocolo enviar;
+        if ( numJugador >= 0 ) {
 
-        enviar.id = 'j';
-        enviar.posicion = numJugador;
-        enviar.x = Servidor.getJugador(numJugador).getPosicion().get_x();
-        enviar.y = Servidor.getJugador(numJugador).getPosicion().get_y();
+            cout << "Conectado jugador " << numJugador << endl;
 
-        pushQEnviar(enviar);
+            QNumJugadores.push( numJugador );
 
-        enviar.id = 'v';
-		enviar.posicion = numJugador;
-		enviar.x = enviar.y = Servidor.getJugador(numJugador).getVida();
+            pthread_cond_broadcast(&TimeOutStartCond);
 
-		pushQEnviar(enviar);
+        } else {
+            cout << "Conectado espectador " << numJugador << endl;
+        }
 
-        cout << "Conectado jugador " << numJugador << endl;
-
-        pthread_create( &newRecver, NULL, recver, (void *) (&numJugador) );
-
-        pthread_cond_broadcast(&ClockStartCond);
-
-        recvJugadores.push_back( newRecver );
     }
 
-    for( unsigned i = 0 ; i < recvJugadores.size() ; i++ )
-        pthread_join(recvJugadores[i], NULL);
-        
-    
+    pthread_join(timeOutThread, NULL);
+
     return 0;
 }
 
-void * recver(void * args){
+void * recver(void * args) {
     unsigned * jugPtr = (unsigned *) args;
     unsigned jugador = *jugPtr;
 
     t_protocolo recibido;
 
-    recibido = Servidor.recvFrom( jugador );
+    recibido = Servidor.recvFrom(jugador);
 
-    while( recibido.x > -1 ){
+    while ( recibido.x > -1 ) {
 
-        recibido.posicion = jugador;
+        if ( recibido.id != 0 ) {
 
-        pushQRecibido(recibido);
+            recibido.posicion = jugador;
 
-        recibido = Servidor.recvFrom( jugador );
+            pushQRecibido(recibido);
+
+        }
+
+        recibido = Servidor.recvFrom(jugador);
+
     }
 
-    recibido = Servidor.eliminarJugador( jugador );
+    recibido = Servidor.eliminarJugador(jugador, true);
 
     pushQEnviar(recibido);
 
-    cout << "Se desconecto el jugador " << jugador << endl;
-    
     return NULL;
 
 }
 
-void * procesador(void * args){
+void * procesador(void * args) {
     t_protocolo recibido;
     queue<t_protocolo> enviar;
 
-    while(1){
+    while ( 1 ) {
         pthread_cond_wait(&ProcesadorCond, &ProcesadorMutex);
         bool empty = true;
 
-        do{
+        do {
 
             recibido = popQRecibido();
 
-            enviar = Servidor.procesarAccion( recibido );
+            enviar = Servidor.procesarAccion(recibido);
 
-            while ( ! enviar.empty() ) {
+            while ( !enviar.empty() ) {
 
                 if ( enviar.front().id == 'b' )
                     pthread_cond_broadcast(&BombCond);
                 
-                pushQEnviar(enviar.front());
+                if ( enviar.front().id != 0 )
+                    pushQEnviar(enviar.front());
 
                 enviar.pop();
             }
@@ -164,52 +161,52 @@ void * procesador(void * args){
             empty = QRecibido.empty();
             pthread_mutex_unlock(&QEnviarMutex);
             
-        }while( empty == false );
+        } while ( empty == false );
     }
 
     return NULL;
 }
 
-void * sender( void * args ){
+void * sender(void * args) {
 
-    while(1){
+    while ( 1 ) {
         pthread_cond_wait(&SenderCond, &SenderMutex);
         bool empty = true;
         
-        do{
+        do {
             t_protocolo enviar;
 
             enviar = popQEnviar();
             
-            Servidor.update( enviar );
+            Servidor.update(enviar);
 
             pthread_mutex_lock(&QEnviarMutex);
             empty = QEnviar.empty();
             pthread_mutex_unlock(&QEnviarMutex);
 
-        }while( empty == false );
+        } while ( empty == false );
     }
     
     return NULL;
 }
 
-void * bomb( void * args ){
+void * bomb(void * args) {
 
-    while(1){
+    while ( 1 ) {
         pthread_cond_wait(&BombCond, &BombMutex);
 
         queue<t_protocolo> enviar;
 
         enviar = Servidor.explotarBomba();
         
-        while( ! enviar.empty() ){
+        while ( !enviar.empty() ) {
 
-        	pthread_cond_broadcast(&ExplosionCond);
+            pthread_cond_broadcast(&ExplosionCond);
 
-        	while( ! enviar.empty() ){
-        		pushQEnviar( enviar.front() );
-        		enviar.pop();
-        	}
+            while ( !enviar.empty() ) {
+                pushQEnviar(enviar.front());
+                enviar.pop();
+            }
 
             enviar = Servidor.explotarBomba();
 
@@ -219,35 +216,35 @@ void * bomb( void * args ){
     return NULL;
 }
 
-void * explosion( void * args ){
+void * explosion(void * args) {
 
-	while(1){
-		t_protocolo enviar = { 0, 0, 0, 0 };
+    while ( 1 ) {
+        t_protocolo enviar = { 0, 0, 0, 0 };
 
-		pthread_cond_wait(&ExplosionCond, &ExplosionMutex);
+        pthread_cond_wait(&ExplosionCond, &ExplosionMutex);
 
-		enviar = Servidor.expirarExplosion();
+        enviar = Servidor.expirarExplosion();
 
-		while ( enviar.id != 0 ){
+        while ( enviar.id != 0 ) {
 
-			pushQEnviar( enviar );
+            pushQEnviar(enviar);
 
-			enviar = Servidor.expirarExplosion();
+            enviar = Servidor.expirarExplosion();
 
-		}
+        }
 
-	}
+    }
 
-	return NULL;
+    return NULL;
 
 }
 
-void * timer( void * args ){
+void * timer(void * args) {
     t_protocolo clock;
 
     pthread_cond_wait(&ClockStartCond, &ClockStartMutex);
 
-    while(1){
+    while ( 1 ) {
         pthread_mutex_lock(&ClockMutex);
         clock = Servidor.clockTick();
         pthread_mutex_unlock(&ClockMutex);
@@ -259,7 +256,61 @@ void * timer( void * args ){
     return NULL;
 }
 
-void pushQRecibido(t_protocolo recibido){
+void * timeOut(void * args) {
+    t_protocolo clock;
+    queue<t_protocolo> escenarioAEnviar;
+
+    pthread_cond_wait(&TimeOutStartCond, &TimeOutMutex);
+
+    pthread_mutex_lock(&ClockMutex);
+    clock = Servidor.clockTick();
+    pthread_mutex_unlock(&ClockMutex);
+
+    while ( clock.x >= 0 ) {
+
+        pushQEnviar(clock);
+
+        pthread_mutex_lock(&ClockMutex);
+        clock = Servidor.clockTick();
+        pthread_mutex_unlock(&ClockMutex);
+
+    }
+
+    t_protocolo condInicio = { 's', 0, 0, 0 };
+
+    pushQEnviar(condInicio);
+
+    pthread_mutex_lock(&ClockMutex);
+    Servidor.resetClock();
+    pthread_mutex_unlock(&ClockMutex);
+
+    escenarioAEnviar = Servidor.iniciarPartida();
+
+    while ( !escenarioAEnviar.empty() ) {
+        pushQEnviar(escenarioAEnviar.front());
+        escenarioAEnviar.pop();
+    }
+
+    while( !QNumJugadores.empty() ){
+        pthread_t newRecver;
+        int numJugador = QNumJugadores.front();
+
+        pthread_create(&newRecver, NULL, recver, (void *) (&numJugador));
+        cout << "thread de recepcion para " << numJugador << endl;
+        recvJugadores.push_back(newRecver);
+
+        QNumJugadores.pop();
+    }
+
+    pthread_cond_broadcast(&ClockStartCond);
+
+    for ( unsigned i = 0 ; i < recvJugadores.size() ; i++ )
+            pthread_join(recvJugadores[i], NULL);
+
+    return NULL;
+}
+
+void pushQRecibido(t_protocolo recibido) {
     pthread_mutex_lock(&QRecibidoMutex);
     QRecibido.push(recibido);
     pthread_mutex_unlock(&QRecibidoMutex);
@@ -267,7 +318,7 @@ void pushQRecibido(t_protocolo recibido){
     pthread_cond_broadcast(&ProcesadorCond);
 }
 
-void pushQEnviar(t_protocolo enviar){
+void pushQEnviar(t_protocolo enviar) {
     pthread_mutex_lock(&QEnviarMutex);
     QEnviar.push(enviar);
     pthread_mutex_unlock(&QEnviarMutex);
@@ -275,22 +326,24 @@ void pushQEnviar(t_protocolo enviar){
     pthread_cond_broadcast(&SenderCond);
 }
 
-t_protocolo popQRecibido(){
+t_protocolo popQRecibido() {
     t_protocolo recibido;
 
-    pthread_mutex_lock(&QRecibidoMutex);{
+    pthread_mutex_lock(&QRecibidoMutex);
+    {
 
-        if( ! QRecibido.empty() ){
+        if ( !QRecibido.empty() ) {
             recibido = QRecibido.front();
             QRecibido.pop();
         }
 
-    }pthread_mutex_unlock(&QRecibidoMutex);
+    }
+    pthread_mutex_unlock(&QRecibidoMutex);
 
     return recibido;
 }
 
-t_protocolo popQEnviar(){
+t_protocolo popQEnviar() {
     t_protocolo enviar;
     
     enviar.id = 0;
@@ -298,14 +351,16 @@ t_protocolo popQEnviar(){
     enviar.x = 0;
     enviar.y = 0;
 
-    pthread_mutex_lock(&QEnviarMutex);{
+    pthread_mutex_lock(&QEnviarMutex);
+    {
 
-        if ( ! QEnviar.empty() ){
+        if ( !QEnviar.empty() ) {
             enviar = QEnviar.front();
             QEnviar.pop();
         }
 
-    }pthread_mutex_unlock(&QEnviarMutex);
+    }
+    pthread_mutex_unlock(&QEnviarMutex);
 
     return enviar;
 }

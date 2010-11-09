@@ -83,24 +83,6 @@ int main(int argc, const char *argv[]){
         
         pthread_mutex_lock(&SemColaNovedades); 
             
-        /*    las siguientes lineas son las encargadas de la pantalla del timeout al ingreso del juego
-        // envia al servidor cual es su timeout y
-        // espera ese tiempo de timeout como maximo para esperar otros jugadores
-        
-        t_protocolo accion;
-        
-        clienteBomberman.enviarSolicitud ( clienteBomberman.get_timeout() );    
-        
-        clienteBomberman.recivirAccion( &accion, sizeof(t_protocolo) );
-        
-        while ( accion.id != 'i' )
-        {
-                clienteBomberman.esperaDeJugadores(  accion.x );
-                clienteBomberman.recivirAccion( &accion, sizeof(t_protocolo) );          
-        }
-   
-        */
-        
         pthread_create( &recver_t, NULL, recver, NULL);
         pthread_create( &sender_t, NULL, sender, NULL);
         pthread_create( &screen_t, NULL, screen, NULL);
@@ -117,21 +99,37 @@ int main(int argc, const char *argv[]){
 void * recver(void * args)
 {   
     t_protocolo accion;
+
+    clienteBomberman.recivirAccion( &accion, sizeof(t_protocolo) );
+
+    clienteBomberman.set_idJugador( accion.x );
     
+    // las siguientes lineas son las encargadas de la pantalla del timeout al ingreso del juego
+    // envia al servidor cual es su timeout y
+    // espera ese tiempo de timeout como maximo para esperar otros jugadores
+
+    clienteBomberman.recivirAccion( &accion, sizeof(t_protocolo) );
+
+    while ( accion.id != 's' )
+    {
+            clienteBomberman.esperaDeJugadores(  accion.x );
+            clienteBomberman.recivirAccion( &accion, sizeof(t_protocolo) );
+    }
+
+
+
     // espera a recivir todo el escenario
-    // hasta que se le indica 'i' como informe de fin de datos,entonces guarda el nombre del jugador 
+    // hasta que se le indica 'i' como informe de fin de datos,entonces guarda el nombre del jugador
     // y habilita la ejecucion de lectura de teclado y refresco de pantalla
     clienteBomberman.recivirAccion( &accion, sizeof(t_protocolo) );
-    
+
     while ( accion.id != 'i' )
     {
             clienteBomberman.actualizarNovedades( &accion );
-            clienteBomberman.recivirAccion( &accion, sizeof(t_protocolo) );          
+            clienteBomberman.recivirAccion( &accion, sizeof(t_protocolo) );
     }
-    
-    clienteBomberman.set_idJugador( accion.x );
 
-    clienteBomberman.enviarSolicitud (0);
+    //clienteBomberman.enviarSolicitud (0);
     
     // comienzo el juego ( habilito teclado y pantalla )
     pthread_mutex_unlock(&inicioPantalla);
