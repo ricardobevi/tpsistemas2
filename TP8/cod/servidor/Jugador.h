@@ -19,68 +19,47 @@ class Jugador {
 
     public:
 
-        Jugador( int Numero = -1,
-                 int Vida = 0,
-                 Coordenada Posicion = *(new Coordenada),
-                 Connection<char>& Socket = *(new Connection<char>),
-                 int Velocidad = 1,
-                 int BombasMax = 1,
-                 int TipoBomba = 1 );
+        Jugador();
 
         ~Jugador();
 
-        int getVida();
-        int restarVida();
-        int sumarVida();
+        virtual int getVida() = 0;
+        virtual int restarVida() = 0;
+        virtual int sumarVida() = 0;
 
-        void sumarVelocidad();
-        int getVelocidad();
-        void sumarBombMax();
-        void sumarTipoBomba();
+        virtual void sumarVelocidad() = 0;
+        virtual int getVelocidad() = 0;
+        virtual void sumarBombMax() = 0;
+        virtual void sumarTipoBomba() = 0;
 
-        Coordenada moverArriba();
-        Coordenada moverAbajo();
-        Coordenada moverIzquierda();
-        Coordenada moverDerecha();
+        virtual Coordenada moverArriba() = 0;
+        virtual Coordenada moverAbajo() = 0;
+        virtual Coordenada moverIzquierda() = 0;
+        virtual Coordenada moverDerecha() = 0;
 
-        void setPosicion( Coordenada Posicion );
+        virtual void setPosicion( Coordenada Posicion ) = 0;
 
-        Coordenada getPosicion();
-        int getNumero();
+        virtual Coordenada getPosicion() = 0;
+        virtual int getNumero() = 0;
 
-        int send( t_protocolo data );
+        virtual int send( t_protocolo data ) = 0;
 
-        t_protocolo recv();
+        virtual t_protocolo recv() = 0;
 
-        bool puedePonerBomba();
-        Bomba ponerBomba(unsigned numBomba);
-        void explotoBomba();
+        virtual bool puedePonerBomba() = 0;
+        virtual Bomba ponerBomba(unsigned numBomba) = 0;
+        virtual void explotoBomba() = 0;
 
-        void setEnvioEscenario( bool envio );
-        bool getEnvioEscenario();
+        virtual void setEnvioEscenario( bool envio ) = 0;
+        virtual bool getEnvioEscenario() = 0;
 
-        void eliminar();
-        bool eliminado();
+        virtual void eliminar() = 0;
+        virtual bool eliminado() = 0;
 
-        bool isClosed();
+        virtual bool isClosed() = 0;
 
-        void Close();
+        virtual void Close() = 0;
 
-    private:
-
-        int Numero;
-        int Vida;
-        Coordenada Posicion;
-        int Velocidad;
-        int BombasColocadas;
-        int BombasMax;
-        int TipoBomba;
-
-        bool EnvioEscenario;
-
-        bool Closed;
-
-        Connection<char> Socket;
 
 };
 

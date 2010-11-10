@@ -9,6 +9,7 @@
 #include <linux/kd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
 #include <queue>
 
 #include "Bomberman.h"
@@ -63,9 +64,34 @@ pthread_cond_t TimeOutStartCond = PTHREAD_COND_INITIALIZER;
 pthread_mutex_t QRecibidoMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t QEnviarMutex = PTHREAD_MUTEX_INITIALIZER;
 
-int main() {
+void cSIGPIPE(int iNumSen, siginfo_t *info, void *ni){
+    cerr << "Pipe Roto." << endl;
+}
 
-    Servidor.activar(50003, "escenarios/e2.esc");
+void cTERM(int iNumSen, siginfo_t *info, void *ni){
+    cerr << "Terminando Servidor..." << endl;
+    Servidor.Close();
+
+    exit(0);
+}
+
+int main(int argc, const char *argv[]) {
+
+    struct sigaction term;
+
+    term.sa_sigaction = cSIGPIPE;
+    sigfillset( &term.sa_mask );
+    term.sa_flags = SA_SIGINFO | SA_NODEFER;
+    sigaction(SIGPIPE, &term, NULL);
+
+    term.sa_sigaction = cTERM;
+    sigaction(SIGINT, &term, NULL);
+
+    if ( argc > 1 )
+        Servidor.activar(argv[1]);
+    else{
+        Servidor.activar("bomberman.conf");
+    }
     
     int numJugador = 0;
 
@@ -284,6 +310,9 @@ void * timeOut(void * args) {
     Servidor.resetClock();
     pthread_mutex_unlock(&ClockMutex);
 
+    if ( Servidor.getNumJugadores() == 1 )
+            QNumJugadores.push(1);
+
     escenarioAEnviar = Servidor.iniciarPartida();
 
     while ( !escenarioAEnviar.empty() ) {
@@ -296,7 +325,9 @@ void * timeOut(void * args) {
         int numJugador = QNumJugadores.front();
 
         pthread_create(&newRecver, NULL, recver, (void *) (&numJugador));
-        cout << "thread de recepcion para " << numJugador << endl;
+
+        cout << "Creado thread de jugador " << numJugador << endl;
+
         recvJugadores.push_back(newRecver);
 
         QNumJugadores.pop();
