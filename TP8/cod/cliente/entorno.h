@@ -16,7 +16,7 @@ class Entorno
          WINDOW *  pantalla;                        // puntero a el objeto pantalla - propio de ncurses
          int startx, starty , filas , columnas;     // datos necesarios para iniciar la pantalla, como filas columnas, y posicion de inicio del cursor
          Escenario * escenarioActual;               // puntero al escenario desde donde deben levantarce los datos de la pantalla
-        
+         int idJugador;
     public:
         
          Entorno();
@@ -29,6 +29,10 @@ class Entorno
          ~Entorno ();
          
          void dibujarTimeOut(int timeout);
+         
+         void set_idJugador( int idJugador );
+    
+
                            
 };
 
@@ -43,14 +47,38 @@ void Entorno ::  dibujarTimeOut(int timeout)
     }
     else
     {
-            attron(COLOR_PAIR(1));
-            mvwprintw(pantalla, 11, 35, " %d ", timeout);
-            attroff(COLOR_PAIR(1));
+            wattron(pantalla,COLOR_PAIR(10));
+            mvwprintw(pantalla, 2, 7, "            )     *                (       *                )        "); 
+            mvwprintw(pantalla, 3, 7, " (   ( /(   (  `      (        )\\ )  (  `     (      ( /(           "); 
+            mvwprintw(pantalla, 4, 7, " ( )\\  )\\())  )\\))(   ( )\\  (   (()/(  )\\))(    )\\     )\\())  "); 
+            mvwprintw(pantalla, 5, 7, " )((_)((_)\\  ((_)()\\  )((_) )\\   /(_))((_)()\\((((_)(  ((_)\\     "); 
+            mvwprintw(pantalla, 6, 7, " ((_)_   ((_) (_()((_)((_)_ ((_) (_))  (_()((_))\\ _ )\\  _((_)      "); 
+            wattroff(pantalla,COLOR_PAIR(10));
+            
+            wattron(pantalla,COLOR_PAIR(9));
+            mvwprintw(pantalla, 7, 7, " | _ ) / _ \\ |  \\/  | | _ )| __|| _ \\ |  \\/  |(_)_\\(_)| \\| |   "); 
+            mvwprintw(pantalla, 8, 7, " | _ \\| (_) || |\\/| | | _ \\| _| |   / | |\\/| | / _ \\  | .` |    "); 
+            mvwprintw(pantalla, 9, 7, " |___/ \\___/ |_|  |_| |___/|___||_|_\\ |_|  |_|/_/ \\_\\ |_|\\_|    "); 
+            wattroff(pantalla,COLOR_PAIR(9));
+         
+            wattron(pantalla,COLOR_PAIR(10));
+            mvwprintw(pantalla, 15, 35, "%d" , timeout);
+            wattroff(pantalla,COLOR_PAIR(10));
+            
+            wattron(pantalla,COLOR_PAIR(11));
+            mvwprintw(pantalla, 20, 17, "creditos: Facundo - Marcela - Ricardo" );
+            wattroff(pantalla,COLOR_PAIR(11));
+                   
     }
   
     refresh();
     wrefresh( pantalla ); 
     
+}
+
+
+void Entorno :: set_idJugador( int idJugador){
+    this -> idJugador = idJugador;
 }
 
 
@@ -95,7 +123,10 @@ void Entorno :: cargarEntorno ( Escenario * escenario )
    init_pair(6, COLOR_BLACK, COLOR_CYAN    );        //pared destruible
    init_pair(7, COLOR_WHITE, COLOR_MAGENTA );        //premios
    init_pair(8, COLOR_YELLOW, COLOR_RED     );        //Bomba y Explosion
-      
+   init_pair(9, COLOR_RED, COLOR_BLACK     );         // bomberman inicio
+   init_pair(10, COLOR_YELLOW, COLOR_BLACK     );         // bomberman inicio
+   init_pair(11, COLOR_WHITE, COLOR_BLACK     );         // bomberman inicio
+   
    
    pantalla = newwin(filas,columnas,starty, startx);
    
@@ -142,24 +173,24 @@ void Entorno :: actualizarPantalla( void )
        
     // jugador1 : Rojo
     attron(COLOR_PAIR(1));
-    mvprintw(0,1,"Jug 1: %d", (escenarioActual->vidas).at(0) );
+    mvprintw(0,1,"Jug 1: %0.2d", (escenarioActual->vidas).at(0) );
     attroff(COLOR_PAIR(1));
     
     // jugador3 : Azul
     attron(COLOR_PAIR(2));
-    mvprintw(0,16,"Jug 2: %d" ,(escenarioActual->vidas).at(1) );
+    mvprintw(0,16,"Jug 2: %0.2d" ,(escenarioActual->vidas).at(1) );
     attroff(COLOR_PAIR(2));
    
-    mvprintw(0,36,"Time %d", escenarioActual->tiempo);
+    mvprintw(0,36,"Time %0.2d", escenarioActual->tiempo);
          
     // jugador3 : Amarillo
     attron(COLOR_PAIR(3));
-    mvprintw(0,53,"Jug 3: %d" ,(escenarioActual->vidas).at(2));
+    mvprintw(0,53,"Jug 3: %0.2d" ,(escenarioActual->vidas).at(2));
     attroff(COLOR_PAIR(3));
 
     // jugador4 : Verde 
     attron(COLOR_PAIR(4));
-    mvprintw(0,68,"Jug 4: %d", (escenarioActual->vidas).at(3));
+    mvprintw(0,68,"Jug 4: %0.2d", (escenarioActual->vidas).at(3));
     attroff(COLOR_PAIR(4));
     
     //------------------------------------------ FIN Cabecera de pantalla ( vidas y tiempo de juego ) --------------------------------------//
@@ -368,6 +399,9 @@ void Entorno :: actualizarPantalla( void )
     }
     
     wattroff(pantalla,COLOR_PAIR(7));
+    
+    
+    mvwprintw(pantalla,21,4, "  Modo Espectador : usted solo puede ver como se desarrolla el juego  ");
      //--------------------------------------------------  FIN Actualizo Premios en pantalla ---------------------------------------------//
    
     //mvwprintw(pantalla, 21,0, " ERROR >>  ");
