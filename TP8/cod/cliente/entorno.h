@@ -48,17 +48,60 @@ void  Entorno ::  finDePartida(  vector < pair <int,int> >  & puestos  )
     pantalla = newwin(filas,columnas,starty, startx);
     box(pantalla,0 ,0);
     
+       
+    
             wattron(pantalla,COLOR_PAIR(10));
             mvwprintw(pantalla, 1, 7, " (   ( /(   (  `      (        )\\ )  (  `     (      ( /(           "); 
             mvwprintw(pantalla, 2, 7, " ( )\\  )\\())  )\\))(   ( )\\  (   (()/(  )\\))(    )\\     )\\())  "); 
             mvwprintw(pantalla, 3, 7, " )((_)((_)\\  ((_)()\\  )((_) )\\   /(_))((_)()\\((((_)(  ((_)\\     "); 
             mvwprintw(pantalla, 4, 7, " (_)_   ((_) (_()((_)((_)_ ((_) (_))  (_()((_))\\ _ )\\  _((_)      "); 
             wattroff(pantalla,COLOR_PAIR(10));
+
             
             wattron(pantalla,COLOR_PAIR(9));
             mvwprintw(pantalla, 5, 7, " | _ ) / _ \\ |  \\/  | | _ )| __|| _ \\ |  \\/  |(_)_\\(_)| \\| |   "); 
             mvwprintw(pantalla, 6, 7, " | _ \\| (_) || |\\/| | | _ \\| _| |   / | |\\/| | / _ \\  | .` |    "); 
             mvwprintw(pantalla, 7, 7, " |___/ \\___/ |_|  |_| |___/|___||_|_\\ |_|  |_|/_/ \\_\\ |_|\\_|    "); 
+            wattroff(pantalla,COLOR_PAIR(9));
+            
+            
+            wattron(pantalla,COLOR_PAIR(9));
+            /*
+                                                            .-.
+                                                    '-'
+                                                    //
+                                        _..---._/|
+                                        .' ."     '-.
+                                        /__/          \      *
+                                    ====_____     __|     :
+                                    /#   #""" |   /()\    :    ..*
+                                    |#   #    |   \__/    : .'' 
+                                    \#___#____|      /   :::.. .
+                                    \______________|_...‰_: .. '*
+                              ()     // /\||||)))))))      '   . .
+                            .( \_     \\_\//   _-'.'/        |   * ..
+                            ( )  |^|^|^|ooo/  _#\.//"""_      |   . . .
+                            (_)_.'v|v|v|     / \#  \_ / '_  _'    . .  
+                                    | _ _/_/     /'./_-|"         . .
+                                    /#_#__"""-._ /#  \__)       .  .   
+                                    |__   ""-._ |##               . . .
+                                    |  ""|-"""-_/##              . .    
+                                    /""--\__.-|                       .
+                                    \-_.-<__ /                   .   .
+                                    /-_| /  \
+                                    \-_| \_-<.                        .  .
+                                    <_-/ <_.-\                    .
+                                    <_-|  |_.-|                        .
+                                .----|   \__\  |                 .
+                                |     ."""   '.  |                       .
+                                .___|        |__|  
+                                    '.__..."""  
+                                    
+                                    
+            */
+            
+            mvwprintw(pantalla, 5, 7, " | _ ) / _ \\ |  \\/  | | _ )| __|| _ \\ |  \\/  |(_)_\\(_)| \\| |   "); 
+            
             wattroff(pantalla,COLOR_PAIR(9));
             
     
@@ -165,14 +208,41 @@ void Entorno ::  dibujarTimeOut(int timeout)
     }
     else
     {
-            wattron(pantalla,COLOR_PAIR(10));
-            mvwprintw(pantalla, 2, 7, "            )     *                (       *                )        "); 
+             if( timeout % 2 )
+                wattron(pantalla,COLOR_PAIR(10));
+             else
+                wattron(pantalla,COLOR_PAIR(11));
+             
+ 
             mvwprintw(pantalla, 3, 7, " (   ( /(   (  `      (        )\\ )  (  `     (      ( /(           "); 
-            mvwprintw(pantalla, 4, 7, " ( )\\  )\\())  )\\))(   ( )\\  (   (()/(  )\\))(    )\\     )\\())  "); 
+   
             mvwprintw(pantalla, 5, 7, " )((_)((_)\\  ((_)()\\  )((_) )\\   /(_))((_)()\\((((_)(  ((_)\\     "); 
-            mvwprintw(pantalla, 6, 7, " (_)_   ((_) (_()((_)((_)_ ((_) (_))  (_()((_))\\ _ )\\  _((_)      "); 
-            wattroff(pantalla,COLOR_PAIR(10));
+
             
+            if( timeout % 2 )
+                wattroff(pantalla,COLOR_PAIR(10));
+            else
+                wattroff(pantalla,COLOR_PAIR(11));
+            
+            
+             if( timeout % 2 )
+                wattron(pantalla,COLOR_PAIR(11));
+             else
+                wattron(pantalla,COLOR_PAIR(10));
+             
+            mvwprintw(pantalla, 2, 7, "            )     *                (       *                )        "); 
+
+            mvwprintw(pantalla, 4, 7, " ( )\\  )\\())  )\\))(   ( )\\  (   (()/(  )\\))(    )\\     )\\())  "); 
+
+            mvwprintw(pantalla, 6, 7, " (_)_   ((_) (_()((_)((_)_ ((_) (_))  (_()((_))\\ _ )\\  _((_)      "); 
+            
+            
+            if( timeout % 2 )
+                wattroff(pantalla,COLOR_PAIR(11));
+            else
+                wattroff(pantalla,COLOR_PAIR(10));
+                
+             
             wattron(pantalla,COLOR_PAIR(9));
             mvwprintw(pantalla, 7, 7, " | _ ) / _ \\ |  \\/  | | _ )| __|| _ \\ |  \\/  |(_)_\\(_)| \\| |   "); 
             mvwprintw(pantalla, 8, 7, " | _ \\| (_) || |\\/| | | _ \\| _| |   / | |\\/| | / _ \\  | .` |    "); 
@@ -244,7 +314,7 @@ void Entorno :: cargarEntorno ( Escenario * escenario )
    init_pair(9, COLOR_RED, COLOR_BLACK     );         // bomberman inicio
    init_pair(10, COLOR_YELLOW, COLOR_BLACK     );         // bomberman inicio
    init_pair(11, COLOR_WHITE, COLOR_BLACK     );         // bomberman inicio
-   
+
    
    pantalla = newwin(filas,columnas,starty, startx);
    

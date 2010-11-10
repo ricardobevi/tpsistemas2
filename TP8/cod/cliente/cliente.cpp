@@ -169,6 +169,7 @@ void * recver(void * args)
                
                 
                 
+                
                 pthread_cond_broadcast( &CondicionActualizar );
                           
     }
