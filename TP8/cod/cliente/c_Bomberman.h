@@ -19,6 +19,9 @@ class Bomberman
         Connection  < char >  connectionCliente;
         Entorno     entornoCliente;
         
+        vector < pair <int,int> > puestos;
+        
+        
         string ipServidor ;
         unsigned int puerto;
         int timeOut;
@@ -248,7 +251,7 @@ void Bomberman :: actualizarNovedades( t_protocolo * accion )
 
        */
             
-            ofstream error("errores.err");
+            
             // el siguiente switch determina que operaciones deben realizarce en base a que novedad ah sido enviada
             switch ( accion->id )
             {
@@ -258,6 +261,7 @@ void Bomberman :: actualizarNovedades( t_protocolo * accion )
                             escenarioCliente.vidas[accion->posicion]= accion->x;
                         else
                         {
+                            ofstream error("errores.err");
                             error << endl <<"Fallo de segmentacion en vector: vidas"<< endl << "pos: " << accion->posicion << endl << "x: " << accion->x << endl << "y: "<< accion->y;
                             error.close();
                             kill(SIGINT, getpid() );
@@ -272,6 +276,7 @@ void Bomberman :: actualizarNovedades( t_protocolo * accion )
                             escenarioCliente.jugadores[accion->posicion].set_coordenada( accion->x, accion->y);
                         else
                         {
+                            ofstream error("errores.err");
                             error << endl <<"Fallo de segmentacion en vector: jugadores"<< endl << "pos: " << accion->posicion << endl << "x: " << accion->x << endl << "y: "<< accion->y;
                             error.close();
                             kill(SIGINT, getpid() );
@@ -456,16 +461,26 @@ void Bomberman :: actualizarNovedades( t_protocolo * accion )
                         break;
                         
                         
-                 case 'F':
-                        
-                        //Jugador Numero :  x      Puesto : y
-                        //Jugador Numero :  x      Puesto : y
-                        //Jugador Numero :  x      Puesto : y
-                        //Jugador Numero :  x      Puesto : y
+                 case 'P':
+                        // los puestos son enviados 4 3 2 1 
+                        //Jugador Numero :  x   
+                       
+                        puestos.push_back(  pair <int,int> (accion->x , accion->y ) );
                        
                         break;
+                        
+                  case 'F':
+                        
+                        entornoCliente.finDePartida( puestos );
+                        getchar();
+                        this->finalizarBomberman();
+                        exit(0);
+                       
+                        break;        
 
             }
+            
+            
             
 
 }
@@ -481,22 +496,7 @@ int  Bomberman :: get_timeout()
 
 
 void Bomberman ::  esperaDeJugadores(  int timeout  )
-{
-    /*
-    
-                        )     *                (       *                )  
-            (   ( /(   (  `      (        )\ )  (  `     (      ( /(  
-            ( )\  )\())  )\))(   ( )\  (   (()/(  )\))(    )\     )\()) 
-            )((_)((_)\  ((_)()\  )((_) )\   /(_))((_)()\((((_)(  ((_)\  
-            ((_)_   ((_) (_()((_)((_)_ ((_) (_))  (_()((_))\ _ )\  _((_) 
-            | _ ) / _ \ |  \/  | | _ )| __|| _ \ |  \/  |(_)_\(_)| \| | 
-            | _ \| (_) || |\/| | | _ \| _| |   / | |\/| | / _ \  | .` | 
-            |___/ \___/ |_|  |_| |___/|___||_|_\ |_|  |_|/_/ \_\ |_|\_| 
-            
-    */
-    
-    
-    
+{    
     
     entornoCliente.dibujarTimeOut( timeout );
            

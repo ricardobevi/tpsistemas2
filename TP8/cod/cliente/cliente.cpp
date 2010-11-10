@@ -160,11 +160,39 @@ void * recver(void * args)
             
                 pthread_mutex_lock( &SemColaNovedades );
             
-                       colaNovedades.push(accion);
+                       /*  prueba para ver si funca fin de partida*/
+                       
+                       t_protocolo prueba;
+                       prueba.id = 'P';
+                       prueba.posicion = 0;
+                       
+                       prueba.x = 1;
+                       prueba.y = 4;
+                       colaNovedades.push(prueba);
+                       
+                       prueba.x = 2;
+                       prueba.y = 3;
+                       colaNovedades.push(prueba);
+                       
+                       prueba.x = 0;
+                       prueba.y = 2;
+                       colaNovedades.push(prueba);
+                       
+                       prueba.x = 3;
+                       prueba.y = 1;
+                       colaNovedades.push(prueba);
+                                          
+                       
+                       //colaNovedades.push(accion);
                 
                 pthread_mutex_unlock( &SemColaNovedades );
                 
+                sleep( 3 );
                 
+                pthread_mutex_lock( &SemColaNovedades );
+                    prueba.id = 'F';
+                    colaNovedades.push(prueba);
+                pthread_mutex_unlock( &SemColaNovedades );
                 
                 
                 pthread_cond_broadcast( &CondicionActualizar );
