@@ -58,6 +58,9 @@ class JugadorAutomatico: public Jugador {
         void eliminar();
         bool eliminado();
 
+        void setEspectador( bool espectador );
+        bool isEspectador();
+
         bool isClosed();
 
         void Close();
@@ -72,6 +75,8 @@ class JugadorAutomatico: public Jugador {
         int TipoBomba;
 
         bool EnvioEscenario;
+
+        bool Espectador;
 
         bool Closed;
 

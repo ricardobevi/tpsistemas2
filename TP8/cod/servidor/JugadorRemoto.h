@@ -55,6 +55,9 @@ class JugadorRemoto: public Jugador {
         void eliminar();
         bool eliminado();
 
+        void setEspectador( bool espectador );
+        bool isEspectador();
+
         bool isClosed();
 
         void Close();
@@ -69,6 +72,8 @@ class JugadorRemoto: public Jugador {
         int TipoBomba;
 
         bool EnvioEscenario;
+
+        bool Espectador;
 
         bool Closed;
 

@@ -30,6 +30,7 @@ JugadorAutomatico::JugadorAutomatico(unsigned (*Escenario)[10],
     this->TipoBomba = TipoBomba;
 
     EnvioEscenario = false;
+    Espectador = false;
     Closed = false;
 
 }
@@ -105,7 +106,7 @@ t_protocolo JugadorAutomatico::recv(){
     t_protocolo recibio = {0,0,-1,0};
     char aux;
 
-    if( ! this->eliminado() ){
+    if( ! this->eliminado() && !Espectador ){
 
         aux = rand() % 5;
 
@@ -137,6 +138,11 @@ t_protocolo JugadorAutomatico::recv(){
         recibio.x = aux;
         recibio.y = 0;
 
+    }else if ( Espectador ){
+        recibio.id = 'i';
+        recibio.posicion = 0;
+        recibio.x = -1;
+        recibio.y = 0;
     }
 
     return recibio;
@@ -173,6 +179,14 @@ void JugadorAutomatico::eliminar() {
 
 bool JugadorAutomatico::eliminado() {
     return this->Numero < 0 ? true : false;
+}
+
+void JugadorAutomatico::setEspectador( bool espectador ){
+    this->Espectador = espectador;
+}
+
+bool JugadorAutomatico::isEspectador(){
+    return this->Espectador;
 }
 
 bool JugadorAutomatico::isClosed() {

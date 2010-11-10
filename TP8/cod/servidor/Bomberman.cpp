@@ -366,97 +366,140 @@ queue<t_protocolo> Bomberman::iniciarPartida() {
     return this->sendEscenario(0, true);
 }
 
+queue<t_protocolo> Bomberman::finalizarPartida() {
+    queue<t_protocolo> QFinPartida;
+    t_protocolo finPartida;
+
+    finPartida.id = 'P';
+    finPartida.posicion = 0;
+
+    if ( Posiciones.size() < NumJugadores ){
+        for( unsigned i = 0 ; i < JUGADORES_MAX ; i++ ){
+
+            if( TipoJugador[i] != JUGADOR_INACTIVO ){
+                finPartida.x = i;
+                finPartida.y = 1;
+
+                cout << finPartida.y << " Jugador " << finPartida.x << endl;
+
+                QFinPartida.push(finPartida);
+            }
+
+        }
+    }
+
+    while ( !Posiciones.empty() ) {
+        finPartida.x = Posiciones.front();
+        finPartida.y = Posiciones.size();
+
+        QFinPartida.push(finPartida);
+
+        Posiciones.pop();
+    }
+
+    finPartida.id = 'F';
+
+    QFinPartida.push(finPartida);
+
+    return QFinPartida;
+
+}
+
 queue<t_protocolo> Bomberman::procesarAccion(t_protocolo recibido) {
     queue<t_protocolo> procesado;
     t_protocolo enviar = { 0, 0, 0, 0 };
 
-    char accion = 0;
+    if ( TipoJugador != JUGADOR_INACTIVO ) {
 
-    unsigned jugador = recibido.posicion;
+        char accion = 0;
 
-    int x = this->Jugadores[jugador]->getPosicion().get_x(), y =
-            this->Jugadores[jugador]->getPosicion().get_y();
+        unsigned jugador = recibido.posicion;
 
-    if ( recibido.x == MoverArriba ) {
+        int x = this->Jugadores[jugador]->getPosicion().get_x(), y =
+                this->Jugadores[jugador]->getPosicion().get_y();
 
-        if ( y > 0 && Escenario[x][y - 1] == LUGAR_VACIO ) {
+        if ( recibido.x == MoverArriba ) {
 
-            this->Jugadores[jugador]->moverArriba();
-            accion = ACCION_MOVE;
+            if ( y > 0 && Escenario[x][y - 1] == LUGAR_VACIO ) {
 
+                this->Jugadores[jugador]->moverArriba();
+                accion = ACCION_MOVE;
+
+            }
+
+        } else if ( recibido.x == MoverAbajo ) {
+
+            if ( (unsigned) y < Y_MAX && Escenario[x][y + 1] == LUGAR_VACIO ) {
+
+                this->Jugadores[jugador]->moverAbajo();
+                accion = ACCION_MOVE;
+
+            }
+
+        } else if ( recibido.x == MoverIzquierda ) {
+
+            if ( x > 0 && Escenario[x - 1][y] == LUGAR_VACIO ) {
+
+                this->Jugadores[jugador]->moverIzquierda();
+                accion = ACCION_MOVE;
+
+            }
+
+        } else if ( recibido.x == MoverDerecha ) {
+
+            if ( (unsigned) x < X_MAX && Escenario[x + 1][y] == LUGAR_VACIO ) {
+
+                this->Jugadores[jugador]->moverDerecha();
+                accion = ACCION_MOVE;
+
+            }
+
+        } else if ( recibido.x == PonerBomba ) {
+            accion = ACCION_BOMB;
         }
 
-    } else if ( recibido.x == MoverAbajo ) {
+        if ( accion == ACCION_MOVE ) {
+            queue<t_protocolo> premios;
 
-        if ( (unsigned) y < Y_MAX && Escenario[x][y + 1] == LUGAR_VACIO ) {
-
-            this->Jugadores[jugador]->moverAbajo();
-            accion = ACCION_MOVE;
-
-        }
-
-    } else if ( recibido.x == MoverIzquierda ) {
-
-        if ( x > 0 && Escenario[x - 1][y] == LUGAR_VACIO ) {
-
-            this->Jugadores[jugador]->moverIzquierda();
-            accion = ACCION_MOVE;
-
-        }
-
-    } else if ( recibido.x == MoverDerecha ) {
-
-        if ( (unsigned) x < X_MAX && Escenario[x + 1][y] == LUGAR_VACIO ) {
-
-            this->Jugadores[jugador]->moverDerecha();
-            accion = ACCION_MOVE;
-
-        }
-
-    } else if ( recibido.x == PonerBomba ) {
-        accion = ACCION_BOMB;
-    }
-
-    if ( accion == ACCION_MOVE ) {
-        queue<t_protocolo> premios;
-
-        enviar.id = 'j';
-        enviar.posicion = jugador;
-        enviar.x = this->Jugadores[jugador]->getPosicion().get_x();
-        enviar.y = this->Jugadores[jugador]->getPosicion().get_y();
-
-        procesado.push(enviar);
-
-        premios = this->tomaPremio(Jugadores[jugador]->getPosicion(), jugador);
-
-        while ( !premios.empty() ) {
-            procesado.push(premios.front());
-            premios.pop();
-        }
-
-    } else if ( accion == ACCION_BOMB ) {
-
-        if ( Jugadores[jugador]->puedePonerBomba() ) {
-            unsigned bombid = (unsigned) HDTimer;
-            Bomba bomb;
-
-            bomb = Jugadores[jugador]->ponerBomba(bombid);
-
-            bomb.activar(HDTimer + TiempoBomba);
-
-            Escenario[bomb.getPos().get_x()][bomb.getPos().get_y()] = BOMBA;
-
-            /*
-             * Bomb has been planted..
-             */
-
-            Bombas.push(bomb);
-
-            enviar.id = 'b';
-            enviar.posicion = bombid;
-            bomb.getPos().get_coordenada(enviar.x, enviar.y);
+            enviar.id = 'j';
+            enviar.posicion = jugador;
+            enviar.x = this->Jugadores[jugador]->getPosicion().get_x();
+            enviar.y = this->Jugadores[jugador]->getPosicion().get_y();
 
             procesado.push(enviar);
+
+            premios = this->tomaPremio(Jugadores[jugador]->getPosicion(), jugador);
+
+            while ( !premios.empty() ) {
+                procesado.push(premios.front());
+                premios.pop();
+            }
+
+        } else if ( accion == ACCION_BOMB ) {
+
+            if ( Jugadores[jugador]->puedePonerBomba() ) {
+                unsigned bombid = (unsigned) HDTimer;
+                Bomba bomb;
+
+                bomb = Jugadores[jugador]->ponerBomba(bombid);
+
+                bomb.activar(HDTimer + TiempoBomba);
+
+                Escenario[bomb.getPos().get_x()][bomb.getPos().get_y()] = BOMBA;
+
+                /*
+                 * Bomb has been planted..
+                 */
+
+                Bombas.push(bomb);
+
+                enviar.id = 'b';
+                enviar.posicion = bombid;
+                bomb.getPos().get_coordenada(enviar.x, enviar.y);
+
+                procesado.push(enviar);
+
+            }
 
         }
 
@@ -499,8 +542,7 @@ queue<t_protocolo> Bomberman::explotarBomba() {
             //TODO: ver los otros tipos de jugadores.
             int vidaNueva;
 
-            if ( TipoJugador[i] != JUGADOR_INACTIVO &&
-                    bum.pertenece(Jugadores[i]->getPosicion())) {
+            if ( TipoJugador[i] != JUGADOR_INACTIVO && bum.pertenece(Jugadores[i]->getPosicion()) ) {
 
                 vidaNueva = Jugadores[i]->restarVida();
 
@@ -632,10 +674,10 @@ t_protocolo Bomberman::eliminarJugador(unsigned jugador, bool close) {
         TipoJugador[jugador] = JUGADOR_INACTIVO;
         this->NumJugadores--;
 
-        if ( !Jugadores[jugador]->isClosed() &&
-                close == false &&
-                TipoJugador[jugador] != JUGADOR_ARTIFICIAL ) {
+        if ( !Jugadores[jugador]->isClosed() && close == false && TipoJugador[jugador]
+                != JUGADOR_ARTIFICIAL ) {
 
+            this->Jugadores[jugador]->setEspectador(true);
             Espectadores[this->Jugadores[jugador]->getNumero()] = this->Jugadores[jugador];
             cout << "El Jugador " << jugador << " ha pasado a modo espectador." << endl;
 
@@ -645,6 +687,8 @@ t_protocolo Bomberman::eliminarJugador(unsigned jugador, bool close) {
             cout << "El Jugador " << jugador << " se desconecto." << endl;
 
         }
+
+        Posiciones.push(jugador);
 
         enviar.id = 'j';
         enviar.posicion = jugador;
@@ -657,6 +701,16 @@ t_protocolo Bomberman::eliminarJugador(unsigned jugador, bool close) {
         enviar.posicion = jugador;
         enviar.x = -1;
         enviar.y = -1;
+
+    }
+
+    if ( NumJugadores == 1 ) {
+        unsigned i = 0;
+
+        while ( TipoJugador[i] == JUGADOR_INACTIVO )
+            i++;
+
+        this->eliminarJugador(i);
 
     }
 
@@ -744,6 +798,21 @@ queue<t_protocolo> Bomberman::tomaPremio(Coordenada coord, unsigned jugador) {
 
 }
 
-void Bomberman::Close(){
+void Bomberman::Close() {
     Socket->Close();
+}
+
+void Bomberman::Reset() {
+    this->PartidaIniciada = false;
+    this->HDTimer = 0;
+    this->Timer = 0;
+    this->NumJugadores = 0;
+
+    for ( unsigned i = 0 ; i < JUGADORES_MAX ; i++ )
+        this->TipoJugador[i] = JUGADOR_INACTIVO;
+
+    for ( unsigned i = 0 ; i < X_MAX + 1 ; i++ )
+        for ( unsigned j = 0 ; j < Y_MAX + 1 ; j++ )
+            Escenario[i][j] = LUGAR_VACIO;
+
 }
