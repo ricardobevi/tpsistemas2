@@ -50,6 +50,12 @@ pthread_cond_t  CondicionActualizar  = PTHREAD_COND_INITIALIZER;
 void finalizarCliente(int iNumSen, siginfo_t  * info, void *ni)
 {
     clienteBomberman.finalizarBomberman();
+    
+    if (iNumSen == SIGPIPE)
+    {
+        cout << endl  << endl <<"ERROR: Fallo la conexion al socket : el servidor no esta activo o termino abruptamente "  << endl;
+    }
+    
     cout << endl << "El cliente ha finalizado" << endl << endl ;
     exit (0);
 }
@@ -63,7 +69,8 @@ int main(int argc, const char *argv[]){
     term.sa_sigaction = finalizarCliente;
     sigfillset( &term.sa_mask );
     term.sa_flags = SA_SIGINFO | SA_NODEFER;
-    sigaction(SIGINT, &term, NULL);
+    sigaction(SIGINT , &term, NULL);
+    sigaction(SIGPIPE , &term, NULL);
 
     srand(unsigned(time(NULL)));
     
@@ -153,46 +160,13 @@ void * recver(void * args)
             
             clienteBomberman.recivirAccion( &accion, sizeof(t_protocolo) );
             
-            /*cout << "id = " << accion.id << " pos = " << accion.posicion
-                 << " (" << accion.x << "," << accion.y << ")"  << endl;*/
-            
-            
-            
+
                 pthread_mutex_lock( &SemColaNovedades );
-            
-                       /*  prueba para ver si funca fin de partida*/
-                       
-                       t_protocolo prueba;
-                       prueba.id = 'P';
-                       prueba.posicion = 0;
-                       
-                       prueba.x = 1;
-                       prueba.y = 4;
-                       colaNovedades.push(prueba);
-                       
-                       prueba.x = 2;
-                       prueba.y = 3;
-                       colaNovedades.push(prueba);
-                       
-                       prueba.x = 0;
-                       prueba.y = 2;
-                       colaNovedades.push(prueba);
-                       
-                       prueba.x = 3;
-                       prueba.y = 1;
-                       colaNovedades.push(prueba);
-                                          
-                       
-                       //colaNovedades.push(accion);
+                     
+                colaNovedades.push(accion);
                 
                 pthread_mutex_unlock( &SemColaNovedades );
-                
-                sleep( 3 );
-                
-                pthread_mutex_lock( &SemColaNovedades );
-                    prueba.id = 'F';
-                    colaNovedades.push(prueba);
-                pthread_mutex_unlock( &SemColaNovedades );
+               
                 
                 
                 pthread_cond_broadcast( &CondicionActualizar );
@@ -202,6 +176,47 @@ void * recver(void * args)
     
     return NULL; //solo para que no me tire warning
 }
+
+
+/* *******************************************************************  
+
+prueba para ver si funca fin de partida
+
+   cout << "id = " << accion.id << " pos = " << accion.posicion
+    << " (" << accion.x << "," << accion.y << ")"  << endl;
+                    
+    t_protocolo prueba;
+    prueba.id = 'P';
+    prueba.posicion = 0;
+
+    prueba.x = 1;
+    prueba.y = 4;
+    colaNovedades.push(prueba);
+
+    prueba.x = 2;
+    prueba.y = 3;
+    colaNovedades.push(prueba);
+
+    prueba.x = 0;
+    prueba.y = 2;
+    colaNovedades.push(prueba);
+
+    prueba.x = 3;
+    prueba.y = 1;
+    colaNovedades.push(prueba);
+
+    ...
+    ...
+
+
+    sleep( 3 );
+
+    pthread_mutex_lock( &SemColaNovedades );
+    prueba.id = 'F';
+    colaNovedades.push(prueba);
+    pthread_mutex_unlock( &SemColaNovedades );
+                       
+*************************************************************************** */
 
 
 // hilo emisor de datos hacia el servidor

@@ -52,7 +52,7 @@ void  Entorno ::  finDePartida(  vector < pair <int,int> >  & puestos  )
             mvwprintw(pantalla, 1, 7, " (   ( /(   (  `      (        )\\ )  (  `     (      ( /(           "); 
             mvwprintw(pantalla, 2, 7, " ( )\\  )\\())  )\\))(   ( )\\  (   (()/(  )\\))(    )\\     )\\())  "); 
             mvwprintw(pantalla, 3, 7, " )((_)((_)\\  ((_)()\\  )((_) )\\   /(_))((_)()\\((((_)(  ((_)\\     "); 
-            mvwprintw(pantalla, 4, 7, " ((_)_   ((_) (_()((_)((_)_ ((_) (_))  (_()((_))\\ _ )\\  _((_)      "); 
+            mvwprintw(pantalla, 4, 7, " (_)_   ((_) (_()((_)((_)_ ((_) (_))  (_()((_))\\ _ )\\  _((_)      "); 
             wattroff(pantalla,COLOR_PAIR(10));
             
             wattron(pantalla,COLOR_PAIR(9));
@@ -170,7 +170,7 @@ void Entorno ::  dibujarTimeOut(int timeout)
             mvwprintw(pantalla, 3, 7, " (   ( /(   (  `      (        )\\ )  (  `     (      ( /(           "); 
             mvwprintw(pantalla, 4, 7, " ( )\\  )\\())  )\\))(   ( )\\  (   (()/(  )\\))(    )\\     )\\())  "); 
             mvwprintw(pantalla, 5, 7, " )((_)((_)\\  ((_)()\\  )((_) )\\   /(_))((_)()\\((((_)(  ((_)\\     "); 
-            mvwprintw(pantalla, 6, 7, " ((_)_   ((_) (_()((_)((_)_ ((_) (_))  (_()((_))\\ _ )\\  _((_)      "); 
+            mvwprintw(pantalla, 6, 7, " (_)_   ((_) (_()((_)((_)_ ((_) (_))  (_()((_))\\ _ )\\  _((_)      "); 
             wattroff(pantalla,COLOR_PAIR(10));
             
             wattron(pantalla,COLOR_PAIR(9));
@@ -489,8 +489,8 @@ void Entorno :: actualizarPantalla( void )
         x = 2 * mit->second.get_x() +1;
         y = 2 * mit->second.get_y() +1;
 
-        mvwprintw(pantalla, y  ,x, "++");
-        mvwprintw(pantalla, y+1,x, "++");
+        mvwprintw(pantalla, y  ,x, "/\\");
+        mvwprintw(pantalla, y+1,x, "\\/");
         
     }
     
@@ -523,7 +523,7 @@ void Entorno :: actualizarPantalla( void )
     
      //--------------------------------------------------  FIN Actualizo Premios en pantalla ---------------------------------------------//
    
-    //mvwpr intw(pantalla, 21,0, " ERROR >>  ");
+    //mvwprintw(pantalla, 21,0, " ERROR >>  ");
 
     //actualizo pantalla  
 
