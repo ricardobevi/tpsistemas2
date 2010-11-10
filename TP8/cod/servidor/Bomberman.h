@@ -18,6 +18,8 @@
 #include <cstdlib>
 
 #include "Jugador.h"
+#include "JugadorRemoto.h"
+#include "JugadorAutomatico.h"
 #include "Bomba.h"
 #include "Premio.h"
 #include "Explosion.h"
@@ -40,13 +42,13 @@ class Bomberman {
         Bomberman();
         ~Bomberman();
 
-        void activar(long int puerto, string archivoEscenario);
+        void activar(string archivoConfiguracion);
 
         int nuevoJugador();
 
         queue<t_protocolo> sendEscenario(int jugador, bool toAll = false);
 
-        Jugador& getJugador(int jugador);
+        Jugador * getJugador(int jugador);
 
         unsigned getNumJugadores();
 
@@ -72,6 +74,8 @@ class Bomberman {
 
         void resetClock();
 
+        void Close();
+
         static const unsigned JUGADORES_MAX = 4;
         static const unsigned X_MAX = 37;
         static const unsigned Y_MAX = 9;
@@ -84,10 +88,17 @@ class Bomberman {
         int Timer;
         unsigned long int HDTimer;
 
-        Jugador Jugadores[JUGADORES_MAX];
-        bool JugadoresActivos[JUGADORES_MAX];
+        unsigned Escenario[X_MAX + 1][Y_MAX + 1];
 
-        map<int, Jugador> Espectadores;
+        Jugador * Jugadores[JUGADORES_MAX];
+        map<int, Jugador *> Espectadores;
+
+        int TipoJugador[JUGADORES_MAX];
+
+        static const int JUGADOR_INACTIVO = 0;
+        static const int JUGADOR_REMOTO = 1;
+        static const int JUGADOR_LOCAL = 2;
+        static const int JUGADOR_ARTIFICIAL = 3;
 
         queue<Bomba> Bombas;
         queue<Explosion> Explosiones;
@@ -95,18 +106,17 @@ class Bomberman {
         vector<Coordenada> Paredes;
         vector<Coordenada> ParedesDestruibles;
 
-        Comm<char> Socket;
+        Comm<char> * Socket;
 
         int VidaInicial;
         int MaxBombInicial;
         int VelocidadInicial;
+        int VelocidadJugadorAutomatico;
         unsigned long int TiempoBomba, TiempoExplosion, TiempoEspera, TiempoPartida;
 
         bool PartidaIniciada;
 
         unsigned NumJugadores;
-
-        unsigned Escenario[X_MAX + 1][Y_MAX + 1];
 
         /*Teclas de accion*/
         int MoverArriba, MoverAbajo, MoverIzquierda, MoverDerecha, PonerBomba;

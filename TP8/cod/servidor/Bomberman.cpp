@@ -14,24 +14,79 @@ Bomberman::~Bomberman() {
 
 }
 
-void Bomberman::activar(long int puerto, string archivoEscenario) {
+void Bomberman::activar(string archivoConfiguracion) {
+
+    cout << "Archivo de Configuracion: " << archivoConfiguracion << endl;
+
+    ifstream archConf(archivoConfiguracion.c_str());
+    int puerto;
+
+    string parametro, archivoEscenario;
+
+    archConf >> parametro;
+
+    while ( !archConf.eof() ) {
+
+        if ( parametro == "Puerto" ) {
+            archConf >> puerto;
+            cout << "Puerto = " << puerto << endl;
+
+        } else if ( parametro == "Escenario" ) {
+            archConf >> archivoEscenario;
+            cout << "Escenario = " << archivoEscenario << endl;
+
+        } else if ( parametro == "VidaInicial" ) {
+            archConf >> this->VidaInicial;
+            cout << "VidaInicial = " << VidaInicial << endl;
+
+        } else if ( parametro == "MaxBombInicial" ) {
+            archConf >> this->MaxBombInicial;
+            cout << "MaxBombInicial = " << MaxBombInicial << endl;
+
+        } else if ( parametro == "VelocidadInicial" ) {
+            archConf >> this->VelocidadInicial;
+            cout << "VelocidadInicial = " << VelocidadInicial << endl;
+
+        } else if ( parametro == "VelocidadJugadorAutomatico" ) {
+            archConf >> this->VelocidadJugadorAutomatico;
+            cout << "VelocidadJugadorAutomatico = " << VelocidadJugadorAutomatico << endl;
+
+        } else if ( parametro == "TiempoBomba" ) {
+            archConf >> this->TiempoBomba;
+            cout << "TiempoBomba = " << TiempoBomba << endl;
+
+        } else if ( parametro == "TiempoExplosion" ) {
+            archConf >> this->TiempoExplosion;
+            cout << "TiempoExplosion = " << TiempoExplosion << endl;
+
+        } else if ( parametro == "TiempoEspera" ) {
+            archConf >> this->TiempoEspera;
+            cout << "TiempoEspera = " << TiempoEspera << endl;
+
+        } else if ( parametro == "TiempoPartida" ) {
+            archConf >> this->TiempoPartida;
+            cout << "TiempoPartida = " << TiempoPartida << endl;
+
+        } else if ( 1 ) {
+            cerr << archivoConfiguracion << ": Error en archivo de configuracion." << endl;
+            cerr << "Caracter " << archConf.tellg() << endl;
+            exit(-1);
+        }
+
+        archConf >> parametro;
+
+    }
+
+    archConf.close();
+
     ifstream archEsc(archivoEscenario.c_str());
 
-    this->Timer = 0;
-    this->VidaInicial = 3;
-    this->MaxBombInicial = 1;
-    this->VelocidadInicial = 3;
-    this->TiempoBomba = 50;
-    this->TiempoExplosion = 5;
-    this->TiempoEspera = 10;
-    this->TiempoPartida = 200;
-
     this->PartidaIniciada = false;
-
+    this->Timer = 0;
     this->NumJugadores = 0;
 
     for ( unsigned i = 0 ; i < JUGADORES_MAX ; i++ )
-        this->JugadoresActivos[i] = false;
+        this->TipoJugador[i] = JUGADOR_INACTIVO;
 
     MoverArriba = 'w';
     MoverAbajo = 's';
@@ -39,8 +94,8 @@ void Bomberman::activar(long int puerto, string archivoEscenario) {
     MoverDerecha = 'd';
     PonerBomba = 'b';
 
-    this->Socket = Comm<char> (puerto);
-    this->Socket.Listen();
+    this->Socket = new Comm<char> (puerto);
+    this->Socket->Listen();
 
     srand(unsigned(time(NULL)));
 
@@ -95,9 +150,9 @@ int Bomberman::nuevoJugador() {
     unsigned numCon = 0;
     int numJugador = 0;
 
-    numCon = this->Socket.Accept();
+    numCon = this->Socket->Accept();
 
-    playerCon = this->Socket.getConn(numCon);
+    playerCon = this->Socket->getConn(numCon);
 
     /*Saco numero de jugador*/
     {
@@ -106,7 +161,7 @@ int Bomberman::nuevoJugador() {
 
             unsigned i = 0;
 
-            while ( i < JUGADORES_MAX && JugadoresActivos[i] )
+            while ( i < JUGADORES_MAX && TipoJugador[i] != JUGADOR_INACTIVO )
                 i++;
 
             numJugador = i;
@@ -144,8 +199,6 @@ int Bomberman::nuevoJugador() {
             coord.set_coordenada(-1, -1);
     }
 
-    Jugador Player(numJugador, this->VidaInicial, coord, playerCon, 0, MaxBombInicial, 1);
-
     t_protocolo enviaNumJugador;
 
     enviaNumJugador.id = 'i';
@@ -153,17 +206,19 @@ int Bomberman::nuevoJugador() {
     enviaNumJugador.x = numJugador;
     enviaNumJugador.y = 0;
 
-    Player.send(enviaNumJugador);
+    Jugador * Player = new JugadorRemoto(numJugador, this->VidaInicial, coord, playerCon, 0,
+            MaxBombInicial, 1);
 
-    if ( PartidaIniciada ){
+    Player->send(enviaNumJugador);
+
+    if ( PartidaIniciada ) {
         t_protocolo simulacionIinicio = { 's', 0, 0, 0 };
-        Player.send(simulacionIinicio);
+        Player->send(simulacionIinicio);
     }
 
     if ( numJugador >= 0 ) {
-
         this->Jugadores[numJugador] = Player;
-        this->JugadoresActivos[numJugador] = true;
+        this->TipoJugador[numJugador] = JUGADOR_REMOTO;
         this->NumJugadores++;
 
     } else {
@@ -175,29 +230,30 @@ int Bomberman::nuevoJugador() {
     if ( PartidaIniciada )
         this->sendEscenario(numJugador);
 
-
     return numJugador;
 }
 
 queue<t_protocolo> Bomberman::sendEscenario(int jugador, bool toAll) {
     unsigned i = 0;
     queue<t_protocolo> qEnviar;
-    map<int, Jugador>::iterator it;
+    map<int, Jugador *>::iterator it;
     t_protocolo enviar;
 
-
     for ( i = 0; i < JUGADORES_MAX ; i++ ) {
-        if ( JugadoresActivos[i] ) {
+        //TODO: ver de mandar los distintos tipos de jugador.
+        if ( TipoJugador[i] != JUGADOR_INACTIVO ) {
+
             enviar.id = 'j';
             enviar.posicion = i;
-            enviar.x = Jugadores[i].getPosicion().get_x();
-            enviar.y = Jugadores[i].getPosicion().get_y();
+            enviar.x = Jugadores[i]->getPosicion().get_x();
+            enviar.y = Jugadores[i]->getPosicion().get_y();
 
             qEnviar.push(enviar);
 
             enviar.id = 'v';
             enviar.posicion = i;
-            enviar.x = enviar.y = Jugadores[i].getVida();
+
+            enviar.x = enviar.y = Jugadores[i]->getVida();
 
             qEnviar.push(enviar);
         }
@@ -247,9 +303,9 @@ queue<t_protocolo> Bomberman::sendEscenario(int jugador, bool toAll) {
         while ( !qEnviar.empty() ) {
 
             if ( jugador >= 0 )
-                Jugadores[jugador].send(qEnviar.front());
+                Jugadores[jugador]->send(qEnviar.front());
             else
-                Espectadores[jugador].send(qEnviar.front());
+                Espectadores[jugador]->send(qEnviar.front());
 
             qEnviar.pop();
 
@@ -258,13 +314,13 @@ queue<t_protocolo> Bomberman::sendEscenario(int jugador, bool toAll) {
     } else {
 
         for ( unsigned i = 0 ; i < JUGADORES_MAX ; i++ ) {
-            if ( JugadoresActivos[i] == true ) {
+            if ( TipoJugador[i] != JUGADOR_INACTIVO ) {
                 enviar.x = i;
                 qEnviar.push(enviar);
             }
         }
 
-        for ( it = Espectadores.begin() ; it != Espectadores.end() ; it++ ) {
+        for ( it = Espectadores.begin(); it != Espectadores.end() ; it++ ) {
             enviar.x = it->first;
             qEnviar.push(enviar);
         }
@@ -275,7 +331,7 @@ queue<t_protocolo> Bomberman::sendEscenario(int jugador, bool toAll) {
 
 }
 
-Jugador& Bomberman::getJugador(int jugador) {
+Jugador * Bomberman::getJugador(int jugador) {
     return this->Jugadores[jugador];
 }
 
@@ -289,9 +345,25 @@ unsigned long int Bomberman::getTiempoEspera() {
 
 queue<t_protocolo> Bomberman::iniciarPartida() {
 
+    if ( NumJugadores == 1 ) {
+
+        unsigned i = 0;
+
+        while ( i < JUGADORES_MAX && TipoJugador[i] != JUGADOR_INACTIVO )
+            i++;
+
+        Jugadores[i] = new JugadorAutomatico(Escenario, i, this->VidaInicial, Coordenada(X_MAX, 0),
+                0, MaxBombInicial, VelocidadJugadorAutomatico);
+
+        TipoJugador[i] = JUGADOR_ARTIFICIAL;
+
+        this->NumJugadores++;
+
+    }
+
     this->PartidaIniciada = true;
 
-    return this->sendEscenario(0, true);;
+    return this->sendEscenario(0, true);
 }
 
 queue<t_protocolo> Bomberman::procesarAccion(t_protocolo recibido) {
@@ -302,14 +374,14 @@ queue<t_protocolo> Bomberman::procesarAccion(t_protocolo recibido) {
 
     unsigned jugador = recibido.posicion;
 
-    int x = this->Jugadores[jugador].getPosicion().get_x(), y =
-            this->Jugadores[jugador].getPosicion().get_y();
+    int x = this->Jugadores[jugador]->getPosicion().get_x(), y =
+            this->Jugadores[jugador]->getPosicion().get_y();
 
     if ( recibido.x == MoverArriba ) {
 
         if ( y > 0 && Escenario[x][y - 1] == LUGAR_VACIO ) {
 
-            this->Jugadores[jugador].moverArriba();
+            this->Jugadores[jugador]->moverArriba();
             accion = ACCION_MOVE;
 
         }
@@ -318,7 +390,7 @@ queue<t_protocolo> Bomberman::procesarAccion(t_protocolo recibido) {
 
         if ( (unsigned) y < Y_MAX && Escenario[x][y + 1] == LUGAR_VACIO ) {
 
-            this->Jugadores[jugador].moverAbajo();
+            this->Jugadores[jugador]->moverAbajo();
             accion = ACCION_MOVE;
 
         }
@@ -327,7 +399,7 @@ queue<t_protocolo> Bomberman::procesarAccion(t_protocolo recibido) {
 
         if ( x > 0 && Escenario[x - 1][y] == LUGAR_VACIO ) {
 
-            this->Jugadores[jugador].moverIzquierda();
+            this->Jugadores[jugador]->moverIzquierda();
             accion = ACCION_MOVE;
 
         }
@@ -336,7 +408,7 @@ queue<t_protocolo> Bomberman::procesarAccion(t_protocolo recibido) {
 
         if ( (unsigned) x < X_MAX && Escenario[x + 1][y] == LUGAR_VACIO ) {
 
-            this->Jugadores[jugador].moverDerecha();
+            this->Jugadores[jugador]->moverDerecha();
             accion = ACCION_MOVE;
 
         }
@@ -350,12 +422,12 @@ queue<t_protocolo> Bomberman::procesarAccion(t_protocolo recibido) {
 
         enviar.id = 'j';
         enviar.posicion = jugador;
-        enviar.x = this->Jugadores[jugador].getPosicion().get_x();
-        enviar.y = this->Jugadores[jugador].getPosicion().get_y();
+        enviar.x = this->Jugadores[jugador]->getPosicion().get_x();
+        enviar.y = this->Jugadores[jugador]->getPosicion().get_y();
 
         procesado.push(enviar);
 
-        premios = this->tomaPremio(Jugadores[jugador].getPosicion(), jugador);
+        premios = this->tomaPremio(Jugadores[jugador]->getPosicion(), jugador);
 
         while ( !premios.empty() ) {
             procesado.push(premios.front());
@@ -364,11 +436,11 @@ queue<t_protocolo> Bomberman::procesarAccion(t_protocolo recibido) {
 
     } else if ( accion == ACCION_BOMB ) {
 
-        if ( Jugadores[jugador].puedePonerBomba() ) {
+        if ( Jugadores[jugador]->puedePonerBomba() ) {
             unsigned bombid = (unsigned) HDTimer;
             Bomba bomb;
 
-            bomb = Jugadores[jugador].ponerBomba(bombid);
+            bomb = Jugadores[jugador]->ponerBomba(bombid);
 
             bomb.activar(HDTimer + TiempoBomba);
 
@@ -410,7 +482,8 @@ queue<t_protocolo> Bomberman::explotarBomba() {
         enviar.posicion = bomb.getNumero();
         enviar.x = enviar.y = -1;
 
-        Jugadores[bomb.getOwner()].explotoBomba();
+        if ( TipoJugador[bomb.getOwner()] != JUGADOR_INACTIVO )
+            Jugadores[bomb.getOwner()]->explotoBomba();
 
         qEnviar.push(enviar);
 
@@ -423,29 +496,37 @@ queue<t_protocolo> Bomberman::explotarBomba() {
         bum.calcularExplosion(qEnviar, this->ParedesDestruibles, this->Premios, &this->HDTimer);
 
         for ( unsigned i = 0 ; i < JUGADORES_MAX ; i++ ) {
+            //TODO: ver los otros tipos de jugadores.
+            int vidaNueva;
 
-            if ( JugadoresActivos[i] ) {
+            if ( TipoJugador[i] != JUGADOR_INACTIVO &&
+                    bum.pertenece(Jugadores[i]->getPosicion())) {
 
-                if ( bum.pertenece(Jugadores[i].getPosicion()) ) {
+                vidaNueva = Jugadores[i]->restarVida();
 
-                    enviar.id = 'v';
-                    enviar.posicion = i;
-                    enviar.x = enviar.y = Jugadores[i].restarVida();
+                enviar.id = 'v';
+                enviar.posicion = i;
+                enviar.x = enviar.y = vidaNueva;
 
-                    qEnviar.push(enviar);
+                qEnviar.push(enviar);
+
+                if ( vidaNueva <= 0 ) {
+
+                    qEnviar.push(this->eliminarJugador(i));
 
                 }
+
             }
 
+            bum.setTiempoExpiracion(HDTimer + TiempoExplosion);
+
+            /*
+             * Terrorist win!
+             */
+
+            Explosiones.push(bum);
+
         }
-
-        bum.setTiempoExpiracion(HDTimer + TiempoExplosion);
-
-        /*
-         * Terrorist win!
-         */
-
-        Explosiones.push(bum);
 
     }
 
@@ -472,16 +553,18 @@ t_protocolo Bomberman::expirarExplosion() {
 }
 
 t_protocolo Bomberman::recvFrom(unsigned jugador) {
-    t_protocolo recibido = { 0, 0, 0, 0 };
-    int vel = Jugadores[jugador].getVelocidad();
-
+    t_protocolo recibido = { 0, 0, -1, 0 };
+    int vel = Jugadores[jugador]->getVelocidad();
+    //TODO: Ver los otros tipos de jugadores
     if ( this->PartidaIniciada ) {
         unsigned long int tiempoLectura;
 
         tiempoLectura = vel < VelocidadInicial ? (HDTimer + VelocidadInicial) - (vel) : HDTimer;
 
         do {
-            recibido = Jugadores[jugador].recv();
+
+            recibido = Jugadores[jugador]->recv();
+
         } while ( HDTimer < tiempoLectura && recibido.x != PonerBomba );
 
     }
@@ -490,46 +573,48 @@ t_protocolo Bomberman::recvFrom(unsigned jugador) {
 }
 
 int Bomberman::update(t_protocolo data) {
-    map<int, Jugador>::iterator it;
+    map<int, Jugador *>::iterator it;
 
     /*
      * Si el dato es del tipo 'i', tengo que mandarlo solo al
      * jugador que llama, ya que si se lo envio a todos complica
-     * el timeout para conexiones entrantes.
+     * el timeout para conexiones entrantes.(creo que puede sacarce)
      */
 
     if ( data.id != 'i' ) {
 
         for ( unsigned i = 0 ; i < JUGADORES_MAX ; i++ ) {
 
-            if ( this->JugadoresActivos[i] ) {
-                if ( Jugadores[i].isClosed() )
+            if ( TipoJugador[i] != JUGADOR_INACTIVO ) {
+
+                if ( Jugadores[i]->isClosed() )
                     this->eliminarJugador(i);
                 else {
-                    this->Jugadores[i].send(data);
+                    this->Jugadores[i]->send(data);
                 }
+
             }
 
         }
 
-        for ( it = Espectadores.begin(); it != Espectadores.end() ; it++ ){
-            if ( it->second.isClosed() )
+        for ( it = Espectadores.begin(); it != Espectadores.end() ; it++ ) {
+            if ( it->second->isClosed() )
                 this->eliminarEspectador(it->first);
             else
-                it->second.send(data);
+                it->second->send(data);
         }
     } else {
 
         int numJugador = data.x;
 
-        if ( numJugador <= (int) JUGADORES_MAX && this->JugadoresActivos[numJugador] ) {
-            if ( Jugadores[numJugador].isClosed() )
+        if ( numJugador < (int) NumJugadores ) {
+            if ( Jugadores[numJugador]->isClosed() )
                 this->eliminarJugador(numJugador);
             else
-                this->Jugadores[numJugador].send(data);
+                this->Jugadores[numJugador]->send(data);
         } else {
 
-            Espectadores[numJugador].send(data);
+            Espectadores[numJugador]->send(data);
         }
 
     }
@@ -539,20 +624,26 @@ int Bomberman::update(t_protocolo data) {
 
 t_protocolo Bomberman::eliminarJugador(unsigned jugador, bool close) {
     t_protocolo enviar;
+    //TODO: Ver otros tipos de jugadores
+    if ( TipoJugador[jugador] != JUGADOR_INACTIVO ) {
 
-    if ( JugadoresActivos[jugador] ) {
+        this->Jugadores[jugador]->eliminar();
 
-        this->Jugadores[jugador].eliminar();
-
+        TipoJugador[jugador] = JUGADOR_INACTIVO;
         this->NumJugadores--;
-        JugadoresActivos[jugador] = false;
 
-        if ( !Jugadores[jugador].isClosed() && close == false ) {
-            Espectadores[this->Jugadores[jugador].getNumero()] = this->Jugadores[jugador];
+        if ( !Jugadores[jugador]->isClosed() &&
+                close == false &&
+                TipoJugador[jugador] != JUGADOR_ARTIFICIAL ) {
+
+            Espectadores[this->Jugadores[jugador]->getNumero()] = this->Jugadores[jugador];
             cout << "El Jugador " << jugador << " ha pasado a modo espectador." << endl;
+
         } else {
-            Jugadores[jugador].Close();
+
+            Jugadores[jugador]->Close();
             cout << "El Jugador " << jugador << " se desconecto." << endl;
+
         }
 
         enviar.id = 'j';
@@ -572,11 +663,10 @@ t_protocolo Bomberman::eliminarJugador(unsigned jugador, bool close) {
     return enviar;
 }
 
-void Bomberman::eliminarEspectador(int espectador){
-    Espectadores[espectador].Close();
+void Bomberman::eliminarEspectador(int espectador) {
+    Espectadores[espectador]->Close();
     Espectadores.erase(espectador);
 }
-
 
 t_protocolo Bomberman::clockTick() {
     t_protocolo enviar;
@@ -624,11 +714,11 @@ queue<t_protocolo> Bomberman::tomaPremio(Coordenada coord, unsigned jugador) {
         switch ( price.getTipo() ) {
 
             case 'B':
-                Jugadores[jugador].sumarBombMax();
+                Jugadores[jugador]->sumarBombMax();
                 break;
 
             case 'V': {
-                int life = Jugadores[jugador].sumarVida();
+                int life = Jugadores[jugador]->sumarVida();
 
                 tp.id = 'v';
                 tp.posicion = jugador;
@@ -639,11 +729,11 @@ queue<t_protocolo> Bomberman::tomaPremio(Coordenada coord, unsigned jugador) {
                 break;
             }
             case 'E':
-                Jugadores[jugador].sumarTipoBomba();
+                Jugadores[jugador]->sumarTipoBomba();
                 break;
 
             case 'R':
-                Jugadores[jugador].sumarVelocidad();
+                Jugadores[jugador]->sumarVelocidad();
                 break;
 
         }
@@ -652,4 +742,8 @@ queue<t_protocolo> Bomberman::tomaPremio(Coordenada coord, unsigned jugador) {
 
     return enviar;
 
+}
+
+void Bomberman::Close(){
+    Socket->Close();
 }
