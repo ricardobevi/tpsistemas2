@@ -2,9 +2,11 @@
 #define C_BOMBERMAN_H
 
 #include <fstream>
-
+#include <ncurses.h>
+#include <string>
 #include "entorno.h"
 #include "c_escenario.h"
+
 #include "../include/t_protocolo.h"
 #include "../include/Connection.h"
 
@@ -21,13 +23,20 @@ class Bomberman
         unsigned int puerto;
         int timeOut;
         
+        
+        int     tecla_arriba,
+                tecla_abajo,
+                tecla_izquierda,
+                tecla_derecha,
+                tecla_bomba;
+    
+    
         int idJugador;
         
     public:
          
          Escenario escenarioCliente;                           // Objeto que identifica el estado actual de la pantalla
                                                                // (posicion de todos sus elementos)
-
          Bomberman();
          ~Bomberman();
          
@@ -51,58 +60,6 @@ class Bomberman
 };
 
 
-int  Bomberman :: get_timeout()
-{
-    return this-> timeOut;
-}
-
-
-
-void Bomberman ::  esperaDeJugadores(  int timeout  )
-{
-    entornoCliente.dibujarTimeOut(timeout);
-}
-
-bool Bomberman :: espectador(void)
-{
-    bool espectador = false;
-    
-    if (idJugador <= -1)
-        espectador = true;
-    
-    return espectador;
-}
-
-// envia la tecla que se presiono al servidor a travez de 
-// un objeto t_protocolo:
-//                          id = 'i' de informe
-//                          x  = tecla presionada
-void  Bomberman :: enviarSolicitud ( int teclaPresionada )
-{
-    t_protocolo solicitud;
-    ofstream errores;
-    
-    solicitud.id = 'i';
-    solicitud.x  = teclaPresionada ;
-    solicitud.y = 0 ; 
-    solicitud.posicion = 0 ;
-
-    //send de tipo protocolo
-    connectionCliente.Send( (char*) &solicitud, sizeof(t_protocolo) );
-}
-
-
-// carga el valor del numero de jugador ( 1-2-3-4 ) en idJugador
-void Bomberman :: set_idJugador( int jugador )
-{
-    idJugador = jugador ;
-}
-
-int Bomberman :: get_idJugador(){
-    return this->idJugador;
-}
-    
-
 // Carga la configuracion del archivo de configuracion en el objeto 
 // e inicializa el entorno y la conexion con sus valores correspondientes
 
@@ -111,28 +68,72 @@ Bomberman :: Bomberman()
     int conexionExitosa;
     
     ifstream configuracion("c_bomberman.conf");
-    
+  
     if( !configuracion.good() )
     {
         cout<< endl << "ERROR: error de apertura en el archivo" << endl;
         system("PAUSE");
         exit(1);
     }
-    
+
     configuracion >> ipServidor ;
     configuracion >> puerto;
     configuracion >> timeOut;
-       
+    
+    
+    string  arch_tecla_arriba,
+            arch_tecla_abajo,
+            arch_tecla_izquierda,
+            arch_tecla_derecha,
+            arch_tecla_bomba;
+    
+    
+    configuracion >> arch_tecla_arriba;
+    if ( arch_tecla_arriba ==  "flecha_arr" )
+        tecla_arriba = KEY_UP;
+    else
+        tecla_arriba =  ( int ) *arch_tecla_arriba.c_str();  
+    
+    
+    
+    configuracion >> arch_tecla_abajo;
+     if ( arch_tecla_abajo ==  "flecha_aba" )
+         tecla_abajo = KEY_DOWN;
+     else
+         tecla_abajo =  ( int ) *arch_tecla_abajo.c_str();
+     
+     
+    configuracion >> arch_tecla_izquierda;
+     if ( arch_tecla_izquierda ==  "flecha_izq" )
+         tecla_izquierda =  KEY_LEFT;
+     else
+         tecla_izquierda = ( int ) * arch_tecla_izquierda.c_str();
+      
+     
+    configuracion >> arch_tecla_derecha;
+     if ( arch_tecla_derecha ==  "flecha_der" )
+         tecla_derecha =  KEY_RIGHT;
+     else
+         tecla_derecha =  ( int ) * arch_tecla_derecha.c_str();
+         
+     
+     configuracion >> arch_tecla_bomba;
+     if (  arch_tecla_bomba ==  "espacio" )
+            tecla_bomba = ' ' ;
+     else
+            tecla_bomba = ( int ) * arch_tecla_bomba.c_str();
+     
+     
     configuracion.close();
     
     conexionExitosa = connectionCliente.Connect( ipServidor , puerto );
+
     
-    if ( conexionExitosa == -1  )
+    if ( conexionExitosa <= -1 )
     {
         ofstream error("errores.err");
         error << endl <<"ERROR: Fallo la conexion al socket o el servidor no esta activo " << endl ;
         error.close();
-        cout << endl <<"ERROR: Fallo la conexion al socket o el servidor no esta activo " << endl << endl << "El cliente ha finalizado" << endl << endl ;
         exit (0);
         
     }
@@ -159,12 +160,13 @@ void Bomberman :: finalizarBomberman( void )
 int  Bomberman ::leerTeclado( int tipoTeclado )
 {
     int aux;
-    usleep( 250 );
+    usleep( 300 );
     //fflush(stdin);
     
     if ( tipoTeclado )
     {
         aux = getchar();
+        //aux = getch();
     }
     else
     {
@@ -205,8 +207,18 @@ void  Bomberman ::dibujarPantalla()
 // metodo que carga a "accion" con las novedades enviadas por el servidor    
 void Bomberman :: recivirAccion(t_protocolo * accion, size_t tam  )
 {
+    int socketCorrecto = 1 ;
     // aca va el recv de tipo protocolo
-    connectionCliente.Recv( (char*) accion, tam );
+    socketCorrecto =  connectionCliente.Recv( (char*) accion, tam );
+    
+    if ( socketCorrecto <= -1 ) 
+    {
+            this->finalizarBomberman();
+            cout << endl << "ERROR: El servidor ha terminado" << endl  << "El cliente ha finalizado: " << endl ;
+            exit (0);
+            
+    }
+            
 }
 
 
@@ -458,6 +470,102 @@ void Bomberman :: actualizarNovedades( t_protocolo * accion )
 
 }
 
+
+
+
+int  Bomberman :: get_timeout()
+{
+    return this-> timeOut;
+}
+
+
+
+void Bomberman ::  esperaDeJugadores(  int timeout  )
+{
+    /*
+    
+                        )     *                (       *                )  
+            (   ( /(   (  `      (        )\ )  (  `     (      ( /(  
+            ( )\  )\())  )\))(   ( )\  (   (()/(  )\))(    )\     )\()) 
+            )((_)((_)\  ((_)()\  )((_) )\   /(_))((_)()\((((_)(  ((_)\  
+            ((_)_   ((_) (_()((_)((_)_ ((_) (_))  (_()((_))\ _ )\  _((_) 
+            | _ ) / _ \ |  \/  | | _ )| __|| _ \ |  \/  |(_)_\(_)| \| | 
+            | _ \| (_) || |\/| | | _ \| _| |   / | |\/| | / _ \  | .` | 
+            |___/ \___/ |_|  |_| |___/|___||_|_\ |_|  |_|/_/ \_\ |_|\_| 
+            
+    */
+    
+    
+    
+    
+    entornoCliente.dibujarTimeOut( timeout );
+           
+}
+
+bool Bomberman :: espectador(void)
+{
+    bool espectador = false;
+    
+    if (idJugador <= -1)
+        espectador = true;
+    
+    return espectador;
+}
+
+// envia la tecla que se presiono al servidor a travez de 
+// un objeto t_protocolo:
+//                          id = 'i' de informe
+//                          x  = tecla presionada
+void  Bomberman :: enviarSolicitud ( int teclaPresionada )
+{
+        t_protocolo solicitud;
+        
+        if( teclaPresionada == tecla_arriba    )
+            solicitud.x  = 'w';
+        else if( teclaPresionada ==  tecla_abajo    )
+            solicitud.x  = 's';
+        else if( teclaPresionada == tecla_izquierda )
+            solicitud.x  = 'a';
+        else if( teclaPresionada ==  tecla_derecha  )
+            solicitud.x  = 'd';
+        else if(  teclaPresionada == tecla_bomba    )
+            solicitud.x  = 'b';
+        else
+            return;
+
+        solicitud.id = 'i';  
+        solicitud.y = 0 ; 
+        solicitud.posicion = 0 ;
+
+        //send de tipo protocolo
+        int envioCorrecto = 1;
+        envioCorrecto = connectionCliente.Send( (char*) &solicitud, sizeof(t_protocolo) );
+        
+        if ( envioCorrecto == -1 ) 
+        {
+                this ->finalizarBomberman();
+                cout << endl << "ERROR: El servidor ha terminado" << endl  << "El cliente ha finalizado: " << endl ;
+                exit (0);
+                
+        }
+    
+    
+}
+
+
+// carga el valor del numero de jugador ( 1-2-3-4 ) en idJugador
+void Bomberman :: set_idJugador( int jugador )
+{
+    entornoCliente.set_idJugador( jugador );
+    idJugador = jugador ;
+}
+
+int Bomberman :: get_idJugador(){
+    return this->idJugador;
+    
+}
+       
+    
 void  Bomberman ::ComunicarServidor()
 {
     // ni la mas palida de q va aca, es mas, creo q esto no va
