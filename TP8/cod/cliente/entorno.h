@@ -31,15 +31,133 @@ class Entorno
          void dibujarTimeOut(int timeout);
          
          void set_idJugador( int idJugador );
+         
+         void finDePartida(  vector <  pair <int,int>  >  & puestos  );
     
 
                            
 };
 
+
+
+void  Entorno ::  finDePartida(  vector < pair <int,int> >  & puestos  )
+{
+    
+ 
+    delwin(pantalla);         
+    pantalla = newwin(filas,columnas,starty, startx);
+    box(pantalla,0 ,0);
+    
+            wattron(pantalla,COLOR_PAIR(10));
+            mvwprintw(pantalla, 1, 7, " (   ( /(   (  `      (        )\\ )  (  `     (      ( /(           "); 
+            mvwprintw(pantalla, 2, 7, " ( )\\  )\\())  )\\))(   ( )\\  (   (()/(  )\\))(    )\\     )\\())  "); 
+            mvwprintw(pantalla, 3, 7, " )((_)((_)\\  ((_)()\\  )((_) )\\   /(_))((_)()\\((((_)(  ((_)\\     "); 
+            mvwprintw(pantalla, 4, 7, " ((_)_   ((_) (_()((_)((_)_ ((_) (_))  (_()((_))\\ _ )\\  _((_)      "); 
+            wattroff(pantalla,COLOR_PAIR(10));
+            
+            wattron(pantalla,COLOR_PAIR(9));
+            mvwprintw(pantalla, 5, 7, " | _ ) / _ \\ |  \\/  | | _ )| __|| _ \\ |  \\/  |(_)_\\(_)| \\| |   "); 
+            mvwprintw(pantalla, 6, 7, " | _ \\| (_) || |\\/| | | _ \\| _| |   / | |\\/| | / _ \\  | .` |    "); 
+            mvwprintw(pantalla, 7, 7, " |___/ \\___/ |_|  |_| |___/|___||_|_\\ |_|  |_|/_/ \\_\\ |_|\\_|    "); 
+            wattroff(pantalla,COLOR_PAIR(9));
+            
+    
+    
+    
+    wattron(pantalla,COLOR_PAIR(10));
+    mvwprintw(pantalla,20 , 43  ,"Presione una tecla para finalizar " );
+    wattroff(pantalla,COLOR_PAIR(10));
+    
+    int jugador;
+    int posX = 9, posY = 15;
+    int pos;
+    while ( puestos.size() > 0 )
+    {
+        jugador = (puestos.back()).first;
+        pos     = (puestos.back()).second;
+        
+       
+              switch ( pos )
+            {
+                case 1:                      
+                        wattron(pantalla, COLOR_PAIR(10));
+                        mvwprintw(pantalla,posX , 20  ,"Primer Puesto");
+                        wattroff(pantalla,COLOR_PAIR(10));  
+                        break;
+                    
+                case 2 :
+                        wattron(pantalla,COLOR_PAIR(10));
+                        mvwprintw(pantalla,posX , 20  ,"Segundo Puesto");
+                        wattroff(pantalla,COLOR_PAIR(10));  
+                        break;
+                    
+                case 3 :        
+                 
+                        wattron(pantalla,COLOR_PAIR(10));
+                        mvwprintw(pantalla,posX , 20  ,"Tercer Puesto");
+                        wattroff(pantalla,COLOR_PAIR(10));  
+                        break;
+                    
+                case 4 :
+                        wattron(pantalla,COLOR_PAIR(10));
+                        mvwprintw(pantalla,posX , 20  ,"Cuarto Puesto");
+                        wattroff(pantalla,COLOR_PAIR(10));  
+                        break;
+            }
+            
+            
+            switch ( jugador )
+            {
+                case 0 :                      
+                    // jugador1 : Rojo
+                    wattron(pantalla,COLOR_PAIR(1));
+                    mvwprintw(pantalla,posX      , posY  ,"^^");
+                    mvwprintw(pantalla,posX + 1  , posY  ,"\\/");
+                    wattroff(pantalla,COLOR_PAIR(1));
+                    break;
+                    
+                case 1 :
+                    // jugador3 : Azul
+                    wattron(pantalla,COLOR_PAIR(2));
+                    mvwprintw(pantalla,posX ,posY ,"^^" );
+                    mvwprintw(pantalla,posX + 1, posY  ,"\\/");
+                    wattroff(pantalla,COLOR_PAIR(2));
+                    break;
+                    
+                case 2 :        
+                    // jugador3 : Amarillo
+                    wattron(pantalla,COLOR_PAIR(3));
+                    mvwprintw(pantalla,posX    , posY  ,"^^");
+                    mvwprintw(pantalla,posX + 1, posY  ,"\\/");
+                    wattroff(pantalla,COLOR_PAIR(3));
+                    break;
+                    
+                case 3 :
+                    // jugador4 : Verde 
+                    wattron(pantalla,COLOR_PAIR(4));
+                    mvwprintw(pantalla,posX     , posY  ,"^^");
+                    mvwprintw(pantalla,posX + 1 , posY  ,"\\/");
+                    wattroff(pantalla,COLOR_PAIR(4));
+                    break;
+            }
+            
+            puestos.pop_back();
+            posX += 3 ;
+    
+    }
+
+                      
+    wrefresh( pantalla );    
+    refresh();
+
+   
+}
+
+
 void Entorno ::  dibujarTimeOut(int timeout)
 {
     //actualizo pantalla            
-    if ( timeout == -1) 
+    if ( timeout == -1 ) 
     {
         attron(COLOR_PAIR(2));
         mvwprintw(pantalla, 11, 25, " Espere mientras el cliente se conecta y carga el escenario");
@@ -62,6 +180,7 @@ void Entorno ::  dibujarTimeOut(int timeout)
             wattroff(pantalla,COLOR_PAIR(9));
          
             wattron(pantalla,COLOR_PAIR(10));
+            mvwprintw(pantalla, 13, 25, "ESPERANDO A JUGADORES" );
             mvwprintw(pantalla, 15, 35, "%d" , timeout);
             wattroff(pantalla,COLOR_PAIR(10));
             
@@ -80,8 +199,7 @@ void Entorno ::  dibujarTimeOut(int timeout)
 void Entorno :: set_idJugador( int idJugador){
     this -> idJugador = idJugador;
 }
-
-
+               
 Entorno :: Entorno()
 {
     
@@ -400,11 +518,12 @@ void Entorno :: actualizarPantalla( void )
     
     wattroff(pantalla,COLOR_PAIR(7));
     
+    if( idJugador < 0 )
+      mvwprintw(pantalla,21,4, "  Modo Espectador : usted solo puede ver como se desarrolla el juego  ");
     
-    mvwprintw(pantalla,21,4, "  Modo Espectador : usted solo puede ver como se desarrolla el juego  ");
      //--------------------------------------------------  FIN Actualizo Premios en pantalla ---------------------------------------------//
    
-    //mvwprintw(pantalla, 21,0, " ERROR >>  ");
+    //mvwpr intw(pantalla, 21,0, " ERROR >>  ");
 
     //actualizo pantalla  
 
