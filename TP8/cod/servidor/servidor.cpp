@@ -15,6 +15,7 @@
 #include "Bomberman.h"
 
 Bomberman Servidor;
+bool timeOutActivo = false;
 
 void * recver(void * args);
 void * procesador(void * args);
@@ -72,6 +73,30 @@ void cTERM(int iNumSen, siginfo_t *info, void *ni){
     cerr << "Terminando Servidor..." << endl;
     Servidor.Close();
 
+    cout << "Cerrando thread de procesamiento........";
+    pthread_cancel(procesadorThread);
+    cout << "[OK]" << endl;
+
+    cout << "Cerrando thread de envio de datos.......";
+    pthread_cancel(senderThread);
+    cout << "[OK]" << endl;
+
+    cout << "Cerrando thread de bombas...............";
+    pthread_cancel(bombThread);
+    cout << "[OK]" << endl;
+
+    cout << "Cerrando thread de explosiones..........";
+    pthread_cancel(explosionThread);
+    cout << "[OK]" << endl;
+
+    cout << "Cerrando thread de timer................";
+    pthread_cancel(timerThread);
+    cout << "[OK]" << endl;
+
+    cout << "Cerrando thread de time out.............";
+    pthread_cancel(timeOutThread);
+    cout << "[OK]" << endl;
+
     exit(0);
 }
 
@@ -95,13 +120,29 @@ int main(int argc, const char *argv[]) {
     
     int numJugador = 0;
 
-
+    cout << "Creando thread de procesamiento.............";
     pthread_create(&procesadorThread, NULL, procesador, NULL );
+    cout << "[OK]" << endl;
+
+    cout << "Creando thread de envio de datos............";
     pthread_create(&senderThread, NULL, sender, NULL );
+    cout << "[OK]" << endl;
+
+    cout << "Creando thread de bombas....................";
     pthread_create(&bombThread, NULL, bomb, NULL );
+    cout << "[OK]" << endl;
+
+    cout << "Creando thread de explosiones...............";
     pthread_create(&explosionThread, NULL, explosion, NULL );
+    cout << "[OK]" << endl;
+
+    cout << "Creando thread de timer.....................";
     pthread_create(&timerThread, NULL, timer, NULL );
+    cout << "[OK]" << endl;
+
+    cout << "Creando thread de time out..................";
     pthread_create(&timeOutThread, NULL, timeOut, NULL );
+    cout << "[OK]" << endl;
 
     while ( 1 ) {
         
@@ -115,7 +156,10 @@ int main(int argc, const char *argv[]) {
 
             QNumJugadores.push( numJugador );
 
-            pthread_cond_broadcast(&TimeOutStartCond);
+            if ( ! timeOutActivo ){
+                pthread_cond_broadcast(&TimeOutStartCond);
+                timeOutActivo = true;
+            }
 
         } else {
             cout << "Conectado espectador " << numJugador << endl;
@@ -124,6 +168,30 @@ int main(int argc, const char *argv[]) {
     }
 
     pthread_join(timeOutThread, NULL);
+
+    cout << "Cerrando thread de procesamiento........";
+    pthread_cancel(procesadorThread);
+    cout << "[OK]" << endl;
+
+    cout << "Cerrando thread de envio de datos.......";
+    pthread_cancel(senderThread);
+    cout << "[OK]" << endl;
+
+    cout << "Cerrando thread de bombas...............";
+    pthread_cancel(bombThread);
+    cout << "[OK]" << endl;
+
+    cout << "Cerrando thread de explosiones..........";
+    pthread_cancel(explosionThread);
+    cout << "[OK]" << endl;
+
+    cout << "Cerrando thread de timer................";
+    pthread_cancel(timerThread);
+    cout << "[OK]" << endl;
+
+    cout << "Cerrando thread de time out.............";
+    pthread_cancel(timeOutThread);
+    cout << "[OK]" << endl;
 
     return 0;
 }
@@ -136,7 +204,7 @@ void * recver(void * args) {
 
     recibido = Servidor.recvFrom(jugador);
 
-    while ( recibido.x > -1 ) {
+    while ( recibido.x > -1 && Servidor.getNumJugadores() > 1 ) {
 
         if ( recibido.id != 0 ) {
 
@@ -147,12 +215,16 @@ void * recver(void * args) {
         }
 
         recibido = Servidor.recvFrom(jugador);
-
     }
 
-    recibido = Servidor.eliminarJugador(jugador, true);
+    if ( recibido.x == -1 )
+        recibido = Servidor.eliminarJugador(jugador, true);
+    else
+        recibido = Servidor.eliminarJugador(jugador, false);
 
     pushQEnviar(recibido);
+
+    cout << "Se cierra thread del jugador " << jugador << endl;
 
     return NULL;
 
@@ -268,14 +340,40 @@ void * explosion(void * args) {
 void * timer(void * args) {
     t_protocolo clock;
 
-    pthread_cond_wait(&ClockStartCond, &ClockStartMutex);
+    while ( 1 ){
 
-    while ( 1 ) {
+        pthread_cond_wait(&ClockStartCond, &ClockStartMutex);
+
         pthread_mutex_lock(&ClockMutex);
         clock = Servidor.clockTick();
         pthread_mutex_unlock(&ClockMutex);
 
-        pushQEnviar(clock);
+        while ( clock.x >= 0 ) {
+
+            if ( clock.x == 0 || Servidor.getNumJugadores() == 0 ){
+
+                queue<t_protocolo> QFinDePartida;
+
+                QFinDePartida = Servidor.finalizarPartida();
+
+                cout << "QFinDePartida.size() = " << QFinDePartida.size() <<endl;
+
+                while( !QFinDePartida.empty() ){
+                    pushQEnviar( QFinDePartida.front() );
+                    QFinDePartida.pop();
+                }
+
+                Servidor.Reset();
+
+            }
+
+            pushQEnviar(clock);
+
+            pthread_mutex_lock(&ClockMutex);
+            clock = Servidor.clockTick();
+            pthread_mutex_unlock(&ClockMutex);
+
+       }
         
     }
     
@@ -323,10 +421,11 @@ void * timeOut(void * args) {
     while( !QNumJugadores.empty() ){
         pthread_t newRecver;
         int numJugador = QNumJugadores.front();
+        int retorno;
 
-        pthread_create(&newRecver, NULL, recver, (void *) (&numJugador));
+        retorno = pthread_create(&newRecver, NULL, recver, (void *) (&numJugador));
 
-        cout << "Creado thread de jugador " << numJugador << endl;
+        cout << retorno << " Creado thread de jugador " << numJugador << endl;
 
         recvJugadores.push_back(newRecver);
 
@@ -336,7 +435,7 @@ void * timeOut(void * args) {
     pthread_cond_broadcast(&ClockStartCond);
 
     for ( unsigned i = 0 ; i < recvJugadores.size() ; i++ )
-            pthread_join(recvJugadores[i], NULL);
+                pthread_join(recvJugadores[i], NULL);
 
     return NULL;
 }

@@ -26,6 +26,7 @@ JugadorRemoto::JugadorRemoto(int Numero,
     this->TipoBomba = TipoBomba;
 
     EnvioEscenario = false;
+    Espectador = false;
     Closed = false;
 
 }
@@ -99,12 +100,12 @@ int JugadorRemoto::send(t_protocolo data) {
     int enviado = -1;
 
     if ( !Closed ) {
-        /*
-        cout << "Enviando a jugador " << this->Numero << endl;
+         /*
+         cout << "Enviando a jugador " << this->Numero << endl;
 
-        cout << "id = " << data.id << endl << "posicion = " << data.posicion << endl << "x = "
-                << data.x << endl << "y = " << data.y << endl;*/
-
+         cout << "id = " << data.id << endl << "posicion = " << data.posicion << endl << "x = "
+         << data.x << endl << "y = " << data.y << endl;
+         */
         enviado = (int) Socket.Send((char*) &data, sizeof(t_protocolo));
 
         if ( enviado <= -1 )
@@ -119,18 +120,23 @@ t_protocolo JugadorRemoto::recv() {
     t_protocolo recibido = { 0, 0, -1, 0 };
 
     if ( !Closed ) {
-        ssize_t st_recibido;
 
-        st_recibido = Socket.Recv((char*) &recibido, sizeof(t_protocolo));
+        if ( !Espectador ) {
+            ssize_t st_recibido;
 
-        if ( st_recibido <= -1 )
-            Closed = true;
+            st_recibido = Socket.Recv((char*) &recibido, sizeof(t_protocolo));
 
-        cout << "    Recibido de jugador " << this->Numero << endl;
+            if ( st_recibido <= -1 )
+                Closed = true;
+        }else{
+            recibido.x = -2;
+        }
+        /*
+         cout << "    Recibido de jugador " << this->Numero << endl;
 
-        cout << "    id = " << recibido.id << endl << "    posicion = " << recibido.posicion
-                << endl << "    x = " << recibido.x << endl << "    y = " << recibido.y << endl;
-
+         cout << "    id = " << recibido.id << endl << "    posicion = " << recibido.posicion
+         << endl << "    x = " << recibido.x << endl << "    y = " << recibido.y << endl;
+         */
     }
 
     return recibido;
@@ -168,11 +174,19 @@ bool JugadorRemoto::eliminado() {
     return this->Numero < 0 ? true : false;
 }
 
+void JugadorRemoto::setEspectador(bool espectador) {
+    this->Espectador = espectador;
+}
+
+bool JugadorRemoto::isEspectador() {
+    return this->Espectador;
+}
+
 bool JugadorRemoto::isClosed() {
     return Closed;
 }
 
-void JugadorRemoto::Close(){
+void JugadorRemoto::Close() {
     this->Socket.Close();
     Closed = true;
 }

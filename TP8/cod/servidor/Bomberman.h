@@ -56,6 +56,8 @@ class Bomberman {
 
         queue<t_protocolo> iniciarPartida();
 
+        queue<t_protocolo> finalizarPartida();
+
         queue<t_protocolo> procesarAccion(t_protocolo data);
 
         queue<t_protocolo> explotarBomba();
@@ -75,6 +77,8 @@ class Bomberman {
         void resetClock();
 
         void Close();
+
+        void Reset();
 
         static const unsigned JUGADORES_MAX = 4;
         static const unsigned X_MAX = 37;
@@ -117,6 +121,8 @@ class Bomberman {
         bool PartidaIniciada;
 
         unsigned NumJugadores;
+
+        queue<int> Posiciones;
 
         /*Teclas de accion*/
         int MoverArriba, MoverAbajo, MoverIzquierda, MoverDerecha, PonerBomba;

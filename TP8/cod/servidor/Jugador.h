@@ -56,6 +56,9 @@ class Jugador {
         virtual void eliminar() = 0;
         virtual bool eliminado() = 0;
 
+        virtual void setEspectador(bool espectador) = 0;
+        virtual bool isEspectador() = 0;
+
         virtual bool isClosed() = 0;
 
         virtual void Close() = 0;
