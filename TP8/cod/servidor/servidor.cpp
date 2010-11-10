@@ -356,7 +356,7 @@ void * timer(void * args) {
 
                 QFinDePartida = Servidor.finalizarPartida();
 
-                cout << "QFinDePartida.size() = " << QFinDePartida.size() <<endl;
+                //cout << "QFinDePartida.size() = " << QFinDePartida.size() <<endl;
 
                 while( !QFinDePartida.empty() ){
                     pushQEnviar( QFinDePartida.front() );
