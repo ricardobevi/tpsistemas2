@@ -75,7 +75,7 @@ Bomberman :: Bomberman()
     if( !configuracion.good() )
     {
         cout<< endl << "ERROR: error de apertura en el archivo" << endl;
-        system("PAUSE");
+        getch();
         exit(1);
     }
 
@@ -210,18 +210,45 @@ void  Bomberman ::dibujarPantalla()
 // metodo que carga a "accion" con las novedades enviadas por el servidor    
 void Bomberman :: recivirAccion(t_protocolo * accion, size_t tam  )
 {
-    int socketCorrecto = 1 ;
-    // aca va el recv de tipo protocolo
-    socketCorrecto =  connectionCliente.Recv( (char*) accion, tam );
     
-    if ( socketCorrecto <= -1 ) 
-    {
-            this->finalizarBomberman();
-            cout << endl << "ERROR: El servidor ha terminado" << endl  << "El cliente ha finalizado: " << endl ;
-            exit (0);
+    // aca va el recv de tipo protocolo
+    
+   connectionCliente.Recv( (char*) accion, tam );
+    
             
-    }
-            
+}
+
+
+// envia la tecla que se presiono al servidor a travez de 
+// un objeto t_protocolo:
+//                          id = 'i' de informe
+//                          x  = tecla presionada
+void  Bomberman :: enviarSolicitud ( int teclaPresionada )
+{
+        t_protocolo solicitud;
+        
+        if( teclaPresionada == tecla_arriba    )
+            solicitud.x  = 'w';
+        else if( teclaPresionada ==  tecla_abajo    )
+            solicitud.x  = 's';
+        else if( teclaPresionada == tecla_izquierda )
+            solicitud.x  = 'a';
+        else if( teclaPresionada ==  tecla_derecha  )
+            solicitud.x  = 'd';
+        else if(  teclaPresionada == tecla_bomba    )
+            solicitud.x  = 'b';
+        else
+            return;
+
+        solicitud.id = 'i';  
+        solicitud.y = 0 ; 
+        solicitud.posicion = 0 ;
+
+        //send de tipo protocolo
+
+        connectionCliente.Send( (char*) &solicitud, sizeof(t_protocolo) );
+        
+    
 }
 
 
@@ -486,8 +513,6 @@ void Bomberman :: actualizarNovedades( t_protocolo * accion )
 }
 
 
-
-
 int  Bomberman :: get_timeout()
 {
     return this-> timeOut;
@@ -502,6 +527,7 @@ void Bomberman ::  esperaDeJugadores(  int timeout  )
            
 }
 
+
 bool Bomberman :: espectador(void)
 {
     bool espectador = false;
@@ -512,45 +538,6 @@ bool Bomberman :: espectador(void)
     return espectador;
 }
 
-// envia la tecla que se presiono al servidor a travez de 
-// un objeto t_protocolo:
-//                          id = 'i' de informe
-//                          x  = tecla presionada
-void  Bomberman :: enviarSolicitud ( int teclaPresionada )
-{
-        t_protocolo solicitud;
-        
-        if( teclaPresionada == tecla_arriba    )
-            solicitud.x  = 'w';
-        else if( teclaPresionada ==  tecla_abajo    )
-            solicitud.x  = 's';
-        else if( teclaPresionada == tecla_izquierda )
-            solicitud.x  = 'a';
-        else if( teclaPresionada ==  tecla_derecha  )
-            solicitud.x  = 'd';
-        else if(  teclaPresionada == tecla_bomba    )
-            solicitud.x  = 'b';
-        else
-            return;
-
-        solicitud.id = 'i';  
-        solicitud.y = 0 ; 
-        solicitud.posicion = 0 ;
-
-        //send de tipo protocolo
-        int envioCorrecto = 1;
-        envioCorrecto = connectionCliente.Send( (char*) &solicitud, sizeof(t_protocolo) );
-        
-        if ( envioCorrecto == -1 ) 
-        {
-                this ->finalizarBomberman();
-                cout << endl << "ERROR: El servidor ha terminado" << endl  << "El cliente ha finalizado: " << endl ;
-                exit (0);
-                
-        }
-    
-    
-}
 
 
 // carga el valor del numero de jugador ( 1-2-3-4 ) en idJugador
@@ -560,15 +547,12 @@ void Bomberman :: set_idJugador( int jugador )
     idJugador = jugador ;
 }
 
+
+
 int Bomberman :: get_idJugador(){
     return this->idJugador;
     
 }
        
-    
-void  Bomberman ::ComunicarServidor()
-{
-    // ni la mas palida de q va aca, es mas, creo q esto no va
-}
 
 #endif
