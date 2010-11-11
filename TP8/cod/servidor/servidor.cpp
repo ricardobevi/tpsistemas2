@@ -29,6 +29,9 @@ void pushQRecibido(t_protocolo recibido);
 void pushQEnviar(t_protocolo enviar);
 t_protocolo popQRecibido();
 t_protocolo popQEnviar();
+void reset();
+void activateThreads();
+void cancelThreads();
 
 pthread_t procesadorThread, senderThread, bombThread, explosionThread, timerThread, timeOutThread;
 
@@ -36,12 +39,7 @@ queue<t_protocolo> QRecibido;
 queue<t_protocolo> QEnviar;
 queue<int> QNumJugadores;
 
-vector<pthread_t> recvJugadores;
-
-/*
-pthread_mutex_t RecibirMutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t RecibirCond = PTHREAD_COND_INITIALIZER;
-*/
+map< int, pthread_t > recvJugadores;
 
 pthread_mutex_t ProcesadorMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t ProcesadorCond = PTHREAD_COND_INITIALIZER;
@@ -70,32 +68,12 @@ void cSIGPIPE(int iNumSen, siginfo_t *info, void *ni){
 }
 
 void cTERM(int iNumSen, siginfo_t *info, void *ni){
+
     cerr << "Terminando Servidor..." << endl;
+
     Servidor.Close();
 
-    cout << "Cerrando thread de procesamiento........";
-    pthread_cancel(procesadorThread);
-    cout << "[OK]" << endl;
-
-    cout << "Cerrando thread de envio de datos.......";
-    pthread_cancel(senderThread);
-    cout << "[OK]" << endl;
-
-    cout << "Cerrando thread de bombas...............";
-    pthread_cancel(bombThread);
-    cout << "[OK]" << endl;
-
-    cout << "Cerrando thread de explosiones..........";
-    pthread_cancel(explosionThread);
-    cout << "[OK]" << endl;
-
-    cout << "Cerrando thread de timer................";
-    pthread_cancel(timerThread);
-    cout << "[OK]" << endl;
-
-    cout << "Cerrando thread de time out.............";
-    pthread_cancel(timeOutThread);
-    cout << "[OK]" << endl;
+    cancelThreads();
 
     exit(0);
 }
@@ -111,6 +89,7 @@ int main(int argc, const char *argv[]) {
 
     term.sa_sigaction = cTERM;
     sigaction(SIGINT, &term, NULL);
+    sigaction(SIGTERM, &term, NULL);
 
     if ( argc > 1 )
         Servidor.activar(argv[1]);
@@ -120,29 +99,7 @@ int main(int argc, const char *argv[]) {
     
     int numJugador = 0;
 
-    cout << "Creando thread de procesamiento.............";
-    pthread_create(&procesadorThread, NULL, procesador, NULL );
-    cout << "[OK]" << endl;
-
-    cout << "Creando thread de envio de datos............";
-    pthread_create(&senderThread, NULL, sender, NULL );
-    cout << "[OK]" << endl;
-
-    cout << "Creando thread de bombas....................";
-    pthread_create(&bombThread, NULL, bomb, NULL );
-    cout << "[OK]" << endl;
-
-    cout << "Creando thread de explosiones...............";
-    pthread_create(&explosionThread, NULL, explosion, NULL );
-    cout << "[OK]" << endl;
-
-    cout << "Creando thread de timer.....................";
-    pthread_create(&timerThread, NULL, timer, NULL );
-    cout << "[OK]" << endl;
-
-    cout << "Creando thread de time out..................";
-    pthread_create(&timeOutThread, NULL, timeOut, NULL );
-    cout << "[OK]" << endl;
+    activateThreads();
 
     while ( 1 ) {
         
@@ -156,10 +113,7 @@ int main(int argc, const char *argv[]) {
 
             QNumJugadores.push( numJugador );
 
-            if ( ! timeOutActivo ){
-                pthread_cond_broadcast(&TimeOutStartCond);
-                timeOutActivo = true;
-            }
+            pthread_cond_broadcast(&TimeOutStartCond);
 
         } else {
             cout << "Conectado espectador " << numJugador << endl;
@@ -169,36 +123,14 @@ int main(int argc, const char *argv[]) {
 
     pthread_join(timeOutThread, NULL);
 
-    cout << "Cerrando thread de procesamiento........";
-    pthread_cancel(procesadorThread);
-    cout << "[OK]" << endl;
-
-    cout << "Cerrando thread de envio de datos.......";
-    pthread_cancel(senderThread);
-    cout << "[OK]" << endl;
-
-    cout << "Cerrando thread de bombas...............";
-    pthread_cancel(bombThread);
-    cout << "[OK]" << endl;
-
-    cout << "Cerrando thread de explosiones..........";
-    pthread_cancel(explosionThread);
-    cout << "[OK]" << endl;
-
-    cout << "Cerrando thread de timer................";
-    pthread_cancel(timerThread);
-    cout << "[OK]" << endl;
-
-    cout << "Cerrando thread de time out.............";
-    pthread_cancel(timeOutThread);
-    cout << "[OK]" << endl;
+    cancelThreads();
 
     return 0;
 }
 
 void * recver(void * args) {
-    unsigned * jugPtr = (unsigned *) args;
-    unsigned jugador = *jugPtr;
+    int * jugPtr = (int *) args;
+    int jugador = *jugPtr;
 
     t_protocolo recibido;
 
@@ -223,6 +155,8 @@ void * recver(void * args) {
         recibido = Servidor.eliminarJugador(jugador, false);
 
     pushQEnviar(recibido);
+
+    recvJugadores.erase(jugador);
 
     cout << "Se cierra thread del jugador " << jugador << endl;
 
@@ -279,7 +213,7 @@ void * sender(void * args) {
             Servidor.update(enviar);
 
             if ( enviar.id == 'F' )
-                Servidor.Reset();
+                reset();
 
             pthread_mutex_lock(&QEnviarMutex);
             empty = QEnviar.empty();
@@ -387,60 +321,66 @@ void * timeOut(void * args) {
     t_protocolo clock;
     queue<t_protocolo> escenarioAEnviar;
 
-    pthread_cond_wait(&TimeOutStartCond, &TimeOutMutex);
+    while (1){
 
-    pthread_mutex_lock(&ClockMutex);
-    clock = Servidor.clockTick();
-    pthread_mutex_unlock(&ClockMutex);
+        pthread_cond_wait(&TimeOutStartCond, &TimeOutMutex);
 
-    while ( clock.x >= 0 ) {
-
-        pushQEnviar(clock);
+        cout << "Inicia thread de TimeOut." << endl;
 
         pthread_mutex_lock(&ClockMutex);
         clock = Servidor.clockTick();
         pthread_mutex_unlock(&ClockMutex);
 
+        while ( clock.x >= 0 ) {
+
+            pushQEnviar(clock);
+
+            pthread_mutex_lock(&ClockMutex);
+            clock = Servidor.clockTick();
+            pthread_mutex_unlock(&ClockMutex);
+
+        }
+
+        t_protocolo condInicio = { 's', 0, 0, 0 };
+
+        pushQEnviar(condInicio);
+
+        pthread_mutex_lock(&ClockMutex);
+        Servidor.resetClock();
+        pthread_mutex_unlock(&ClockMutex);
+
+        if ( Servidor.getNumJugadores() == 1 )
+                QNumJugadores.push(1);
+
+        escenarioAEnviar = Servidor.iniciarPartida();
+
+        while ( !escenarioAEnviar.empty() ) {
+            pushQEnviar(escenarioAEnviar.front());
+            escenarioAEnviar.pop();
+        }
+
+        while( !QNumJugadores.empty() ){
+            pthread_t newRecver;
+            int numJugador = QNumJugadores.front();
+            int retorno;
+
+            retorno = pthread_create(&newRecver, NULL, recver, (void *) (&numJugador));
+
+            cout << retorno << " Creado thread de jugador " << numJugador << endl;
+
+            recvJugadores[numJugador] = newRecver;
+
+            QNumJugadores.pop();
+        }
+
+        pthread_cond_broadcast(&ClockStartCond);
+
+        map<int, pthread_t>::iterator it;
+
+        for ( it = recvJugadores.begin() ; it != recvJugadores.end() ; it++ )
+            pthread_join( it->second, NULL );
+
     }
-
-    t_protocolo condInicio = { 's', 0, 0, 0 };
-
-    pushQEnviar(condInicio);
-
-    pthread_mutex_lock(&ClockMutex);
-    Servidor.resetClock();
-    pthread_mutex_unlock(&ClockMutex);
-
-    if ( Servidor.getNumJugadores() == 1 )
-            QNumJugadores.push(1);
-
-    escenarioAEnviar = Servidor.iniciarPartida();
-
-    while ( !escenarioAEnviar.empty() ) {
-        pushQEnviar(escenarioAEnviar.front());
-        escenarioAEnviar.pop();
-    }
-
-    while( !QNumJugadores.empty() ){
-        pthread_t newRecver;
-        int numJugador = QNumJugadores.front();
-        int retorno;
-
-        retorno = pthread_create(&newRecver, NULL, recver, (void *) (&numJugador));
-
-        cout << retorno << " Creado thread de jugador " << numJugador << endl;
-
-        recvJugadores.push_back(newRecver);
-
-        QNumJugadores.pop();
-    }
-
-    pthread_cond_broadcast(&ClockStartCond);
-
-    for ( unsigned i = 0 ; i < recvJugadores.size() ; i++ )
-                pthread_join(recvJugadores[i], NULL);
-
-    timeOutActivo = false;
 
     cout << "Termina thread de TimeOut." << endl;
 
@@ -500,4 +440,67 @@ t_protocolo popQEnviar() {
     pthread_mutex_unlock(&QEnviarMutex);
 
     return enviar;
+}
+
+void reset(){
+    map<int, pthread_t>::iterator it;
+
+    cout << endl << "********Preparando Servidor para nueva partida********" << endl << endl;
+
+    for ( it = recvJugadores.begin() ; it != recvJugadores.end() ; it++ )
+        pthread_cancel(it->second);
+
+    Servidor.Reset();
+}
+
+void activateThreads(){
+    cout << "Creando thread de procesamiento.............";
+    pthread_create(&procesadorThread, NULL, procesador, NULL );
+    cout << "[OK]" << endl;
+
+    cout << "Creando thread de envio de datos............";
+    pthread_create(&senderThread, NULL, sender, NULL );
+    cout << "[OK]" << endl;
+
+    cout << "Creando thread de bombas....................";
+    pthread_create(&bombThread, NULL, bomb, NULL );
+    cout << "[OK]" << endl;
+
+    cout << "Creando thread de explosiones...............";
+    pthread_create(&explosionThread, NULL, explosion, NULL );
+    cout << "[OK]" << endl;
+
+    cout << "Creando thread de timer.....................";
+    pthread_create(&timerThread, NULL, timer, NULL );
+    cout << "[OK]" << endl;
+
+    cout << "Creando thread de time out..................";
+    pthread_create(&timeOutThread, NULL, timeOut, NULL );
+    cout << "[OK]" << endl;
+}
+
+void cancelThreads(){
+    cout << "Cerrando thread de procesamiento........";
+    pthread_cancel(procesadorThread);
+    cout << "[OK]" << endl;
+
+    cout << "Cerrando thread de envio de datos.......";
+    pthread_cancel(senderThread);
+    cout << "[OK]" << endl;
+
+    cout << "Cerrando thread de bombas...............";
+    pthread_cancel(bombThread);
+    cout << "[OK]" << endl;
+
+    cout << "Cerrando thread de explosiones..........";
+    pthread_cancel(explosionThread);
+    cout << "[OK]" << endl;
+
+    cout << "Cerrando thread de timer................";
+    pthread_cancel(timerThread);
+    cout << "[OK]" << endl;
+
+    cout << "Cerrando thread de time out.............";
+    pthread_cancel(timeOutThread);
+    cout << "[OK]" << endl;
 }

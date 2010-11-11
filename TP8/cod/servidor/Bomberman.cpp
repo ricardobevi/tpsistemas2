@@ -8,6 +8,7 @@
 #include "Bomberman.h"
 
 Bomberman::Bomberman() {
+    this->Socket = NULL;
 }
 
 Bomberman::~Bomberman() {
@@ -96,8 +97,14 @@ void Bomberman::activar(string archivoConfiguracion) {
     MoverDerecha = 'd';
     PonerBomba = 'b';
 
-    this->Socket = new Comm<char> (puerto);
-    this->Socket->Listen();
+    /*
+     * Si el servidor ya se inicializo, no tengo que asignarle un
+     * nuevo objeto, uso la conexion ya existente.
+     */
+    if ( this->Socket == NULL ){
+        this->Socket = new Comm<char> (puerto);
+        this->Socket->Listen();
+    }
 
     srand(unsigned(time(NULL)));
 
@@ -242,7 +249,7 @@ queue<t_protocolo> Bomberman::sendEscenario(int jugador, bool toAll) {
     t_protocolo enviar;
 
     for ( i = 0; i < JUGADORES_MAX ; i++ ) {
-        //TODO: ver de mandar los distintos tipos de jugador.
+
         if ( TipoJugador[i] != JUGADOR_INACTIVO ) {
 
             enviar.id = 'j';
@@ -537,7 +544,6 @@ queue<t_protocolo> Bomberman::explotarBomba() {
         bum.calcularExplosion(qEnviar, this->ParedesDestruibles, this->Premios, &this->HDTimer);
 
         for ( unsigned i = 0 ; i < JUGADORES_MAX ; i++ ) {
-            //TODO: ver los otros tipos de jugadores.
             int vidaNueva;
 
             if ( TipoJugador[i] != JUGADOR_INACTIVO && bum.pertenece(Jugadores[i]->getPosicion()) ) {
@@ -816,7 +822,22 @@ void Bomberman::Reset() {
     for ( it = Espectadores.begin(); it != Espectadores.end() ; it++ )
         this->eliminarEspectador(it->first);
 
-    Socket->Close();
+    while( ! Bombas.empty() )
+        Bombas.pop();
+
+    while( ! Explosiones.empty() )
+        Explosiones.pop();
+
+    Premios.clear();
+
+    Paredes.clear();
+
+    ParedesDestruibles.clear();
+
+    while( ! Posiciones.empty() )
+        Posiciones.pop();
+
+    Socket->CloseCons();
 
     this->activar(ArchConf);
 
