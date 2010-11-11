@@ -65,9 +65,8 @@ void  Entorno ::  finDePartida(  vector < pair <int,int> >  & puestos  )
             wattroff(pantalla,COLOR_PAIR(9));
             
             
-            wattron(pantalla,COLOR_PAIR(9));
-            /*
-                                                            .-.
+          /*  wattron(pantalla,COLOR_PAIR(9));
+                                                         .-.
                                                     '-'
                                                     //
                                         _..---._/|
@@ -98,11 +97,13 @@ void  Entorno ::  finDePartida(  vector < pair <int,int> >  & puestos  )
                                     '.__..."""  
                                     
                                     
-            */
+            
             
             mvwprintw(pantalla, 5, 7, " | _ ) / _ \\ |  \\/  | | _ )| __|| _ \\ |  \\/  |(_)_\\(_)| \\| |   "); 
             
             wattroff(pantalla,COLOR_PAIR(9));
+            
+            */
             
     
     
@@ -120,7 +121,7 @@ void  Entorno ::  finDePartida(  vector < pair <int,int> >  & puestos  )
         pos     = (puestos.back()).second;
         
        
-              switch ( pos )
+            switch ( pos )
             {
                 case 1:                      
                         wattron(pantalla, COLOR_PAIR(10));
@@ -251,7 +252,7 @@ void Entorno ::  dibujarTimeOut(int timeout)
          
             wattron(pantalla,COLOR_PAIR(10));
             mvwprintw(pantalla, 13, 25, "ESPERANDO A JUGADORES" );
-            mvwprintw(pantalla, 15, 35, "%d" , timeout);
+            mvwprintw(pantalla, 15, 35, "% d" , timeout);
             wattroff(pantalla,COLOR_PAIR(10));
             
             wattron(pantalla,COLOR_PAIR(11));
@@ -360,25 +361,63 @@ void Entorno :: actualizarPantalla( void )
     
        
     // jugador1 : Rojo
+    if ( idJugador == 0)
+    {
+        attron(COLOR_PAIR(10));
+        mvprintw(0,0,"->");
+        
+        mvprintw(0,11,"<-" );
+        attroff(COLOR_PAIR(10));
+    }
+    
     attron(COLOR_PAIR(1));
-    mvprintw(0,1,"Jug 1: %0.2d", (escenarioActual->vidas).at(0) );
+    mvprintw(0,2,"Jug 1: % d", (escenarioActual->vidas).at(0) );
     attroff(COLOR_PAIR(1));
+    
+
+    if ( idJugador == 1)
+    {
+        attron(COLOR_PAIR(10));
+        mvprintw(0,14,"->");
+        
+        mvprintw(0,26,"<-" );
+        attroff(COLOR_PAIR(10));
+    }
     
     // jugador3 : Azul
     attron(COLOR_PAIR(2));
-    mvprintw(0,16,"Jug 2: %0.2d" ,(escenarioActual->vidas).at(1) );
+    mvprintw(0,16,"Jug 2: % d" ,(escenarioActual->vidas).at(1) );
     attroff(COLOR_PAIR(2));
    
-    mvprintw(0,36,"Time %0.2d", escenarioActual->tiempo);
+    mvprintw(0,36,"Time % d", escenarioActual->tiempo);
          
+    
+    if ( idJugador == 2)
+    {
+        attron(COLOR_PAIR(10));
+        mvprintw(0,51,"->");
+        
+        mvprintw(0,62,"<-" );
+        attroff(COLOR_PAIR(10));
+    }
+    
     // jugador3 : Amarillo
     attron(COLOR_PAIR(3));
-    mvprintw(0,53,"Jug 3: %0.2d" ,(escenarioActual->vidas).at(2));
+    mvprintw(0,53,"Jug 3: % d" ,(escenarioActual->vidas).at(2));
     attroff(COLOR_PAIR(3));
 
+    
+    if ( idJugador == 3)
+    {
+        attron(COLOR_PAIR(10));
+        mvprintw(0,66,"->");
+        
+        mvprintw(0,77,"<-" );
+        attroff(COLOR_PAIR(10));
+    }
     // jugador4 : Verde 
     attron(COLOR_PAIR(4));
-    mvprintw(0,68,"Jug 4: %0.2d", (escenarioActual->vidas).at(3));
+    mvprintw(0,68,"Jug 4: % d", (escenarioActual->vidas).at(3));
     attroff(COLOR_PAIR(4));
     
     //------------------------------------------ FIN Cabecera de pantalla ( vidas y tiempo de juego ) --------------------------------------//
@@ -559,8 +598,8 @@ void Entorno :: actualizarPantalla( void )
         x = 2 * mit->second.get_x() +1;
         y = 2 * mit->second.get_y() +1;
 
-        mvwprintw(pantalla, y  ,x, "/\\");
-        mvwprintw(pantalla, y+1,x, "\\/");
+        mvwprintw(pantalla, y  ,x, "BO");
+        mvwprintw(pantalla, y+1,x, "MB");
         
     }
     
@@ -570,8 +609,8 @@ void Entorno :: actualizarPantalla( void )
         x = 2 * mit->second.get_x() +1;
         y = 2 * mit->second.get_y() +1;
 
-        mvwprintw(pantalla, y  ,x, "BO");
-        mvwprintw(pantalla, y+1,x, "MB");
+        mvwprintw(pantalla, y  ,x, "/\\");
+        mvwprintw(pantalla, y+1,x, "\\/");
         
     }
     
