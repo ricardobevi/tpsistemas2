@@ -35,3 +35,5 @@ clean:
 	rm bin/servidor.o bin/Jugador.o bin/Premio.o bin/Explosion.o \
 	bin/Bomba.o bin/Bomberman.o ../include/Coordenada.o \
 	bin/JugadorRemoto.o bin/JugadorAutomatico.o
+	
+all: clean serv
