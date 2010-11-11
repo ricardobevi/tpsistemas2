@@ -278,6 +278,9 @@ void * sender(void * args) {
             
             Servidor.update(enviar);
 
+            if ( enviar.id == 'F' )
+                Servidor.Reset();
+
             pthread_mutex_lock(&QEnviarMutex);
             empty = QEnviar.empty();
             pthread_mutex_unlock(&QEnviarMutex);
@@ -339,16 +342,18 @@ void * explosion(void * args) {
 
 void * timer(void * args) {
     t_protocolo clock;
+    bool reset = false;
 
     while ( 1 ){
 
+        reset = false;
         pthread_cond_wait(&ClockStartCond, &ClockStartMutex);
 
         pthread_mutex_lock(&ClockMutex);
         clock = Servidor.clockTick();
         pthread_mutex_unlock(&ClockMutex);
 
-        while ( clock.x >= 0 ) {
+        while ( clock.x >= 0 && (! reset) ) {
 
             if ( clock.x == 0 || Servidor.getNumJugadores() == 0 ){
 
@@ -356,14 +361,12 @@ void * timer(void * args) {
 
                 QFinDePartida = Servidor.finalizarPartida();
 
-                //cout << "QFinDePartida.size() = " << QFinDePartida.size() <<endl;
-
                 while( !QFinDePartida.empty() ){
                     pushQEnviar( QFinDePartida.front() );
                     QFinDePartida.pop();
                 }
 
-                Servidor.Reset();
+                reset = true;
 
             }
 
@@ -436,6 +439,10 @@ void * timeOut(void * args) {
 
     for ( unsigned i = 0 ; i < recvJugadores.size() ; i++ )
                 pthread_join(recvJugadores[i], NULL);
+
+    timeOutActivo = false;
+
+    cout << "Termina thread de TimeOut." << endl;
 
     return NULL;
 }
