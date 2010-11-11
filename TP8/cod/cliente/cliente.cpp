@@ -12,8 +12,6 @@
 #include <sys/types.h>
 #include <ctime>
 
-
-
 #include "c_Bomberman.h"
 
 using namespace std;
@@ -22,15 +20,6 @@ using namespace std;
 void * sender (void * args);
 void * screen (void * args);
 void * recver (void * args);
-
-/*
-
-­pthread_mutex_t ProcesadorMutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t  ProcesadorCond  = PTHREAD_COND_INITIALIZER;
-­pthread_cond_wait(&ProcesadorCond, &actualizar);
-­pthread_cond_broadcast(&CondicionActualizar);
-
-*/
 
 
 // Objeto cliente bomberman
@@ -47,20 +36,31 @@ pthread_mutex_t actualizar           = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t  CondicionActualizar  = PTHREAD_COND_INITIALIZER;
 
 
+pthread_t sender_t,                                               // creo los hilos correspondientes para la ejecucion:
+          recver_t,                                               // receptor de datos, emisor de datos , y gestor de pantalla
+          screen_t;
+
+// manejo de señales para cerrar el cliente en caso de falla de el servidor
+// o cerrar correctamente el cliente ante un control + c
 void finalizarCliente(int iNumSen, siginfo_t  * info, void *ni)
 {
+    pthread_cancel(sender_t);
+    pthread_cancel(recver_t);
+    pthread_cancel(screen_t);
     clienteBomberman.finalizarBomberman();
+    
+    system("reset");
     
     if (iNumSen == SIGPIPE)
     {
-        cout << endl  << endl <<"ERROR: Fallo la conexion al socket : el servidor no esta activo o termino abruptamente "  << endl;
+        cout << endl  << endl <<"ERROR: Fallo la conexion al socket" << endl << " El servidor no esta activo o termino abruptamente. "  << endl;
     }
-    
     cout << endl << "El cliente ha finalizado" << endl << endl ;
     exit (0);
 }
 
 
+// hilo principal de ejecucion ( main )
 
 int main(int argc, const char *argv[]){
    
@@ -71,14 +71,13 @@ int main(int argc, const char *argv[]){
     term.sa_flags = SA_SIGINFO | SA_NODEFER;
     sigaction(SIGINT , &term, NULL);
     sigaction(SIGPIPE , &term, NULL);
+    sigaction(SIGTERM , &term, NULL);
+    sigaction(SIGQUIT , &term, NULL);
+    sigaction(SIGABRT , &term, NULL);
+    sigaction(SIGSEGV , &term, NULL);    
 
     srand(unsigned(time(NULL)));
-    
-    pthread_t sender_t,                                               // creo los hilos correspondientes para la ejecucion:
-              recver_t,                                               // receptor de datos, emisor de datos , y gestor de pantalla
-              screen_t;
-              
-              
+           
               
         // mediante estos mutex freno a los hilos de emision y pantalla    
         // hasta q comience la partida (inicio) o haya q actualizar la pantalla (pantalla)
@@ -95,20 +94,36 @@ int main(int argc, const char *argv[]){
         pthread_create( &sender_t, NULL, sender, NULL);
         pthread_create( &screen_t, NULL, screen, NULL);
 
-        pthread_join(recver_t, NULL);
         pthread_join(screen_t, NULL);
+        
+        pthread_cancel(sender_t);
+        pthread_cancel(recver_t);
+        
+        clienteBomberman.finalizarBomberman();
+  
+        system("reset");
+        
+        cout << endl << "Fin de juego." << endl << endl ;
+        
+        pthread_join(recver_t, NULL);
         pthread_join(sender_t, NULL);
         
         return 0;
+              
 }
 
 
+
+/**********************************************************************************************************/
+
 // hilo receptor de datos desde el servidor
+
 void * recver(void * args)
 {   
     t_protocolo accion;
 
-    clienteBomberman.recivirAccion( &accion, sizeof(t_protocolo) );
+    // recibe el numero de jugador :)
+    clienteBomberman.recibirAccion( &accion, sizeof(t_protocolo) );
 
     clienteBomberman.set_idJugador( accion.x );
     
@@ -116,28 +131,26 @@ void * recver(void * args)
     // envia al servidor cual es su timeout y
     // espera ese tiempo de timeout como maximo para esperar otros jugadores
 
-    clienteBomberman.recivirAccion( &accion, sizeof(t_protocolo) );
+    clienteBomberman.recibirAccion( &accion, sizeof(t_protocolo) );
 
     while ( accion.id != 's' )
     {
             clienteBomberman.esperaDeJugadores(  accion.x );
-            clienteBomberman.recivirAccion( &accion, sizeof(t_protocolo) );
+            clienteBomberman.recibirAccion( &accion, sizeof(t_protocolo) );
     }
 
-
-
     // espera a recivir todo el escenario
-    // hasta que se le indica 'i' como informe de fin de datos,entonces guarda el nombre del jugador
+    // hasta que se le indica 'i' como informe de fin de datos
     // y habilita la ejecucion de lectura de teclado y refresco de pantalla
-    clienteBomberman.recivirAccion( &accion, sizeof(t_protocolo) );
+    clienteBomberman.recibirAccion( &accion, sizeof(t_protocolo) );
 
     while ( accion.id != 'i' )
     {
             clienteBomberman.actualizarNovedades( &accion );
-            clienteBomberman.recivirAccion( &accion, sizeof(t_protocolo) );
+            clienteBomberman.recibirAccion( &accion, sizeof(t_protocolo) );
     }
 
-    //clienteBomberman.enviarSolicitud (0);
+
     
     // comienzo el juego ( habilito teclado y pantalla )
     pthread_mutex_unlock(&inicioPantalla);
@@ -146,6 +159,7 @@ void * recver(void * args)
     // por lo tanto no se le activara el hilo de lectura de teclado al mismo
     if ( clienteBomberman.espectador() == false ) 
                     pthread_mutex_unlock(&inicioTeclado);
+    
     
     pthread_cond_broadcast( &CondicionActualizar );
     
@@ -158,7 +172,7 @@ void * recver(void * args)
     while ( true )
     {   
             
-            clienteBomberman.recivirAccion( &accion, sizeof(t_protocolo) );
+                clienteBomberman.recibirAccion( &accion, sizeof(t_protocolo) );
             
 
                 pthread_mutex_lock( &SemColaNovedades );
@@ -166,9 +180,7 @@ void * recver(void * args)
                 colaNovedades.push(accion);
                 
                 pthread_mutex_unlock( &SemColaNovedades );
-               
-                
-                
+                     
                 
                 pthread_cond_broadcast( &CondicionActualizar );
                           
@@ -220,6 +232,9 @@ prueba para ver si funca fin de partida
 *************************************************************************** */
 
 
+
+     
+/*************************************************************************** */
 // hilo emisor de datos hacia el servidor
 void * sender(void * args)
 {
@@ -233,7 +248,7 @@ void * sender(void * args)
 
     int teclaPresionada;
     
-    while ( true )
+    while ( ! clienteBomberman.espectador() )
     {   
         teclaPresionada = clienteBomberman.leerTeclado();
         clienteBomberman.enviarSolicitud ( teclaPresionada );     
@@ -243,6 +258,9 @@ void * sender(void * args)
 
 }
 
+
+
+/*************************************************************************** */
 
 // hilo encargado de la pantalla del cliente
 void * screen(void * args)
@@ -257,43 +275,47 @@ void * screen(void * args)
     t_protocolo accion;
     
     bool colaVacia;
+    int  finDePartida = 0;
     
-    while ( true )
+    while ( !finDePartida )
     {
          
 
-         
+         // itero en el siguiente do while mientras la cola de novedades tenga algo para actualizar, cuando esta ya este vacia, Salgo.
          do{
          
-            pthread_mutex_lock( &SemColaNovedades );
-            
-                if( ! colaNovedades.empty() )
-                {
-                    accion = colaNovedades.front();
+                    pthread_mutex_lock( &SemColaNovedades );
                     
-                    colaNovedades.pop();
-                }
-                    
-            pthread_mutex_unlock( &SemColaNovedades );
-        
-            
-            
-            clienteBomberman.actualizarNovedades( &accion ); 
-            
-            clienteBomberman.dibujarPantalla();
-            
-            
-            
-            pthread_mutex_lock( &SemColaNovedades );
-            
-            colaVacia = colaNovedades.empty();
+                                if( ! colaNovedades.empty() )
+                                {
+                                    accion = colaNovedades.front();
+                                    
+                                    colaNovedades.pop();
+                                }
+                            
+                    pthread_mutex_unlock( &SemColaNovedades );
                 
-            pthread_mutex_unlock( &SemColaNovedades );
-            
+                    
+                    
+                   finDePartida =  clienteBomberman.actualizarNovedades( &accion ); 
+                    
+                    clienteBomberman.dibujarPantalla();
+                    
+                    
+                    
+                    pthread_mutex_lock( &SemColaNovedades );
+                    
+                    colaVacia = colaNovedades.empty();
+                        
+                    pthread_mutex_unlock( &SemColaNovedades );
+                    
           
-         }while ( !colaVacia );
-                  
-        pthread_cond_wait(&CondicionActualizar, &actualizar);
+         }while ( !colaVacia &&  !finDePartida );
+         
+         
+        // espero a que me avise el hilo de recepcion que se ha modificado la cola          
+        if (!finDePartida)
+            pthread_cond_wait(&CondicionActualizar, &actualizar);
           
     }
     

@@ -16,10 +16,10 @@ class Bomberman
 {
     private:
         
-        Connection  < char >  connectionCliente;
+        Connection  < char >        connectionCliente;
         Entorno     entornoCliente;
         
-        vector < pair <int,int> > puestos;
+        vector < pair <int,int> >   puestos;
         
         
         string ipServidor ;
@@ -47,8 +47,8 @@ class Bomberman
          void set_idJugador( int jugador );
          int get_idJugador();
          void dibujarPantalla();
-         void recivirAccion(t_protocolo * accion, size_t tam );
-         void actualizarNovedades( t_protocolo * accion );
+         void recibirAccion(t_protocolo * accion, size_t tam );
+         int actualizarNovedades( t_protocolo * accion );
          void enviarSolicitud ( int teclaPresionada);
          void ComunicarServidor();
          
@@ -154,8 +154,9 @@ Bomberman :: ~Bomberman()
 void Bomberman :: finalizarBomberman( void )
 {
     this->enviarSolicitud(-1);
-    connectionCliente.Close();
     entornoCliente.finalizarPantalla();
+    connectionCliente.Close();
+   
 }
 
 
@@ -208,7 +209,7 @@ void  Bomberman ::dibujarPantalla()
 }
          
 // metodo que carga a "accion" con las novedades enviadas por el servidor    
-void Bomberman :: recivirAccion(t_protocolo * accion, size_t tam  )
+void Bomberman :: recibirAccion(t_protocolo * accion, size_t tam  )
 {
     
     // aca va el recv de tipo protocolo
@@ -237,6 +238,8 @@ void  Bomberman :: enviarSolicitud ( int teclaPresionada )
             solicitud.x  = 'd';
         else if(  teclaPresionada == tecla_bomba    )
             solicitud.x  = 'b';
+        else if ( teclaPresionada == -1 )
+            solicitud.x = -1;
         else
             return;
 
@@ -254,8 +257,10 @@ void  Bomberman :: enviarSolicitud ( int teclaPresionada )
 
 
 // Actualiza el escenarioCliente dependiendo de las novedades que hayan llegado 
-void Bomberman :: actualizarNovedades( t_protocolo * accion )
+int Bomberman :: actualizarNovedades( t_protocolo * accion )
 {
+    
+    int devolucion = 0;
      /*
 
                    v :     vector < int > vidas;
@@ -286,28 +291,13 @@ void Bomberman :: actualizarNovedades( t_protocolo * accion )
                     
                         if(accion->posicion <  escenarioCliente.vidas.size() )
                             escenarioCliente.vidas[accion->posicion]= accion->x;
-                        else
-                        {
-                            ofstream error("errores.err");
-                            error << endl <<"Fallo de segmentacion en vector: vidas"<< endl << "pos: " << accion->posicion << endl << "x: " << accion->x << endl << "y: "<< accion->y;
-                            error.close();
-                            kill(SIGINT, getpid() );
-                        }
-                            
-                            
+         
                         break;
                         
                 case 'j':
                     
                         if( accion->posicion < escenarioCliente.jugadores.size() )
                             escenarioCliente.jugadores[accion->posicion].set_coordenada( accion->x, accion->y);
-                        else
-                        {
-                            ofstream error("errores.err");
-                            error << endl <<"Fallo de segmentacion en vector: jugadores"<< endl << "pos: " << accion->posicion << endl << "x: " << accion->x << endl << "y: "<< accion->y;
-                            error.close();
-                            kill(SIGINT, getpid() );
-                        }
                         
                         break;
                 
@@ -490,7 +480,7 @@ void Bomberman :: actualizarNovedades( t_protocolo * accion )
                         
                  case 'P':
                         // los puestos son enviados 4 3 2 1 
-                        //Jugador Numero :  x   
+                        //Jugador Numero :  x    puesto numero : y
                        
                         puestos.push_back(  pair <int,int> (accion->x , accion->y ) );
                        
@@ -500,15 +490,21 @@ void Bomberman :: actualizarNovedades( t_protocolo * accion )
                         
                         entornoCliente.finDePartida( puestos );
                         getchar();
-                        this->finalizarBomberman();
-                        exit(0);
-                       
+                        devolucion = 1;
+                        
                         break;        
+                  
+                        
+                  case 'i':
+                    
+                        set_idJugador( accion -> x );
+                        
+                        break;      
 
             }
             
             
-            
+          return devolucion;  
 
 }
 
