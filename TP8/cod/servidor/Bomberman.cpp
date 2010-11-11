@@ -16,6 +16,8 @@ Bomberman::~Bomberman() {
 
 void Bomberman::activar(string archivoConfiguracion) {
 
+    this->ArchConf = archivoConfiguracion;
+
     cout << "Archivo de Configuracion: " << archivoConfiguracion << endl;
 
     ifstream archConf(archivoConfiguracion.c_str());
@@ -373,19 +375,15 @@ queue<t_protocolo> Bomberman::finalizarPartida() {
     finPartida.id = 'P';
     finPartida.posicion = 0;
 
-    if ( Posiciones.size() < NumJugadores ){
-        for( unsigned i = 0 ; i < JUGADORES_MAX ; i++ ){
+    for( unsigned i = 0 ; i < JUGADORES_MAX ; i++ ){
 
-            if( TipoJugador[i] != JUGADOR_INACTIVO ){
-                finPartida.x = i;
-                finPartida.y = 1;
+        if( TipoJugador[i] != JUGADOR_INACTIVO ){
+            finPartida.x = (int) i;
+            finPartida.y = 1;
 
-                cout << finPartida.y << " Jugador " << finPartida.x << endl;
-
-                QFinPartida.push(finPartida);
-            }
-
+            QFinPartida.push(finPartida);
         }
+
     }
 
     while ( !Posiciones.empty() ) {
@@ -803,16 +801,23 @@ void Bomberman::Close() {
 }
 
 void Bomberman::Reset() {
+    map<int, Jugador *>::iterator it;
+
     this->PartidaIniciada = false;
     this->HDTimer = 0;
     this->Timer = 0;
     this->NumJugadores = 0;
 
-    for ( unsigned i = 0 ; i < JUGADORES_MAX ; i++ )
-        this->TipoJugador[i] = JUGADOR_INACTIVO;
+    for ( unsigned i = 0 ; i < JUGADORES_MAX ; i++ ){
+        if (this->TipoJugador[i] != JUGADOR_INACTIVO )
+            this->eliminarJugador(i, true);
+    }
 
-    for ( unsigned i = 0 ; i < X_MAX + 1 ; i++ )
-        for ( unsigned j = 0 ; j < Y_MAX + 1 ; j++ )
-            Escenario[i][j] = LUGAR_VACIO;
+    for ( it = Espectadores.begin(); it != Espectadores.end() ; it++ )
+        this->eliminarEspectador(it->first);
+
+    Socket->Close();
+
+    this->activar(ArchConf);
 
 }

@@ -105,7 +105,7 @@ int JugadorRemoto::send(t_protocolo data) {
 
          cout << "id = " << data.id << endl << "posicion = " << data.posicion << endl << "x = "
          << data.x << endl << "y = " << data.y << endl;
-         */
+        */
         enviado = (int) Socket.Send((char*) &data, sizeof(t_protocolo));
 
         if ( enviado <= -1 )

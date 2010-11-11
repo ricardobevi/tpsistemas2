@@ -89,6 +89,8 @@ class Bomberman {
         static const unsigned PARED_FIJA = 59999;
 
     private:
+        string ArchConf;
+
         int Timer;
         unsigned long int HDTimer;
 
