@@ -51,6 +51,7 @@ class Comm{
         
         Connection<T> getConn(unsigned index);
         
+        void CloseCons();
         void Close();
         
     private:
@@ -191,10 +192,23 @@ unsigned Comm<T> :: Accept(){
  */
 template <class T>
 Connection<T> Comm<T> :: getConn(unsigned index){
-    if ( index <= cons.size() )
+    if ( index < cons.size() )
         return cons[index];
     else
         return *(new Connection<T>);
+}
+
+/*
+ * CloseCons()
+ *
+ * Cierra todas las conexiones de los clientes.
+ */
+template <class T>
+void Comm<T> :: CloseCons(){
+    for( unsigned i = 0 ; i < cons.size() ; i++ )
+            cons[i].Close();
+
+    cons.clear();
 }
 
 
@@ -206,9 +220,7 @@ Connection<T> Comm<T> :: getConn(unsigned index){
  */
 template <class T>
 void Comm<T> :: Close(){
-    for( unsigned i = 0 ; i < cons.size() ; i++ )
-        cons[i].Close();
-        
+    this->CloseCons();
     close(in_socket);
 }
 
