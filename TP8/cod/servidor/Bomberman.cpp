@@ -653,7 +653,7 @@ int Bomberman::update(t_protocolo data) {
 
         int numJugador = data.x;
 
-        if ( numJugador < (int) NumJugadores ) {
+        if ( numJugador >= 0 && numJugador < (int) NumJugadores ) {
             if ( Jugadores[numJugador]->isClosed() )
                 this->eliminarJugador(numJugador);
             else
@@ -837,8 +837,8 @@ void Bomberman::Reset() {
     while( ! Posiciones.empty() )
         Posiciones.pop();
 
-    Socket->CloseCons();
+    Socket->Close();
 
-    this->activar(ArchConf);
+    //this->activar(ArchConf);
 
 }
