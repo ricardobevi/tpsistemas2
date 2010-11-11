@@ -6,3 +6,8 @@ cliente.o: cliente.cpp c_Bomberman.h c_escenario.h entorno.h
 
 ../include/Coordenada.o: ../include/Coordenada.cpp ../include/Coordenada.h
 	g++ -Wall -ggdb -lpthread -c -o ../include/Coordenada.o ../include/Coordenada.cpp
+
+clean:
+	rm cliente.o ../include/Coordenada.o
+
+all: clean cli
