@@ -19,6 +19,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <netdb.h>
 #include <stdio.h>
 #include <errno.h>
 
@@ -100,14 +101,19 @@ Connection<T> :: Connection(string addr, long int port){
         perror("error: Connection.h: Connection(string addr, long int port): socket()");
     
     this->listenPort = htons(port);
-    this->listenIpAddress = inet_addr(addr.c_str());
-    
-    this->in_sock.sin_family = AF_INET;
-    this->in_sock.sin_port = this->listenPort; 
-    this->in_sock.sin_addr.s_addr = this->listenIpAddress;
-    
-    bzero(&(this->in_sock.sin_zero), 8);
+    struct hostent *he = gethostbyname(addr.c_str());
 
+    if ( he == NULL ){
+        perror("[FATAL] error: Connection.h: Connection(string addr, long int port): gethostbyname()");
+    }else{
+
+        this->in_sock.sin_family = AF_INET;
+        this->in_sock.sin_port = this->listenPort;
+        memcpy(&this->in_sock.sin_addr.s_addr, he->h_addr_list[0], he->h_length);
+
+        bzero(&(this->in_sock.sin_zero), 8);
+
+    }
     
 }
 
@@ -177,11 +183,16 @@ int Connection<T> :: Connect(string addr, long int port){
     }
     
     this->listenPort = htons(port);
-    this->listenIpAddress = inet_addr(addr.c_str());
+    struct hostent *he = gethostbyname(addr.c_str());
     
+    if ( he == NULL ){
+        perror("[FATAL] error: Connection.h: Connect(string addr, long int port): gethostbyname()");
+        return -1;
+    }
+
     this->in_sock.sin_family = AF_INET;
     this->in_sock.sin_port = this->listenPort; 
-    this->in_sock.sin_addr.s_addr = this->listenIpAddress;
+    memcpy(&this->in_sock.sin_addr.s_addr, he->h_addr_list[0], he->h_length);
     
     bzero(&(this->in_sock.sin_zero), 8);
     
