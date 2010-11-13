@@ -12,14 +12,15 @@ Explosion :: Explosion( Bomba Bomb,
 						unsigned id,
 						unsigned (*Escenario)[10],
 					    unsigned max_x,
-					    unsigned max_y  ){
+					    unsigned max_y,
+					    int porcentajePremios){
 
     this->Bomb = Bomb;
     this->Escenario = Escenario;
     this->id = id;
 	this->max_x = max_x;
 	this->max_y = max_y;
-
+	this->PorcentajePremios = porcentajePremios;
 
 
 }
@@ -202,9 +203,10 @@ void Explosion ::  calcularExplosion( queue< t_protocolo >& tp_retorno,
 
 				tp_retorno.push( enviar );
 
-				Premio price( Coordenada( (*it).first, (*it).second[j] ), *timer );
+				Premio price( Coordenada( (*it).first, (*it).second[j] ), *timer, PorcentajePremios );
 
-				premios.push_back( price );
+				if( price.getTipo() != 'N' )
+				    premios.push_back( price );
 
 				enviar.id = price.getTipo();
 				enviar.posicion = price.getId();

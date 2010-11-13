@@ -117,7 +117,7 @@ int JugadorRemoto::send(t_protocolo data) {
 }
 
 t_protocolo JugadorRemoto::recv() {
-    t_protocolo recibido = { 0, 0, -1, 0 };
+    t_protocolo recibido = { 'i', 0, -1, 0 };
 
     if ( !Closed ) {
 

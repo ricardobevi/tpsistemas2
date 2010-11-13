@@ -70,6 +70,10 @@ void Bomberman::activar(string archivoConfiguracion) {
             archConf >> this->TiempoPartida;
             cout << "TiempoPartida = " << TiempoPartida << endl;
 
+        } else if ( parametro == "PorcentajePremios" ) {
+            archConf >> this->PorcentajePremios;
+            cout << "PorcentajePremios = " << PorcentajePremios << "%" << endl;
+
         } else if ( 1 ) {
             cerr << archivoConfiguracion << ": Error en archivo de configuracion." << endl;
             cerr << "Caracter " << archConf.tellg() << endl;
@@ -539,7 +543,7 @@ queue<t_protocolo> Bomberman::explotarBomba() {
 
         Bombas.pop();
 
-        Explosion bum(bomb, bomb.getNumero(), Escenario, X_MAX, Y_MAX);
+        Explosion bum(bomb, bomb.getNumero(), Escenario, X_MAX, Y_MAX, PorcentajePremios);
 
         bum.calcularExplosion(qEnviar, this->ParedesDestruibles, this->Premios, &this->HDTimer);
 
@@ -670,7 +674,7 @@ int Bomberman::update(t_protocolo data) {
 
 t_protocolo Bomberman::eliminarJugador(unsigned jugador, bool close) {
     t_protocolo enviar;
-    //TODO: Ver otros tipos de jugadores
+
     if ( TipoJugador[jugador] != JUGADOR_INACTIVO ) {
 
         this->Jugadores[jugador]->eliminar();
@@ -747,6 +751,12 @@ t_protocolo Bomberman::clockTick() {
 void Bomberman::resetClock() {
     HDTimer = 0;
     Timer = 0;
+}
+
+void Bomberman::CloseClosed(){
+    for(unsigned i = 0 ; i < JUGADORES_MAX ; i++)
+                if( TipoJugador[i] != JUGADOR_INACTIVO && Jugadores[i]->isClosed() )
+                    this->eliminarJugador( i, true );
 }
 
 queue<t_protocolo> Bomberman::tomaPremio(Coordenada coord, unsigned jugador) {
@@ -838,7 +848,5 @@ void Bomberman::Reset() {
         Posiciones.pop();
 
     Socket->Close();
-
-    //this->activar(ArchConf);
 
 }

@@ -7,11 +7,17 @@
 
 #include "Premio.h"
 
-Premio :: Premio(Coordenada Pos , unsigned long int id){
-    int randomType = rand() % 4;
+#include <iostream>
+
+Premio :: Premio(Coordenada Pos , unsigned long int id, int ProbPremio){
 
     this->Pos = Pos;
     this->id = id;
+    this->ProbPremio = ProbPremio;
+
+    float cantElementos = 4.0 / ( (float) ProbPremio / 100.0 );
+
+    int randomType = rand() % (int) cantElementos;
 
     switch ( randomType ) {
         case 0:
@@ -28,6 +34,9 @@ Premio :: Premio(Coordenada Pos , unsigned long int id){
 
         case 3:
             this->Tipo = 'R'; //Rapido (velocidad)
+
+        default:
+            this->Tipo = 'N'; //NADA
 
     }
 

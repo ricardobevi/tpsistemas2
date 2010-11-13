@@ -76,6 +76,8 @@ class Bomberman {
 
         void resetClock();
 
+        void CloseClosed();
+
         void Close();
 
         void Reset();
@@ -118,6 +120,7 @@ class Bomberman {
         int MaxBombInicial;
         int VelocidadInicial;
         int VelocidadJugadorAutomatico;
+        int PorcentajePremios;
         unsigned long int TiempoBomba, TiempoExplosion, TiempoEspera, TiempoPartida;
 
         bool PartidaIniciada;
