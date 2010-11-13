@@ -66,6 +66,13 @@ pthread_mutex_t QEnviarMutex = PTHREAD_MUTEX_INITIALIZER;
 
 void cSIGPIPE(int iNumSen, siginfo_t *info, void *ni){
     cerr << "Pipe Roto." << endl;
+
+    cout << "Un jugador se ha desconectado inesperadamente!" << endl;
+    cout << "Eliminando jugadores cerrados.......";
+    sleep(2);
+    Servidor.CloseClosed();
+
+    cout << "[OK]" << endl;
 }
 
 void cTERM(int iNumSen, siginfo_t *info, void *ni){

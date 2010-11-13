@@ -26,7 +26,8 @@ class Explosion {
                   unsigned id = 0,
                   unsigned(*Escenario)[10] = NULL,
                   unsigned max_x = 0,
-                  unsigned max_y = 0);
+                  unsigned max_y = 0,
+                  int porcentajePremios = 100);
 
         ~Explosion();
 
@@ -49,6 +50,8 @@ class Explosion {
         unsigned (*Escenario)[10], id, max_x, max_y;
 
         unsigned long int TiempoExpiracion;
+
+        int PorcentajePremios;
 
 };
 
