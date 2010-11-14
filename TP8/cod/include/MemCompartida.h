@@ -21,9 +21,11 @@ class MemCompartida
         
     public:
         
+        MemCompartida();
         MemCompartida(int tipoDeAplicacion );
         ~MemCompartida();
         
+        void CargarMemCompartida(int tipoDeAplicacion);
         int esperarUsuario();
         int conectarce();
         
@@ -38,7 +40,65 @@ class MemCompartida
         
 };
 
+MemCompartida :: MemCompartida()
+{
 
+}
+
+
+void  MemCompartida :: CargarMemCompartida(int tipoDeAplicacion)
+{ 
+    this -> tipoDeAplicacion =  tipoDeAplicacion ;
+    
+    int shSAC ,shCAS, retornoSemaforo ;
+    key_t claveSemaforo = ftok( PATH_KEY , SEM_KEY );
+    key_t claveMemCas   = ftok( PATH_KEY , MEM_CAS_KEY );
+    key_t claveMemSac   = ftok( PATH_KEY , MEM_SAC_KEY );
+        
+    
+    // tomando el parametro enviado diferencia entre servidor y cliente:
+    //  *servidor: crea los semaforos y la memoria compartida
+    //  *cliente: asigna y mapea lo creado por el servidor, mas no crea nada por si solo
+        if( tipoDeAplicacion == SERVIDOR )
+        {       
+            retornoSemaforo = semaforos.crearSemaforo( claveSemaforo , CANT_SEM);
+             
+            
+            shSAC = shmget( claveMemSac, sizeof (t_protocolo) , IPC_CREAT  | 0660 );
+            shCAS = shmget( claveMemCas, sizeof (t_protocolo) , IPC_CREAT  | 0660 );
+            
+            semaforos.V(SERVIDOR_ACTIVO);
+            
+        }
+        else //CLIENTE
+        {
+                
+            retornoSemaforo = semaforos.mapearSemaforo( claveSemaforo , CANT_SEM );
+            semaforos.P(SERVIDOR_ACTIVO); 
+            
+            shSAC = shmget( claveMemSac, sizeof (t_protocolo) , 0660 );
+            shCAS = shmget( claveMemCas, sizeof (t_protocolo) , 0660 );    
+            
+        }
+    
+    
+    
+    // si se produjo algun tipo de error, cierro correctamente la memoria y los semaforos informando dicho error
+    // sino mapeo las memorias compartidas para utilizarlas
+    if ( shSAC == - 1 || shCAS ==  -1 || retornoSemaforo == -1 )
+    {
+                perror("MemCompartida.h: MemCompartida ( int tipoDeAplicacion ) :");
+                this -> eliminarMemoriaCompartida();
+                
+    }
+    else
+    {
+                MemoriaSAC = (t_protocolo * ) shmat (shSAC,NULL , 0);
+                MemoriaCAS = (t_protocolo * ) shmat (shCAS,NULL , 0);
+    }
+    
+    
+}
 // crea la memoria compartida para realizar pasajes de datos tipo t_protocolo en forma bidireccional,
 // para ello crea los semaforos y las areas de memoria compartidas y las mapea para utilzarlas.
 MemCompartida :: MemCompartida( int tipoDeAplicacion )
