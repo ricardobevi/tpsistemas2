@@ -43,6 +43,7 @@ class JugadorAutomatico: public Jugador {
 
         Coordenada getPosicion();
         int getNumero();
+        void setNumero( int num );
 
         int send(t_protocolo data);
 

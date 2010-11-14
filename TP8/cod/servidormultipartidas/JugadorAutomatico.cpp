@@ -98,6 +98,10 @@ int JugadorAutomatico::getNumero() {
     return Numero;
 }
 
+void JugadorAutomatico::setNumero( int num ){
+	this->Numero = num;
+}
+
 int JugadorAutomatico::send( t_protocolo data ){
     return 1;
 }

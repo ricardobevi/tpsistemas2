@@ -1,8 +1,9 @@
 serv: ../include/Comm.h ../include/Connection.h ../include/Coordenada.o bin/Jugador.o \
       bin/Premio.o bin/Explosion.o bin/Bomba.o bin/Bomberman.o bin/servidor.o \
-      bin/JugadorRemoto.o bin/JugadorAutomatico.o
+      bin/JugadorRemoto.o bin/JugadorAutomatico.o bin/JugadorLocal.o ../include/Semaforo.o ../include/MemCompartida.o
 	g++ -Wall -ggdb -lpthread -o serv bin/servidor.o bin/Jugador.o bin/Premio.o bin/Explosion.o \
-	 bin/Bomba.o bin/Bomberman.o ../include/Coordenada.o bin/JugadorRemoto.o bin/JugadorAutomatico.o
+	 bin/Bomba.o bin/Bomberman.o ../include/Coordenada.o bin/JugadorRemoto.o bin/JugadorAutomatico.o \
+	  bin/JugadorLocal.o ../include/Semaforo.o ../include/MemCompartida.o
 
 bin/servidor.o: servidor.cpp
 	g++ -Wall -ggdb -lpthread -c -o bin/servidor.o servidor.cpp
@@ -12,6 +13,9 @@ bin/Jugador.o: Jugador.cpp Jugador.h
 	
 bin/JugadorRemoto.o: JugadorRemoto.cpp JugadorRemoto.h
 	g++ -Wall -ggdb -lpthread -c -o bin/JugadorRemoto.o JugadorRemoto.cpp
+	
+bin/JugadorLocal.o: JugadorLocal.cpp JugadorLocal.h
+	g++ -Wall -ggdb -lpthread -c -o bin/JugadorLocal.o JugadorLocal.cpp
 	
 bin/JugadorAutomatico.o: JugadorAutomatico.cpp JugadorAutomatico.h
 	g++ -Wall -ggdb -lpthread -c -o bin/JugadorAutomatico.o JugadorAutomatico.cpp
@@ -31,9 +35,16 @@ bin/Bomberman.o: Bomberman.cpp Bomberman.h
 ../include/Coordenada.o: ../include/Coordenada.cpp ../include/Coordenada.h
 	g++ -Wall -ggdb -lpthread -c -o ../include/Coordenada.o ../include/Coordenada.cpp
 	
+../include/Semaforo.o: ../include/Semaforo.cpp ../include/Semaforo.h
+	g++ -Wall -ggdb -lpthread -c -o ../include/Semaforo.o ../include/Semaforo.cpp
+
+../include/MemCompartida.o: ../include/MemCompartida.cpp ../include/MemCompartida.h
+	g++ -Wall -ggdb -lpthread -c -o ../include/MemCompartida.o ../include/MemCompartida.cpp
+	
 clean:
 	rm bin/servidor.o bin/Jugador.o bin/Premio.o bin/Explosion.o \
 	bin/Bomba.o bin/Bomberman.o ../include/Coordenada.o \
-	bin/JugadorRemoto.o bin/JugadorAutomatico.o
+	bin/JugadorRemoto.o bin/JugadorAutomatico.o ../include/Semaforo.o \
+	../include/MemCompartida.o
 	
 all: clean serv
