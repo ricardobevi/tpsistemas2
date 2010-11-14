@@ -95,6 +95,11 @@ int JugadorRemoto::getNumero() {
     return Numero;
 }
 
+void JugadorRemoto::setNumero( int num ){
+	this->Numero = num;
+}
+
+
 int JugadorRemoto::send(t_protocolo data) {
 
     int enviado = -1;

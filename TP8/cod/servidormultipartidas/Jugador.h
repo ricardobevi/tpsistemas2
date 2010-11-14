@@ -41,6 +41,7 @@ class Jugador {
 
         virtual Coordenada getPosicion() = 0;
         virtual int getNumero() = 0;
+        virtual void setNumero( int num ) = 0;
 
         virtual int send( t_protocolo data ) = 0;
 

@@ -20,7 +20,8 @@
 Bomberman Servidor;
 bool timeOutActivo = false;
 
-void * nuevosJugadores(void * args);
+void * nuevosJugadoresRemotos(void * args);
+void * nuevoJugadorLocal(void * args);
 void * pidWaiter(void * args);
 void * recver(void * args);
 void * procesador(void * args);
@@ -44,16 +45,21 @@ pthread_t procesadorThread,
           explosionThread,
           timerThread,
           timeOutThread,
-          nuevosJugadoresThread;
+          nuevosJugadoresRemotosThread,
+          nuevoJugadorLocalThread;
 
 queue<t_protocolo> QRecibido;
 queue<t_protocolo> QEnviar;
+
 queue<int> QNumJugadores;
 
 map< int, pthread_t > recvJugadores;
 map< int, pthread_t > pidWaiters;
 
 pid_t childPid;
+
+pthread_mutex_t JugLocalMutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t JugLocalCond = PTHREAD_COND_INITIALIZER;
 
 pthread_mutex_t ProcesadorMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t ProcesadorCond = PTHREAD_COND_INITIALIZER;
@@ -79,6 +85,8 @@ pthread_cond_t TimeOutEndCond = PTHREAD_COND_INITIALIZER;
 
 pthread_mutex_t QRecibidoMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t QEnviarMutex = PTHREAD_MUTEX_INITIALIZER;
+
+pthread_mutex_t NuevoJugadorMutex = PTHREAD_MUTEX_INITIALIZER;
 
 void cSIGPIPE(int iNumSen, siginfo_t *info, void *ni){
     cerr << "Pipe Roto." << endl;
@@ -143,9 +151,12 @@ int main(int argc, const char *argv[]) {
 
     activateThreads();
 
-	pthread_create(&nuevosJugadoresThread, NULL, nuevosJugadores, NULL );
+	pthread_create(&nuevosJugadoresRemotosThread, NULL, nuevosJugadoresRemotos, NULL );
+	pthread_create(&nuevoJugadorLocalThread, NULL, nuevoJugadorLocal, NULL );
 
     while(1){
+
+    	pthread_cond_broadcast(&JugLocalCond);
 
     	pthread_cond_wait(&TimeOutEndCond, &TimeOutEndMutex);
 
@@ -227,25 +238,62 @@ int main(int argc, const char *argv[]) {
     return 0;
 }
 
-void * nuevosJugadores(void * args){
+void * nuevosJugadoresRemotos(void * args){
 	int numJugador = 0;
 
 	while ( 1 ) {
 
-		cout << "Esperando Jugador..." << endl;
+		cout << "Esperando Jugador Remoto..." << endl;
 
-		numJugador = Servidor.nuevoJugador();
+		Jugador * player = Servidor.esperarJugadorRemoto();
+
+		pthread_mutex_lock(&NuevoJugadorMutex);
+		numJugador = Servidor.nuevoJugador( player );
+		pthread_mutex_unlock(&NuevoJugadorMutex);
 
 		if ( numJugador >= 0 ) {
 
-			cout << "Conectado jugador " << numJugador << endl;
+			cout << "Conectado jugador remoto " << numJugador << endl;
 
 			QNumJugadores.push( numJugador );
 
 			pthread_cond_broadcast(&TimeOutStartCond);
 
 		} else {
-			cout << "Conectado espectador " << numJugador << endl;
+			cout << "Conectado espectador remoto " << numJugador << endl;
+		}
+
+
+	}
+
+	return NULL;
+}
+
+void * nuevoJugadorLocal(void * args){
+	int numJugador = 0;
+
+	while ( 1 ) {
+
+		pthread_cond_wait(&JugLocalCond, &JugLocalMutex);
+
+		cout << "Esperando Jugador Local..." << endl;
+
+		Jugador * player = Servidor.esperarJugadorLocal();
+
+		pthread_mutex_lock(&NuevoJugadorMutex);
+		numJugador = Servidor.nuevoJugador( player );
+		pthread_mutex_unlock(&NuevoJugadorMutex);
+
+		if ( numJugador >= 0 ) {
+
+			cout << "Conectado jugador local " << numJugador << endl;
+
+			QNumJugadores.push( numJugador );
+
+			pthread_cond_broadcast(&TimeOutStartCond);
+
+		} else {
+			cout << "Conectado espectador local " << numJugador << endl;
 		}
 
 

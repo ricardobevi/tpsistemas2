@@ -158,16 +158,48 @@ void Bomberman::activar(string archivoConfiguracion) {
 
 }
 
-int Bomberman::nuevoJugador() {
-    Connection<char> playerCon;
-    unsigned numCon = 0;
+Jugador * Bomberman::esperarJugadorRemoto(){
+	Connection<char> playerCon;
+	unsigned numCon = 0;
+
+	numCon = this->Socket->Accept();
+
+	playerCon = this->Socket->getConn(numCon);
+
+	Jugador * Player = new JugadorRemoto(-1,
+										 this->VidaInicial,
+										 Coordenada(-1,-1),
+										 playerCon,
+										 0,
+										 MaxBombInicial,
+										 1);
+
+	return Player;
+
+}
+
+Jugador * Bomberman::esperarJugadorLocal(){
+	MemC = new MemCompartida(SERVIDOR);
+
+	MemC->esperarUsuario();
+	MemC->conectarce();
+
+	Jugador * Player = new JugadorLocal(-1,
+										 this->VidaInicial,
+										 Coordenada(-1,-1),
+										 MemC,
+										 0,
+										 MaxBombInicial,
+										 1);
+
+	return Player;
+
+}
+
+int Bomberman::nuevoJugador(Jugador * Player) {
     int numJugador = 0;
 
-    numCon = this->Socket->Accept();
-
-    playerCon = this->Socket->getConn(numCon);
-
-    /*Saco numero de jugador*/
+    /*Calculo el numero de jugador*/
     {
 
         if ( NumJugadores < JUGADORES_MAX && !PartidaIniciada ) {
@@ -188,6 +220,8 @@ int Bomberman::nuevoJugador() {
         }
 
     }
+
+    Player->setNumero(numJugador);
 
     Coordenada coord(0, 0);
 
@@ -219,10 +253,8 @@ int Bomberman::nuevoJugador() {
     enviaNumJugador.x = numJugador;
     enviaNumJugador.y = 0;
 
-    Jugador * Player = new JugadorRemoto(numJugador, this->VidaInicial, coord, playerCon, 0,
-            MaxBombInicial, 1);
-
     Player->send(enviaNumJugador);
+    Player->setPosicion(coord);
 
     if ( PartidaIniciada ) {
         t_protocolo simulacionIinicio = { 's', 0, 0, 0 };

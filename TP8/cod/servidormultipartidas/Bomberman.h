@@ -19,11 +19,14 @@
 
 #include "Jugador.h"
 #include "JugadorRemoto.h"
+#include "JugadorLocal.h"
 #include "JugadorAutomatico.h"
 #include "Bomba.h"
 #include "Premio.h"
 #include "Explosion.h"
 #include "../include/Coordenada.h"
+#include "../include/MemCompartida.h"
+
 
 #include "../include/Comm.h"
 #include "../include/Connection.h"
@@ -44,7 +47,11 @@ class Bomberman {
 
         void activar(string archivoConfiguracion);
 
-        int nuevoJugador();
+        Jugador * esperarJugadorRemoto();
+
+        Jugador * esperarJugadorLocal();
+
+        int nuevoJugador(Jugador * Player);
 
         queue<t_protocolo> sendEscenario(int jugador, bool toAll = false);
 
@@ -117,6 +124,7 @@ class Bomberman {
         vector<Coordenada> ParedesDestruibles;
 
         Comm<char> * Socket;
+        MemCompartida * MemC;
 
         int VidaInicial;
         int MaxBombInicial;
