@@ -12,6 +12,15 @@ Bomberman::Bomberman() {
 }
 
 Bomberman::~Bomberman() {
+	map<int, Jugador *>::iterator it;
+
+	delete this->Socket;
+	delete [] Jugadores;
+
+	for ( it = Espectadores.begin(); it != Espectadores.end() ; it++ )
+		delete it->second;
+
+	delete MemC;
 
 }
 
