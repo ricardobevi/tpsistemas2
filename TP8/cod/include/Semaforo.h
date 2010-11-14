@@ -4,18 +4,14 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/sem.h>
-#include <stdio.h>
 #include <errno.h>
 
-#include <unistd.h>
-#include <iostream>
-#include <cstdlib>
-#include <cstring>
 #include <stdio.h>
-#include <ctype.h>
+#include <iostream>
 #include <stdlib.h>
 
 #include "t_protocolo.h"
+#include  "constantes.h"
 
 using namespace std;
 
@@ -36,8 +32,8 @@ class Semaforo
         Semaforo( );
         ~Semaforo( );
          
-        void crearSemaforo( key_t clave , int cantSem, int tipoDeAplicacion);
-       
+        int crearSemaforo( key_t clave , int cantSem);
+        int mapearSemaforo( key_t clave , int cantSem);
         
         int P( unsigned short semNum );
         int V( unsigned short semNum );
@@ -47,48 +43,59 @@ class Semaforo
 };
 
 
-
+// constructor de clase que no realiza accion alguna
  Semaforo :: Semaforo( )
  {
     
  }
  
  
-void Semaforo :: crearSemaforo( int clave , int cantSem , int tipoDeAplicacion)
+// destructor del semaforo
+Semaforo ::~Semaforo( )
+{
+     this -> rmSem();
+}
+ 
+
+
+// servidor: crea el vector de  cantSem semaforos y los inicializa en cero
+int Semaforo :: crearSemaforo( int clave , int cantSem )
 {
     this -> cantSem = cantSem;
     
-    if ( tipoDeAplicacion == SERVIDOR )
-        semId = semget( clave, cantSem, IPC_CREAT | IPC_EXCL | 0660 );
-    else // CLIENTE
-        semId = semget( clave, cantSem,  0660 );
+    semId = semget( clave, cantSem, IPC_CREAT | 0660 );
+
     
     if (semId == -1 )
     {
-        perror("semaforo.h: Semaforo:");
-        semctl(semId, 0, IPC_RMID);
+        perror("semaforo.h:  crearSemaforo( int clave , int cantSem ):");
+        return -1;
     }
     
-    
-    if ( tipoDeAplicacion == SERVIDOR )
-    {
-        union semun argumento;
-        
-        argumento.val = 0;
-        
-        for (int i = 0 ; i < cantSem ; i ++ )
-                semctl( semId, i, SETVAL , argumento);
-    }
-    
+    return 1;
 
 }
 
-Semaforo ::~Semaforo( )
+//  metodo para cliente: mapea los semaforos en memoria para poder utilizarlos
+int Semaforo :: mapearSemaforo( int clave , int cantSem)
 {
-    semctl(semId, 0, IPC_RMID);
+    this -> cantSem = cantSem;
+    
+    semId = semget( clave, cantSem,  IPC_CREAT | 0660 );
+    
+    if (semId == -1 )
+    {
+        perror("semaforo.h: mapearSemaforo( int clave , int cantSem):");
+        return -1;
+    }
+    
+    
+    return 1;
+
 }
 
 
+//metodo bloqueante que solicita el numero de semaforo indicado por parametro
 int Semaforo :: P( unsigned short semNum )
 {
     struct sembuf opSem;
@@ -99,13 +106,15 @@ int Semaforo :: P( unsigned short semNum )
     
     if ( semop(semId, &opSem, 1) == -1){
         perror("semaforo.h: P: semop");
-        //semctl(semId, 0, IPC_RMID);
+        this -> rmSem();
         return -1;
     }
     
     return 0;
 }
 
+
+//metodo que libera el numero de semaforo indicado por parametro
 int Semaforo :: V( unsigned short semNum )
 {
     struct sembuf opSem;
@@ -116,7 +125,7 @@ int Semaforo :: V( unsigned short semNum )
     
     if ( semop(semId, &opSem, 1) == -1){
         perror("semaforo.h: V: semop");
-        //semctl(semId, 0, IPC_RMID);
+        this -> rmSem();
         return -1;
     }
     
@@ -124,6 +133,7 @@ int Semaforo :: V( unsigned short semNum )
 }
 
 
+// metodo utilizado para setear el valor de un semaforo manualmente ( legacy - actualmente no utilizado )
 int Semaforo :: setSem( int  semNum, int semVal )
 {
 
@@ -135,7 +145,7 @@ int Semaforo :: setSem( int  semNum, int semVal )
     if ( semctl( semId , semNum, SETVAL, argumento) == -1  )
     {
         perror("semaforo if ( s.h: setSem: semctl");
-        semctl(semId, 0, IPC_RMID);
+        this -> rmSem();
         return -1;
     }
     
@@ -144,9 +154,10 @@ int Semaforo :: setSem( int  semNum, int semVal )
 }
 
 
+// metodo que elimina el semaforo
 int Semaforo :: rmSem()
 {
-    return semctl(semId, 0, IPC_RMID);
+    return semctl( semId ,  0 , IPC_RMID);
 }
 
 
