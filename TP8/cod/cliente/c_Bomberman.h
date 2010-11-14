@@ -9,6 +9,7 @@
 
 #include "../include/t_protocolo.h"
 #include "../include/Connection.h"
+#include "../include/MemCompartida.h"
 
 using namespace std;
 
@@ -16,8 +17,9 @@ class Bomberman
 {
     private:
         
-        Connection  < char >        connectionCliente;
-        Entorno     entornoCliente;
+        Connection       < char >     connectionCliente;
+        Entorno          entornoCliente;
+        MemCompartida    memCompartida;
         
         vector < pair <int,int> >   puestos;
         
@@ -59,9 +61,27 @@ class Bomberman
          void esperaDeJugadores(  int timeout  );
          
          int get_timeout();
+         
+         int jugadorLocal();
                    
 };
 
+
+int Bomberman :: jugadorLocal()
+{
+    /*
+    
+    //get ipServidor
+    
+    system( "ifconfig -a | grep inet | "
+          "sed 's/\\([ ]*[^ ]*\\)\\([ ]*[^ ]*\\).*$/\\1 \\2/' "
+          " > address.txt" ) ;
+    
+    ipServidor != "localhost" && ipServidor != "127.0.0.1" ) // me falta configurar el caso de que sea mi ip real
+          
+    */
+    return 1;
+}
 
 // Carga la configuracion del archivo de configuracion en el objeto 
 // e inicializa el entorno y la conexion con sus valores correspondientes
@@ -129,7 +149,18 @@ Bomberman :: Bomberman()
      
     configuracion.close();
     
-    conexionExitosa = connectionCliente.Connect( ipServidor , puerto );
+
+    
+    if( ! this -> jugadorLocal() )  
+    {
+            conexionExitosa = connectionCliente.Connect( ipServidor , puerto );
+    }
+    else
+    {
+            memCompartida.CargarMemCompartida( CLIENTE );
+            memCompartida.conectarce();
+            conexionExitosa = 1;
+    }
 
     
     if ( conexionExitosa <= -1 )
@@ -155,7 +186,11 @@ void Bomberman :: finalizarBomberman( void )
 {
     this->enviarSolicitud(-1);
     entornoCliente.finalizarPantalla();
-    connectionCliente.Close();
+    
+    if( ! this -> jugadorLocal() )
+        connectionCliente.Close();
+    else
+        memCompartida.eliminarMemoriaCompartida();
    
 }
 
@@ -213,8 +248,10 @@ void Bomberman :: recibirAccion(t_protocolo * accion, size_t tam  )
 {
     
     // aca va el recv de tipo protocolo
-    
-   connectionCliente.Recv( (char*) accion, tam );
+    if ( ! this->jugadorLocal() )
+            connectionCliente.Recv( (char*) accion, tam );
+    else
+            memCompartida.recibirDeServidor( *accion );
     
             
 }
@@ -248,8 +285,10 @@ void  Bomberman :: enviarSolicitud ( int teclaPresionada )
         solicitud.posicion = 0 ;
 
         //send de tipo protocolo
-
-        connectionCliente.Send( (char*) &solicitud, sizeof(t_protocolo) );
+        if ( ! this->jugadorLocal() )
+            connectionCliente.Send( (char*) &solicitud, sizeof(t_protocolo) );
+        else
+            memCompartida.enviarAServidor( solicitud );
         
     
 }
