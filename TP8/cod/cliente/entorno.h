@@ -17,6 +17,7 @@ class Entorno
          int startx, starty , filas , columnas;     // datos necesarios para iniciar la pantalla, como filas columnas, y posicion de inicio del cursor
          Escenario * escenarioActual;               // puntero al escenario desde donde deben levantarce los datos de la pantalla
          int idJugador;
+         
     public:
         
          Entorno();
