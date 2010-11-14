@@ -156,8 +156,6 @@ int main(int argc, const char *argv[]) {
 
     while(1){
 
-    	pthread_cond_broadcast(&JugLocalCond);
-
     	pthread_cond_wait(&TimeOutEndCond, &TimeOutEndMutex);
 
 		cout << "Creando nueva partida..." << endl;
@@ -229,6 +227,8 @@ int main(int argc, const char *argv[]) {
 			cout << "Creando thread de time out..................";
 			pthread_create(&timeOutThread, NULL, timeOut, NULL );
 			cout << "[OK]" << endl;
+
+			pthread_cond_broadcast(&JugLocalCond);
 		}
 
     }
@@ -274,8 +274,6 @@ void * nuevoJugadorLocal(void * args){
 
 	while ( 1 ) {
 
-		pthread_cond_wait(&JugLocalCond, &JugLocalMutex);
-
 		cout << "Esperando Jugador Local..." << endl;
 
 		Jugador * player = Servidor.esperarJugadorLocal();
@@ -296,6 +294,7 @@ void * nuevoJugadorLocal(void * args){
 			cout << "Conectado espectador local " << numJugador << endl;
 		}
 
+		pthread_cond_wait(&JugLocalCond, &JugLocalMutex);
 
 	}
 

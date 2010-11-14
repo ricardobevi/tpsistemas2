@@ -182,7 +182,6 @@ Jugador * Bomberman::esperarJugadorLocal(){
 	MemC = new MemCompartida(SERVIDOR);
 
 	MemC->esperarUsuario();
-	MemC->conectarce();
 
 	Jugador * Player = new JugadorLocal(-1,
 										 this->VidaInicial,
