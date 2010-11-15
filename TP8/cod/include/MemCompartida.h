@@ -21,9 +21,14 @@ class MemCompartida
 
         t_protocolo * MemoriaSAC , //memoria de servidor a cliente
                     * MemoriaCAS;  //memoria de cliente a servidor
+                   
+                   
+        int IdMemSac ,IdMemCas;
 
-
+        key_t claveMemCas, claveMemSac;
+        
         Semaforo semaforos;
+        
         int tipoDeAplicacion;
 
     public:
@@ -42,7 +47,7 @@ class MemCompartida
         void recibirDeServidor( t_protocolo& datoAServidor);
         void recibirDeCliente ( t_protocolo& datoACliente );
 
-        int eliminarMemoriaCompartida();
+        int eliminarMemoriaCompartida( int tipoDeAplicacion );
 
 
 };

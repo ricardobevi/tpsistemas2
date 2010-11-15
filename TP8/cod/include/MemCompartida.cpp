@@ -15,53 +15,62 @@ MemCompartida :: MemCompartida()
 
 void  MemCompartida :: CargarMemCompartida(int tipoDeAplicacion)
 {
+
     this -> tipoDeAplicacion =  tipoDeAplicacion ;
 
-    int shSAC ,shCAS, retornoSemaforo ;
+    int  retornoSemaforo ;
+    
     key_t claveSemaforo = ftok( PATH_KEY , SEM_KEY );
-    key_t claveMemCas   = ftok( PATH_KEY , MEM_CAS_KEY );
-    key_t claveMemSac   = ftok( PATH_KEY , MEM_SAC_KEY );
+    
+    claveMemCas   = ftok( PATH_KEY , MEM_CAS_KEY );
+    claveMemSac   = ftok( PATH_KEY , MEM_SAC_KEY );
 
 
     // tomando el parametro enviado diferencia entre servidor y cliente:
     //  *servidor: crea los semaforos y la memoria compartida
     //  *cliente: asigna y mapea lo creado por el servidor, mas no crea nada por si solo
+        
         if( tipoDeAplicacion == SERVIDOR )
-        {
-            retornoSemaforo = semaforos.crearSemaforo( claveSemaforo , CANT_SEM);
-
-
-            shSAC = shmget( claveMemSac, sizeof (t_protocolo) , IPC_CREAT  | 0660 );
-            shCAS = shmget( claveMemCas, sizeof (t_protocolo) , IPC_CREAT  | 0660 );
-
-            semaforos.V(SERVIDOR_ACTIVO);
-
-        }
+             retornoSemaforo = semaforos.crearSemaforo( claveSemaforo , CANT_SEM);
+        
         else //CLIENTE
+            
+            retornoSemaforo = semaforos.mapearSemaforo( claveSemaforo , CANT_SEM);
+            
+        
+        
+        if (  retornoSemaforo == -1 )
         {
-
-            retornoSemaforo = semaforos.mapearSemaforo( claveSemaforo , CANT_SEM );
-            semaforos.P(SERVIDOR_ACTIVO);
-
-            shSAC = shmget( claveMemSac, sizeof (t_protocolo) , 0660 );
-            shCAS = shmget( claveMemCas, sizeof (t_protocolo) , 0660 );
-
+                perror("MemCompartida.h: MemCompartida ( int tipoDeAplicacion ) : Semaforo :");
+                exit(1);
         }
-
-
-
+        else
+        {
+                if( tipoDeAplicacion == SERVIDOR )
+                {
+                        IdMemSac = shmget( claveMemSac, sizeof (t_protocolo) , IPC_CREAT  | 0666 );
+                        IdMemCas = shmget( claveMemCas, sizeof (t_protocolo) , IPC_CREAT  | 0666 );
+                }
+                else
+                {
+                        IdMemSac = shmget( claveMemSac, sizeof (t_protocolo) , 0666 );
+                        IdMemCas = shmget( claveMemCas, sizeof (t_protocolo) , 0666 );
+                }
+            
+            
+        }
+            
     // si se produjo algun tipo de error, cierro correctamente la memoria y los semaforos informando dicho error
     // sino mapeo las memorias compartidas para utilizarlas
-    if ( shSAC == - 1 || shCAS ==  -1 || retornoSemaforo == -1 )
+    if ( IdMemSac == - 1 || IdMemCas ==  -1 )
     {
-                perror("MemCompartida.h: MemCompartida ( int tipoDeAplicacion ) :");
-                this -> eliminarMemoriaCompartida();
+                perror("MemCompartida.h: MemCompartida ( int tipoDeAplicacion ) : Memoria :");
 
     }
     else
     {
-                MemoriaSAC = (t_protocolo * ) shmat (shSAC,NULL , 0);
-                MemoriaCAS = (t_protocolo * ) shmat (shCAS,NULL , 0);
+                MemoriaSAC = (t_protocolo * ) shmat ( IdMemSac ,NULL , 0);
+                MemoriaCAS = (t_protocolo * ) shmat ( IdMemCas ,NULL , 0);
     }
 
 
@@ -73,51 +82,59 @@ MemCompartida :: MemCompartida( int tipoDeAplicacion )
 
     this -> tipoDeAplicacion =  tipoDeAplicacion ;
 
-    int shSAC ,shCAS, retornoSemaforo ;
+    int  retornoSemaforo ;
+    
     key_t claveSemaforo = ftok( PATH_KEY , SEM_KEY );
-    key_t claveMemCas   = ftok( PATH_KEY , MEM_CAS_KEY );
-    key_t claveMemSac   = ftok( PATH_KEY , MEM_SAC_KEY );
+    
+    claveMemCas   = ftok( PATH_KEY , MEM_CAS_KEY );
+    claveMemSac   = ftok( PATH_KEY , MEM_SAC_KEY );
 
 
     // tomando el parametro enviado diferencia entre servidor y cliente:
     //  *servidor: crea los semaforos y la memoria compartida
     //  *cliente: asigna y mapea lo creado por el servidor, mas no crea nada por si solo
+        
         if( tipoDeAplicacion == SERVIDOR )
-        {
-            retornoSemaforo = semaforos.crearSemaforo( claveSemaforo , CANT_SEM);
-
-
-            shSAC = shmget( claveMemSac, sizeof (t_protocolo) , IPC_CREAT  | 0660 );
-            shCAS = shmget( claveMemCas, sizeof (t_protocolo) , IPC_CREAT  | 0660 );
-
-            semaforos.V(SERVIDOR_ACTIVO);
-
-        }
+             retornoSemaforo = semaforos.crearSemaforo( claveSemaforo , CANT_SEM);
+        
         else //CLIENTE
+            
+            retornoSemaforo = semaforos.mapearSemaforo( claveSemaforo , CANT_SEM);
+            
+        
+        
+        if (  retornoSemaforo == -1 )
         {
-
-            retornoSemaforo = semaforos.mapearSemaforo( claveSemaforo , CANT_SEM );
-            semaforos.P(SERVIDOR_ACTIVO);
-
-            shSAC = shmget( claveMemSac, sizeof (t_protocolo) , 0660 );
-            shCAS = shmget( claveMemCas, sizeof (t_protocolo) , 0660 );
-
+                perror("MemCompartida.h: MemCompartida ( int tipoDeAplicacion ) : Semaforo :");
+                exit(1);
         }
-
-
-
+        else
+        {
+                if( tipoDeAplicacion == SERVIDOR )
+                {
+                        IdMemSac = shmget( claveMemSac, sizeof (t_protocolo) , IPC_CREAT  | 0666 );
+                        IdMemCas = shmget( claveMemCas, sizeof (t_protocolo) , IPC_CREAT  | 0666 );
+                }
+                else
+                {
+                        IdMemSac = shmget( claveMemSac, sizeof (t_protocolo) , 0666 );
+                        IdMemCas = shmget( claveMemCas, sizeof (t_protocolo) , 0666 );
+                }
+            
+            
+        }
+            
     // si se produjo algun tipo de error, cierro correctamente la memoria y los semaforos informando dicho error
     // sino mapeo las memorias compartidas para utilizarlas
-    if ( shSAC == - 1 || shCAS ==  -1 || retornoSemaforo == -1 )
+    if ( IdMemSac == - 1 || IdMemCas ==  -1 )
     {
-                perror("MemCompartida.h: MemCompartida ( int tipoDeAplicacion ) :");
-                this -> eliminarMemoriaCompartida();
+                perror("MemCompartida.h: MemCompartida ( int tipoDeAplicacion ) : Memoria :");
 
     }
     else
     {
-                MemoriaSAC = (t_protocolo * ) shmat (shSAC,NULL , 0);
-                MemoriaCAS = (t_protocolo * ) shmat (shCAS,NULL , 0);
+                MemoriaSAC = (t_protocolo * ) shmat ( IdMemSac ,NULL , 0);
+                MemoriaCAS = (t_protocolo * ) shmat ( IdMemCas ,NULL , 0);
     }
 
 
@@ -126,7 +143,6 @@ MemCompartida :: MemCompartida( int tipoDeAplicacion )
 // destructor de memoria compartida
 MemCompartida :: ~MemCompartida()
 {
-    this -> eliminarMemoriaCompartida();
 }
 
 
@@ -144,7 +160,6 @@ int MemCompartida :: esperarUsuario()
     if( semaforos.P( S_INICIO_SERV )  == -1)
     {
         cout << endl << "Error al iniciar el servidor";
-        this -> eliminarMemoriaCompartida();
         return -1;
     }
     //else
@@ -154,7 +169,6 @@ int MemCompartida :: esperarUsuario()
     if ( semaforos.V( S_INICIO_CLI ) == -1 )
     {
         cout << endl << "Error al iniciar el servidor";
-        this -> eliminarMemoriaCompartida();
         return -1;
     }
 
@@ -165,7 +179,6 @@ int MemCompartida :: esperarUsuario()
      if( semaforos.V( S_BLOCK_CLI_CAS )  == -1)
      {
         cout << endl << "Error al habilitar el CAS cliente";
-        this -> eliminarMemoriaCompartida();
         return -1;
      }
      //else
@@ -192,7 +205,6 @@ int  MemCompartida :: conectarce()
     if( semaforos.V( S_INICIO_SERV ) == -1 )
     {
         cout << endl << "Error al conectarce";
-        this -> eliminarMemoriaCompartida();
         return -1;
     }
 
@@ -204,7 +216,6 @@ int  MemCompartida :: conectarce()
     if( semaforos.P( S_INICIO_CLI ) == -1 )
     {
         cout << endl << "Error al iniciar cliente ";
-        this -> eliminarMemoriaCompartida();
         return -1;
     }
     //else
@@ -216,7 +227,6 @@ int  MemCompartida :: conectarce()
      if(  semaforos.V( S_BLOCK_SERV_SAC )  == -1)
      {
         cout << endl << "Error al habilitar el SAC servidor";
-        this -> eliminarMemoriaCompartida();
         return -1;
      }
      //else
@@ -279,48 +289,57 @@ void MemCompartida :: recibirDeCliente( t_protocolo& datoACliente)
 
 
 //metodo que elimina de forma limpia los semaforos y memorias compartidas
-int MemCompartida :: eliminarMemoriaCompartida()
+int MemCompartida :: eliminarMemoriaCompartida( int tipoDeAplicacion )
 {
-    /*
-    // esto tira errores y nose exactamente porque
-    if ( semaforos.rmSem() == -1 )
-    {
-        perror("MemCompartida.h: eliminarMemoriaCompartida() : rmSem() : ");
-        return -1;
-    }
-    */
-
-    shmdt(MemoriaCAS);
-    shmdt(MemoriaSAC);
-
+     int exito = 1;
+        
+     if ( shmdt(MemoriaCAS) == -1  ) 
+     {
+            perror("MemCompartida.h: shmdt() : MemCas: ");  
+            exito = -1;
+     }
+    
+    
+     if ( shmdt(MemoriaSAC) == -1 ) 
+     {
+            perror("MemCompartida.h: shmdt() : MemSac: ");   
+            exito = -1;
+     }
+    
 
 
     if (tipoDeAplicacion == SERVIDOR )
     {
-        key_t claveMemCas   = ftok( PATH_KEY , MEM_CAS_KEY );
-        key_t claveMemSac   = ftok( PATH_KEY , MEM_SAC_KEY );
-
-        shmctl(claveMemSac,IPC_RMID,0) ;
-        shmctl(claveMemCas,IPC_RMID,0) ;
-
-        /*
-
-        // esto tira errores y nose exactamente porque
-
-        if ( shmctl(claveMemSac,IPC_RMID,0)  == -1 )
+        
+        semaforos.P( S_CLIENTE_INACTIVO);
+        
+        if ( shmctl( IdMemSac , IPC_RMID , (struct shmid_ds *)NULL)  == -1 )
         {
             perror("MemCompartida.h: eliminarMemoriaCompartida() : MemSac : ");
-            return -1;
+            exito = -1;
         }
+        
 
-        if ( shmctl(claveMemCas,IPC_RMID,0)   == -1 )
+        if ( shmctl( IdMemCas , IPC_RMID ,(struct shmid_ds *)NULL)   == -1 )
         {
             perror("MemCompartida.h: eliminarMemoriaCompartida() : MemCas : ");
-            return -1;
+            exito = -1;
         }
-        */
-
+       
+       
+        if ( semaforos.rmSem() ) 
+        {
+            perror("MemCompartida.h: eliminarMemoriaCompartida() : semaforos.rmSem : ");
+            exito = -1;
+        }
+        
+        
     }
-
-    return 1;
+    else
+    {    
+        semaforos.V( S_CLIENTE_INACTIVO); 
+    }
+    
+    
+    return exito;
 }
