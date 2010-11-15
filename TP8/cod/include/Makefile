@@ -1,19 +1,21 @@
-todo: cli serv
+cli: cli.o  MemCompartida.o Semaforo.o serv
+	g++ -Wall -lpthread -lncurses -ggdb -o cli cli.o MemCompartida.o Semaforo.o
 
-cli: cli.o Semaforo.o MemCompartida.o
-	g++ -Wall -o cli cli.o Semaforo.o MemCompartida.o
+cliente.o: cli.cpp 
+	g++ -Wall -lpthread -lncurses -ggdb -c -o cliente.o cliente.cpp
 
-serv: serv.o Semaforo.o MemCompartida.o
-	g++ -Wall -o serv serv.o Semaforo.o MemCompartida.o
+MemCompartida.o: MemCompartida.cpp MemCompartida.h
+	g++ -Wall -ggdb -lpthread -c -o MemCompartida.o MemCompartida.cpp
 
-cli.o: cli.cpp
-	g++ -Wall -c -o cli.o cli.cpp
+Semaforo.o:Semaforo.cpp Semaforo.h
+	g++ -Wall -ggdb -lpthread -c -o Semaforo.o Semaforo.cpp
+
+serv: serv.o 
+	g++ -Wall -lpthread -lncurses -ggdb -o serv serv.o MemCompartida.o Semaforo.o 
 	
 serv.o: serv.cpp
-	g++ -Wall -c -o serv.o serv.cpp
+	g++ -Wall -lpthread -lncurses -ggdb -c -o serv.o serv.cpp
 
-Semaforo.o: Semaforo.h Semaforo.cpp
-	g++ -Wall -c -o Semaforo.o Semaforo.cpp
-
-MemCompartida.o: MemCompartida.h MemCompartida.cpp
-	g++ -Wall -c -o MemCompartida.o MemCompartida.cpp
+clean:
+	rm cli.o MemCompartida.o Semaforo.o serv.o ./cli ./serv
+	

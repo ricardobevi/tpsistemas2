@@ -8,16 +8,16 @@
 #include "Semaforo.h"
 
 // constructor de clase que no realiza accion alguna
- Semaforo :: Semaforo( )
- {
+Semaforo :: Semaforo( )
+{
 
- }
+}
 
 
 // destructor del semaforo
 Semaforo ::~Semaforo( )
 {
-     this -> rmSem();
+    //this -> rmSem();
 }
 
 
@@ -27,9 +27,10 @@ int Semaforo :: crearSemaforo( int clave , int cantSem )
 {
     this -> cantSem = cantSem;
 
-    semId = semget( clave, cantSem, IPC_CREAT | 0660 );
 
+    semId = semget( clave, cantSem, IPC_CREAT | IPC_EXCL | 0660 );
 
+    
     if (semId == -1 )
     {
         perror("semaforo.h:  crearSemaforo( int clave , int cantSem ):");
@@ -40,12 +41,13 @@ int Semaforo :: crearSemaforo( int clave , int cantSem )
 
 }
 
+
 //  metodo para cliente: mapea los semaforos en memoria para poder utilizarlos
-int Semaforo :: mapearSemaforo( int clave , int cantSem)
+int Semaforo :: mapearSemaforo(key_t clave , int cantSem)
 {
     this -> cantSem = cantSem;
 
-    semId = semget( clave, cantSem,  IPC_CREAT | 0660 );
+    semId = semget( clave, cantSem,  0660 );
 
     if (semId == -1 )
     {
@@ -68,7 +70,7 @@ int Semaforo :: P( unsigned short semNum )
     opSem.sem_op = -1;
     opSem.sem_flg = 0;
 
-    if ( semop(semId, &opSem, 1) == -1){
+    if ( semop(semId, &opSem, ( unsigned ) 1) == -1){
         perror("semaforo.h: P: semop");
         this -> rmSem();
         return -1;
@@ -87,7 +89,7 @@ int Semaforo :: V( unsigned short semNum )
     opSem.sem_op = 1;
     opSem.sem_flg = 0;
 
-    if ( semop(semId, &opSem, 1) == -1){
+    if ( semop(semId, &opSem, ( unsigned )  1) == -1){
         perror("semaforo.h: V: semop");
         this -> rmSem();
         return -1;
@@ -103,8 +105,6 @@ int Semaforo :: setSem( int  semNum, int semVal )
 
     union semun argumento;
     argumento.val = semVal;
-
-
 
     if ( semctl( semId , semNum, SETVAL, argumento) == -1  )
     {
