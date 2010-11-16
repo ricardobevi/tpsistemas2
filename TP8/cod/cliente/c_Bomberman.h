@@ -69,18 +69,35 @@ class Bomberman
 
 int Bomberman :: jugadorLocal()
 {
-    /*
-    
-    //get ipServidor
-    
-    system( "ifconfig -a | grep inet | "
-          "sed 's/\\([ ]*[^ ]*\\)\\([ ]*[^ ]*\\).*$/\\1 \\2/' "
-          " > address.txt" ) ;
-    
-    ipServidor != "localhost" && ipServidor != "127.0.0.1" ) // me falta configurar el caso de que sea mi ip real
-          
-    */
-    return 1;
+    bool local = false;
+
+    char hostname[128];
+    struct hostent *he;
+    struct in_addr **addrs;
+
+    for(int i = 0; this->ipServidor[i] != '\0'; i++){
+        this->ipServidor[i] = tolower(this->ipServidor[i]);
+    }
+
+    gethostname(hostname, sizeof hostname);
+
+    string hname(hostname);
+
+    hname += ".local";
+
+    he = gethostbyname( hname.c_str() );
+
+    addrs = (struct in_addr **) he->h_addr_list;
+
+    //cout << "Host = " << this->ipServidor << endl;
+
+    if ( this->ipServidor == "localhost" ||
+         this->ipServidor == "127.0.0.1" ||
+         this->ipServidor == hostname    ||
+         this->ipServidor == inet_ntoa(*addrs[0]) )
+        local = true;
+
+    return local;
 }
 
 // Carga la configuracion del archivo de configuracion en el objeto 
@@ -99,57 +116,120 @@ Bomberman :: Bomberman()
         exit(1);
     }
 
-    configuracion >> ipServidor ;
-    configuracion >> puerto;
-    configuracion >> timeOut;
-    
-    
-    string  arch_tecla_arriba,
-            arch_tecla_abajo,
-            arch_tecla_izquierda,
-            arch_tecla_derecha,
-            arch_tecla_bomba;
-    
-    
-    configuracion >> arch_tecla_arriba;
-    if ( arch_tecla_arriba ==  "flecha_arr" )
-        tecla_arriba = KEY_UP;
-    else
-        tecla_arriba =  ( int ) *arch_tecla_arriba.c_str();  
-    
-    
-    
-    configuracion >> arch_tecla_abajo;
-     if ( arch_tecla_abajo ==  "flecha_aba" )
-         tecla_abajo = KEY_DOWN;
-     else
-         tecla_abajo =  ( int ) *arch_tecla_abajo.c_str();
-     
-     
-    configuracion >> arch_tecla_izquierda;
-     if ( arch_tecla_izquierda ==  "flecha_izq" )
-         tecla_izquierda =  KEY_LEFT;
-     else
-         tecla_izquierda = ( int ) * arch_tecla_izquierda.c_str();
-      
-     
-    configuracion >> arch_tecla_derecha;
-     if ( arch_tecla_derecha ==  "flecha_der" )
-         tecla_derecha =  KEY_RIGHT;
-     else
-         tecla_derecha =  ( int ) * arch_tecla_derecha.c_str();
-         
-     
-     configuracion >> arch_tecla_bomba;
-     if (  arch_tecla_bomba ==  "espacio" )
-            tecla_bomba = ' ' ;
-     else
-            tecla_bomba = ( int ) * arch_tecla_bomba.c_str();
-     
-     
-    configuracion.close();
-    
 
+/* Ejemplo de archivo:
+
+    Ip_Servidor localhost
+    Puerto 60001
+    TimeOut_Cliente 20
+    tecla_arriba w
+    tecla_abajo s
+    tecla_izquierda a
+    tecla_derecha  d
+    tecla_bomba espacio
+    FIN_CONFIGURACION 8
+
+*/
+    string  parametro,
+            valor;
+            
+    int cantParametros = 0;
+    
+   
+    configuracion >> parametro;
+    configuracion >> valor;
+    
+    while ( parametro != "FIN_CONFIGURACION")
+    {
+        
+        if (   parametro == "Ip_Servidor" )
+        {
+             ipServidor =  valor ;
+             
+        }
+
+        else if ( parametro == "Puerto" )
+        {
+             puerto =  atoi (valor.c_str() ) ;
+             
+        }
+
+        else if (  parametro == "TimeOut_Cliente" )
+        {
+             timeOut =  atoi (valor.c_str() ) ;   
+        }
+        
+        else if (  parametro == "tecla_arriba" )
+        {
+            
+            if ( valor ==  "flecha_arr" )
+                tecla_arriba = KEY_UP;
+            else
+                tecla_arriba =  ( int ) *valor.c_str();  
+             
+        }
+        else if (  parametro == "tecla_abajo" )
+        {
+            
+                if ( valor ==  "flecha_aba" )
+                    tecla_abajo = KEY_DOWN;
+                else
+                    tecla_abajo =  ( int ) *valor.c_str();
+                
+        }
+        
+        else if (  parametro == "tecla_izquierda" )
+        {
+                 if ( valor ==  "flecha_izq" )
+                    tecla_izquierda =  KEY_LEFT;
+                else
+                    tecla_izquierda = ( int ) * valor.c_str();
+             
+        }
+        
+        else if (  parametro == "tecla_derecha" )
+        {
+                if ( valor ==  "flecha_der" )
+                    tecla_derecha =  KEY_RIGHT;
+                else
+                    tecla_derecha =  ( int ) * valor.c_str();
+             
+        }
+        
+                  
+        else if (  parametro == "tecla_bomba" )
+        {
+              
+                if (  valor ==  "espacio" )
+                        tecla_bomba = ' ' ;
+                else
+                        tecla_bomba = ( int ) * valor.c_str();
+                
+
+        }
+       
+        else
+        {
+            cout<< endl << "ERROR: error en el formato del archivo de configuracion" << endl;
+            getch();
+            exit(1);
+        }
+        
+        cantParametros++;
+        configuracion >> parametro;
+        configuracion >> valor;
+        
+    }
+    
+    
+    if( cantParametros != atoi ( valor.c_str() ) )
+    {
+            cout<< endl << "ERROR: error en la cantidad de parametros del archivo de configuracion" << endl;
+            getch();
+            exit(1);
+    }
+
+    configuracion.close();
     
     if( ! this -> jugadorLocal() )  
     {
@@ -158,8 +238,13 @@ Bomberman :: Bomberman()
     else
     {
             memCompartida.CargarMemCompartida( CLIENTE );
-            memCompartida.conectarce();
-            conexionExitosa = 1;
+            
+            if ( memCompartida.conectarce() == -1 )
+            {
+                 conexionExitosa = -1;
+            }
+            else
+                 conexionExitosa = 1;
     }
 
     
@@ -187,10 +272,10 @@ void Bomberman :: finalizarBomberman( void )
     this->enviarSolicitud(-1);
     entornoCliente.finalizarPantalla();
     
+    connectionCliente.Close();
+     
     if( ! this -> jugadorLocal() )
-        connectionCliente.Close();
-    else
-        memCompartida.eliminarMemoriaCompartida();
+        memCompartida.eliminarMemoriaCompartida( CLIENTE );
    
 }
 

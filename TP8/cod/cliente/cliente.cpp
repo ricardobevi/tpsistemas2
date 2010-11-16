@@ -55,6 +55,13 @@ void finalizarCliente(int iNumSen, siginfo_t  * info, void *ni)
     {
         cout << endl  << endl <<"ERROR: Fallo la conexion al socket" << endl << " El servidor no esta activo o termino abruptamente. "  << endl;
     }
+    
+     
+    if (iNumSen == SIGUSR1)
+    {
+        cout << endl  << endl <<"ERROR: Fallo la comunicacion al segmento de memoria compartida" << endl << " El servidor no esta activo o termino abruptamente. "  << endl;
+    }
+    
     cout << endl << "El cliente ha finalizado" << endl << endl ;
     exit (0);
 }
@@ -75,6 +82,7 @@ int main(int argc, const char *argv[]){
     sigaction(SIGQUIT , &term, NULL);
     sigaction(SIGABRT , &term, NULL);
     sigaction(SIGSEGV , &term, NULL);    
+    sigaction(SIGUSR1 , &term, NULL);   
 
     srand(unsigned(time(NULL)));
            
