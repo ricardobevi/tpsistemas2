@@ -197,6 +197,6 @@ bool JugadorLocal::isClosed() {
 }
 
 void JugadorLocal::Close() {
-	this->MemC->eliminarMemoriaCompartida();
+	this->MemC->eliminarMemoriaCompartida( SERVIDOR );
     Closed = true;
 }
