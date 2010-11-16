@@ -244,7 +244,10 @@ Bomberman :: Bomberman()
                  conexionExitosa = -1;
             }
             else
+            {
+                 memCompartida.obtenerPid( CLIENTE );
                  conexionExitosa = 1;
+            }
     }
 
     
