@@ -16,7 +16,8 @@ MemCompartida :: MemCompartida()
 
 void  MemCompartida :: CargarMemCompartida(int tipoDeAplicacion)
 {
-
+    Activo = true;
+    
     this -> tipoDeAplicacion =  tipoDeAplicacion ;
 
     int  retornoSemaforo ;
@@ -81,6 +82,8 @@ void  MemCompartida :: CargarMemCompartida(int tipoDeAplicacion)
 MemCompartida :: MemCompartida( int tipoDeAplicacion )
 {
 
+    Activo = true;
+    
     this -> tipoDeAplicacion =  tipoDeAplicacion ;
 
     int  retornoSemaforo ;
@@ -186,7 +189,7 @@ int MemCompartida :: esperarUsuario()
      //        cout << endl << "Exito al habilitar el CAS cliente";
      
         
-     this -> obtenerPid( SERVIDOR );
+     //this -> obtenerPid( SERVIDOR );
      
      return 1;
 
@@ -238,7 +241,7 @@ int  MemCompartida :: conectarce()
      //       cout << endl << "Exito al habilitar el SAC servidor";
      
      
-     this -> obtenerPid( CLIENTE );
+    // this -> obtenerPid( CLIENTE );
      
      return 1;
 }
@@ -336,48 +339,59 @@ int MemCompartida :: obtenerPid( int tipoDeAplicacion ){
 //metodo que elimina de forma limpia los semaforos y memorias compartidas
 int MemCompartida :: eliminarMemoriaCompartida( int tipoDeAplicacion )
 {
-     int exito = 1;
-        
-     if ( shmdt(MemoriaCAS) == -1  ) 
-     {
-            perror("MemCompartida.h: shmdt() : MemCas: ");  
-            exito = -1;
-     }
-    
-    
-     if ( shmdt(MemoriaSAC) == -1 ) 
-     {
-            perror("MemCompartida.h: shmdt() : MemSac: ");   
-            exito = -1;
-     }
-    
-
+     int exito = 1;  
 
     if (tipoDeAplicacion == SERVIDOR )
     {
-        
-        semaforos.P(CLIENTE_INACTIVO);
-        
-        
-        if ( semaforos.rmSem() == -1 ) 
-        {
-            perror("MemCompartida.h: eliminarMemoriaCompartida() : semaforos.rmSem : ");
-            exito = -1;
-        }
-        
+             if ( Activo == true  )
+            {
+                
+                    kill( pidDestino ,  SIGUSR1 );
+                    
+                    semaforos.P(CLIENTE_INACTIVO);
+                    
+                    if ( semaforos.rmSem() == -1 ) 
+                    {
+                        perror("MemCompartida.h: eliminarMemoriaCompartida() : semaforos.rmSem : ");
+                        exito = -1;
+                    }
+                    
+                    
+                    if ( shmdt(MemoriaCAS) == -1  ) 
+                    {
+                            perror("MemCompartida.h: shmdt() : MemCas: ");  
+                            exito = -1;
+                    }
+                    
+                    
+                    if ( shmdt(MemoriaSAC) == -1 ) 
+                    {
+                            perror("MemCompartida.h: shmdt() : MemSac: ");   
+                            exito = -1;
+                    }
+                    
+                    sleep(1);
 
-        if ( shmctl( IdMemSac , IPC_RMID , (struct shmid_ds *)NULL)  == -1 )
-        {
-            perror("MemCompartida.h: eliminarMemoriaCompartida() : MemSac : ");
-            exito = -1;
-        }
-        
+                    if ( shmctl( IdMemSac , IPC_RMID , (struct shmid_ds *)NULL)  == -1 )
+                    {
+                        perror("MemCompartida.h: eliminarMemoriaCompartida() : MemSac : ");
+                        exito = -1;
+                    }
+                    
 
-        if ( shmctl( IdMemCas , IPC_RMID ,(struct shmid_ds *)NULL)   == -1 )
-        {
-            perror("MemCompartida.h: eliminarMemoriaCompartida() : MemCas : ");
-            exito = -1;
-        }
+                    if ( shmctl( IdMemCas , IPC_RMID ,(struct shmid_ds *)NULL)   == -1 )
+                    {
+                        perror("MemCompartida.h: eliminarMemoriaCompartida() : MemCas : ");
+                        exito = -1;
+                    }
+                    
+                    
+
+                   
+                    
+                    Activo = false;
+            }
+       
        
        
 
@@ -385,11 +399,32 @@ int MemCompartida :: eliminarMemoriaCompartida( int tipoDeAplicacion )
     }
     else
     {    
-        semaforos.V(CLIENTE_INACTIVO); 
+        if  ( Activo == true )
+        {
+            if ( shmdt(MemoriaCAS) == -1  ) 
+            {
+                    perror("MemCompartida.h: shmdt() : MemCas: ");  
+                    exito = -1;
+            }
+            
+            
+            if ( shmdt(MemoriaSAC) == -1 ) 
+            {
+                    perror("MemCompartida.h: shmdt() : MemSac: ");   
+                    exito = -1;
+            }
+            
+            semaforos.V(CLIENTE_INACTIVO); 
+            
+            Activo = false;
+            
+            kill( pidDestino ,  SIGUSR1 );
+            
+        }
     }
     
     
-    kill( pidDestino ,  SIGUSR1 );
+    
     
     return exito;
 }

@@ -28,7 +28,7 @@ int Semaforo :: crearSemaforo( int clave , int cantSem )
     this -> cantSem = cantSem;
 
 
-    semId = semget( clave, cantSem, IPC_CREAT | IPC_EXCL | 0660 );
+    semId = semget( clave, cantSem, IPC_CREAT | 0660 );
 
     
     if (semId == -1 )
