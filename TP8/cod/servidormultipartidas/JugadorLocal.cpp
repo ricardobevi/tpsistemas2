@@ -36,69 +36,6 @@ JugadorLocal::~JugadorLocal() {
     // TODO Auto-generated destructor stub
 }
 
-int JugadorLocal::getVida() {
-    return this->Vida;
-}
-
-int JugadorLocal::sumarVida() {
-    return ++this->Vida;
-}
-
-int JugadorLocal::restarVida() {
-    return --this->Vida;
-}
-
-void JugadorLocal::sumarVelocidad() {
-    this->Velocidad++;
-}
-
-int JugadorLocal::getVelocidad() {
-    return this->Velocidad;
-}
-
-void JugadorLocal::sumarBombMax() {
-    this->BombasMax++;
-}
-
-void JugadorLocal::sumarTipoBomba() {
-    this->TipoBomba++;
-}
-
-Coordenada JugadorLocal::moverArriba() {
-    Posicion.set_y(Posicion.get_y() - 1);
-    return this->Posicion;
-}
-
-Coordenada JugadorLocal::moverAbajo() {
-    Posicion.set_y(Posicion.get_y() + 1);
-    return this->Posicion;
-}
-
-Coordenada JugadorLocal::moverIzquierda() {
-    Posicion.set_x(Posicion.get_x() - 1);
-    return this->Posicion;
-}
-
-Coordenada JugadorLocal::moverDerecha() {
-    Posicion.set_x(Posicion.get_x() + 1);
-    return this->Posicion;
-}
-
-void JugadorLocal::setPosicion(Coordenada Posicion) {
-    this->Posicion = Posicion;
-}
-
-Coordenada JugadorLocal::getPosicion() {
-    return this->Posicion;
-}
-
-int JugadorLocal::getNumero() {
-    return Numero;
-}
-
-void JugadorLocal::setNumero( int num ){
-	this->Numero = num;
-}
 
 int JugadorLocal::send(t_protocolo data) {
 
@@ -152,51 +89,6 @@ t_protocolo JugadorLocal::recv() {
     return recibido;
 }
 
-bool JugadorLocal::puedePonerBomba() {
-    return (BombasColocadas < BombasMax);
-}
-
-Bomba JugadorLocal::ponerBomba(unsigned numBomba) {
-    Bomba bomb(Posicion, TipoBomba, Numero, numBomba);
-
-    this->BombasColocadas++;
-
-    return bomb;
-}
-
-void JugadorLocal::explotoBomba() {
-    this->BombasColocadas--;
-}
-
-void JugadorLocal::setEnvioEscenario(bool envio) {
-    this->EnvioEscenario = envio;
-}
-
-bool JugadorLocal::getEnvioEscenario() {
-    return this->EnvioEscenario;
-}
-
-void JugadorLocal::eliminar() {
-    this->Numero = (this->Numero + 1) * -1;
-}
-
-bool JugadorLocal::eliminado() {
-    return this->Numero < 0 ? true : false;
-}
-
-void JugadorLocal::setEspectador(bool espectador) {
-    this->Espectador = espectador;
-}
-
-bool JugadorLocal::isEspectador() {
-    return this->Espectador;
-}
-
-bool JugadorLocal::isClosed() {
-    return Closed;
-}
-
-void JugadorLocal::Close() {
-	this->MemC->eliminarMemoriaCompartida( SERVIDOR );
-    Closed = true;
+void JugadorLocal::Close(){
+	this->Closed = true;
 }

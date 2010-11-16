@@ -123,6 +123,8 @@ void Bomberman::activar(string archivoConfiguracion) {
         this->Socket->Listen();
     }
 
+    MemC.CargarMemCompartida( SERVIDOR );
+
     srand(unsigned(time(NULL)));
 
     for ( unsigned i = 0 ; i < X_MAX + 1 ; i++ )
@@ -192,14 +194,13 @@ Jugador * Bomberman::esperarJugadorRemoto(){
 }
 
 Jugador * Bomberman::esperarJugadorLocal(){
-	MemC = new MemCompartida(SERVIDOR);
 
-	MemC->esperarUsuario();
+	MemC.esperarUsuario();
 
 	Jugador * Player = new JugadorLocal(-1,
 										 this->VidaInicial,
 										 Coordenada(-1,-1),
-										 MemC,
+										 &MemC,
 										 0,
 										 MaxBombInicial,
 										 1);

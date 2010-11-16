@@ -38,70 +38,6 @@ JugadorAutomatico::JugadorAutomatico(unsigned (*Escenario)[10],
 JugadorAutomatico::~JugadorAutomatico() {
 }
 
-int JugadorAutomatico::getVida() {
-    return this->Vida;
-}
-
-int JugadorAutomatico::sumarVida() {
-    return ++this->Vida;
-}
-
-int JugadorAutomatico::restarVida() {
-    return --this->Vida;
-}
-
-void JugadorAutomatico::sumarVelocidad() {
-    this->Velocidad++;
-}
-
-int JugadorAutomatico::getVelocidad() {
-    return this->Velocidad;
-}
-
-void JugadorAutomatico::sumarBombMax() {
-    this->BombasMax++;
-}
-
-void JugadorAutomatico::sumarTipoBomba() {
-    this->TipoBomba++;
-}
-
-Coordenada JugadorAutomatico::moverArriba() {
-    Posicion.set_y(Posicion.get_y() - 1);
-    return this->Posicion;
-}
-
-Coordenada JugadorAutomatico::moverAbajo() {
-    Posicion.set_y(Posicion.get_y() + 1);
-    return this->Posicion;
-}
-
-Coordenada JugadorAutomatico::moverIzquierda() {
-    Posicion.set_x(Posicion.get_x() - 1);
-    return this->Posicion;
-}
-
-Coordenada JugadorAutomatico::moverDerecha() {
-    Posicion.set_x(Posicion.get_x() + 1);
-    return this->Posicion;
-}
-
-void JugadorAutomatico::setPosicion(Coordenada Posicion) {
-    this->Posicion = Posicion;
-}
-
-Coordenada JugadorAutomatico::getPosicion() {
-    return this->Posicion;
-}
-
-int JugadorAutomatico::getNumero() {
-    return Numero;
-}
-
-void JugadorAutomatico::setNumero( int num ){
-	this->Numero = num;
-}
-
 int JugadorAutomatico::send( t_protocolo data ){
     return 1;
 }
@@ -153,50 +89,6 @@ t_protocolo JugadorAutomatico::recv(){
 
 }
 
-bool JugadorAutomatico::puedePonerBomba() {
-    return (BombasColocadas < BombasMax);
-}
-
-Bomba JugadorAutomatico::ponerBomba(unsigned numBomba) {
-    Bomba bomb(Posicion, TipoBomba, Numero, numBomba);
-
-    this->BombasColocadas++;
-
-    return bomb;
-}
-
-void JugadorAutomatico::explotoBomba() {
-    this->BombasColocadas--;
-}
-
-void JugadorAutomatico::setEnvioEscenario(bool envio) {
-    this->EnvioEscenario = envio;
-}
-
-bool JugadorAutomatico::getEnvioEscenario() {
-    return this->EnvioEscenario;
-}
-
-void JugadorAutomatico::eliminar() {
-    this->Numero = (this->Numero + 1) * -1;
-}
-
-bool JugadorAutomatico::eliminado() {
-    return this->Numero < 0 ? true : false;
-}
-
-void JugadorAutomatico::setEspectador( bool espectador ){
-    this->Espectador = espectador;
-}
-
-bool JugadorAutomatico::isEspectador(){
-    return this->Espectador;
-}
-
-bool JugadorAutomatico::isClosed() {
-    return Closed;
-}
-
 void JugadorAutomatico::Close(){
-    Closed = true;
+	this->Closed = true;
 }
