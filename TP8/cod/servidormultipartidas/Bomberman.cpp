@@ -668,7 +668,7 @@ t_protocolo Bomberman::expirarExplosion() {
 t_protocolo Bomberman::recvFrom(unsigned jugador) {
     t_protocolo recibido = { 0, 0, -1, 0 };
     int vel = Jugadores[jugador]->getVelocidad();
-    //TODO: Ver los otros tipos de jugadores
+
     if ( this->PartidaIniciada ) {
         unsigned long int tiempoLectura;
 

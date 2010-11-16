@@ -426,11 +426,6 @@ void * sender(void * args) {
             
             Servidor.update(enviar);
 
-            if ( enviar.id == 'F' ){
-                end();
-                return NULL;
-            }
-
             pthread_mutex_lock(&QEnviarMutex);
             empty = QEnviar.empty();
             pthread_mutex_unlock(&QEnviarMutex);
@@ -628,11 +623,11 @@ void end(){
 
     cancelThreads();
 
-    cout << "Cerrando Sockets..." << endl;
+    cout << "Cerrando Sockets...";
     Servidor.Close();
     cout << "[OK]" << endl;
 
-    cout << "Cerrando Memoria Compartida..." << endl;
+    cout << "Cerrando Memoria Compartida...";
     Servidor.CloseMemC();
     cout << "[Ok]" << endl;
 
