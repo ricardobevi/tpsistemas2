@@ -11,16 +11,20 @@ Bomberman::Bomberman() {
     this->Socket = NULL;
 }
 
-Bomberman::~Bomberman() {
+Bomberman::~Bomberman(){
+/*
 	map<int, Jugador *>::iterator it;
 
+	for ( unsigned i = 0 ; i < JUGADORES_MAX ; i++ )
+		if( TipoJugador[i] != JUGADOR_INACTIVO )
+			delete Jugadores[i];
+
 	delete this->Socket;
-	delete [] Jugadores;
 
 	for ( it = Espectadores.begin(); it != Espectadores.end() ; it++ )
 		delete it->second;
 
-	delete MemC;
+	delete MemC;*/
 
 }
 
@@ -863,6 +867,13 @@ queue<t_protocolo> Bomberman::tomaPremio(Coordenada coord, unsigned jugador) {
 }
 
 void Bomberman::Close() {
+
+	for(unsigned i = 0 ; i < JUGADORES_MAX ; i++){
+		if( TipoJugador[i] != JUGADOR_INACTIVO ){
+			this->Jugadores[i]->Close();
+		}
+	}
+
     Socket->CloseCons();
 }
 

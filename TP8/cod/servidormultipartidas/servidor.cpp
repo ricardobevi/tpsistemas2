@@ -200,9 +200,9 @@ int main(int argc, const char *argv[]) {
 
 			pthread_cond_broadcast(&ClockStartCond);
 
-			cout << "Terminando Partida (Pid: " << getpid() << ")" << endl;
-
 			pthread_join( senderThread, NULL );
+
+			cout << "Terminando Partida (Pid: " << getpid() << ")" << endl;
 
 		    end();
 
