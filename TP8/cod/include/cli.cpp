@@ -42,8 +42,11 @@ int main(int argc, const char *argv[])
     sigaction(SIGUSR1 , &term, NULL); 
     
     MemCli.CargarMemCompartida( CLIENTE );
-    
     MemCli.conectarce();
+    
+    MemCli.obtenerPid( CLIENTE );
+    
+
         
     
     

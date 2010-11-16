@@ -15,7 +15,6 @@ void finalizar(int iNumSen, siginfo_t  * info, void *ni)
     MemCli.eliminarMemoriaCompartida( SERVIDOR );
     
     
-        
     if( iNumSen == SIGUSR1 )
     {
         cout << endl << "El cliente ha terminado";
@@ -44,8 +43,10 @@ int main(int argc, const char *argv[])
     
     
     MemCli.CargarMemCompartida( SERVIDOR );
-    
     MemCli.esperarUsuario();
+    MemCli.obtenerPid( SERVIDOR );
+    
+
     
     
     

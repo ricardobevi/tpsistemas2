@@ -35,6 +35,8 @@ class MemCompartida
         int tipoDeAplicacion;
         
         pid_t pidDestino;
+        
+        bool Activo;
 
     public:
 
