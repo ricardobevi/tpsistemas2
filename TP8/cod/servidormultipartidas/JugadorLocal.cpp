@@ -129,29 +129,25 @@ t_protocolo JugadorLocal::recv() {
     if ( !Closed ) {
 
 		if ( !Espectador ) {
-				/*
-				ssize_t st_recibido;
-
-				st_recibido = Socket.Recv((char*) &recibido, sizeof(t_protocolo));
-
-				if ( st_recibido <= -1 )
-					Closed = true;
-
-			}else{
-				recibido.x = -2;
-			}
-
-			 cout << "    Recibido de jugador " << this->Numero << endl;
-
-			 cout << "    id = " << recibido.id << endl << "    posicion = " << recibido.posicion
-			 << endl << "    x = " << recibido.x << endl << "    y = " << recibido.y << endl;
-			 */
-
 
 			MemC->recibirDeCliente( recibido );
-        }
 
-    }
+			/*
+			cout << "    Recibido de jugador " << this->Numero << endl;
+
+			cout << "    id = " << recibido.id << endl << "    posicion = " << recibido.posicion
+			<< endl << "    x = " << recibido.x << endl << "    y = " << recibido.y << endl;
+			*/
+
+		}else{
+
+			recibido.x = -2;
+
+		}
+
+	}
+
+
 
     return recibido;
 }
@@ -201,6 +197,6 @@ bool JugadorLocal::isClosed() {
 }
 
 void JugadorLocal::Close() {
-    //this->Socket.Close();
+	this->MemC->eliminarMemoriaCompartida();
     Closed = true;
 }
