@@ -38,6 +38,8 @@ class Jugador {
         int getNumero();
         void setNumero( int num );
 
+        int getTipo();
+
         virtual int send( t_protocolo data ) = 0;
 
         virtual t_protocolo recv() = 0;
@@ -59,8 +61,14 @@ class Jugador {
 
         virtual void Close() = 0;
 
+        static const int JUGADOR_INACTIVO = 0;
+		static const int JUGADOR_REMOTO = 1;
+		static const int JUGADOR_LOCAL = 2;
+		static const int JUGADOR_ARTIFICIAL = 3;
+
     protected:
         int Numero;
+        int Tipo;
 		int Vida;
 		Coordenada Posicion;
 		int Velocidad;

@@ -51,6 +51,8 @@ class Bomberman {
 
         Jugador * esperarJugadorLocal();
 
+        bool hayJugadorLocal();
+
         int nuevoJugador(Jugador * Player);
 
         queue<t_protocolo> sendEscenario(int jugador, bool toAll = false);
@@ -88,6 +90,8 @@ class Bomberman {
         void Close();
 
         void CloseSocket();
+
+        void CloseMemC();
 
         void Reset();
 

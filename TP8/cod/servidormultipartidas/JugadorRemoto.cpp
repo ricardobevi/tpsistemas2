@@ -29,6 +29,8 @@ JugadorRemoto::JugadorRemoto(int Numero,
     Espectador = false;
     Closed = false;
 
+    this->Tipo = JUGADOR_REMOTO;
+
 }
 
 JugadorRemoto::~JugadorRemoto() {

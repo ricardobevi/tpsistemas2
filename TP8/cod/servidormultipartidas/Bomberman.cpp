@@ -123,8 +123,6 @@ void Bomberman::activar(string archivoConfiguracion) {
         this->Socket->Listen();
     }
 
-    MemC.CargarMemCompartida( SERVIDOR );
-
     srand(unsigned(time(NULL)));
 
     for ( unsigned i = 0 ; i < X_MAX + 1 ; i++ )
@@ -195,7 +193,11 @@ Jugador * Bomberman::esperarJugadorRemoto(){
 
 Jugador * Bomberman::esperarJugadorLocal(){
 
+	MemC.CargarMemCompartida( SERVIDOR );
+
 	MemC.esperarUsuario();
+
+	MemC.obtenerPid(SERVIDOR);
 
 	Jugador * Player = new JugadorLocal(-1,
 										 this->VidaInicial,
@@ -207,6 +209,19 @@ Jugador * Bomberman::esperarJugadorLocal(){
 
 	return Player;
 
+}
+
+bool Bomberman::hayJugadorLocal(){
+	bool local = false;
+	unsigned i = 0;
+
+	while( i < JUGADORES_MAX && TipoJugador[i] != JUGADOR_LOCAL )
+		i++;
+
+	if ( TipoJugador[i] != JUGADOR_LOCAL )
+		local = true;
+
+	return local;
 }
 
 int Bomberman::nuevoJugador(Jugador * Player) {
@@ -276,7 +291,7 @@ int Bomberman::nuevoJugador(Jugador * Player) {
 
     if ( numJugador >= 0 ) {
         this->Jugadores[numJugador] = Player;
-        this->TipoJugador[numJugador] = JUGADOR_REMOTO;
+        this->TipoJugador[numJugador] = Player->getTipo();
         this->NumJugadores++;
 
     } else {
@@ -403,7 +418,7 @@ unsigned long int Bomberman::getTiempoEspera() {
 
 queue<t_protocolo> Bomberman::iniciarPartida() {
 
-    if ( NumJugadores == 1 ) {
+	if ( NumJugadores == 1 ) {
 
         unsigned i = 0;
 
@@ -882,6 +897,10 @@ void Bomberman::CloseSocket() {
     Socket->Close();
 }
 
+void Bomberman::CloseMemC(){
+	MemC.eliminarMemoriaCompartida( SERVIDOR );
+}
+
 void Bomberman::Reset() {
     map<int, Jugador *>::iterator it;
 
@@ -893,6 +912,7 @@ void Bomberman::Reset() {
     for ( unsigned i = 0 ; i < JUGADORES_MAX ; i++ ){
         this->TipoJugador[i] = JUGADOR_INACTIVO;
     }
+
 
     Espectadores.clear();
 
