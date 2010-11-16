@@ -273,13 +273,13 @@ Bomberman :: ~Bomberman()
 void Bomberman :: finalizarBomberman( void )
 {
     this->enviarSolicitud(-1);
-    entornoCliente.finalizarPantalla();
-    
-    connectionCliente.Close();
+    entornoCliente.finalizarPantalla(); 
      
     if(  this -> jugadorLocal() )
         memCompartida.eliminarMemoriaCompartida( CLIENTE );
-   
+    else
+        connectionCliente.Close();
+    
 }
 
 
