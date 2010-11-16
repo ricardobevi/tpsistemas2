@@ -277,7 +277,7 @@ void Bomberman :: finalizarBomberman( void )
     
     connectionCliente.Close();
      
-    if( ! this -> jugadorLocal() )
+    if(  this -> jugadorLocal() )
         memCompartida.eliminarMemoriaCompartida( CLIENTE );
    
 }
