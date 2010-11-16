@@ -30,6 +30,8 @@ JugadorLocal::JugadorLocal(int Numero,
 
     this->MemC = mem;
 
+    this->Tipo = JUGADOR_LOCAL;
+
 }
 
 JugadorLocal::~JugadorLocal() {
@@ -42,16 +44,12 @@ int JugadorLocal::send(t_protocolo data) {
     int enviado = 1;
 
     if ( !Closed ) {
-         /*
+
          cout << "Enviando a jugador " << this->Numero << endl;
 
          cout << "id = " << data.id << endl << "posicion = " << data.posicion << endl << "x = "
          << data.x << endl << "y = " << data.y << endl;
-        */
-        //enviado = (int) Socket.Send((char*) &data, sizeof(t_protocolo));
 
-        /*if ( enviado <= -1 )
-            Closed = true;*/
 
     	MemC->enviarACliente( data );
 

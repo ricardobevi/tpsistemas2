@@ -33,6 +33,8 @@ JugadorAutomatico::JugadorAutomatico(unsigned (*Escenario)[10],
     Espectador = false;
     Closed = false;
 
+    this->Tipo = JUGADOR_ARTIFICIAL;
+
 }
 
 JugadorAutomatico::~JugadorAutomatico() {

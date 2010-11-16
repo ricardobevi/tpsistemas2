@@ -57,6 +57,9 @@ map< int, pthread_t > recvJugadores;
 map< int, pthread_t > pidWaiters;
 
 pid_t childPid;
+pid_t jugadorLocalPid;
+
+bool hayJugadorLocal = false;
 
 pthread_mutex_t JugLocalMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t JugLocalCond = PTHREAD_COND_INITIALIZER;
@@ -106,21 +109,34 @@ void cSIGPIPE(int iNumSen, siginfo_t *info, void *ni){
     cout << "[OK]" << endl;
 }
 
-void cTERM(int iNumSen, siginfo_t *info, void *ni){
+void cTERMPadre(int iNumSen, siginfo_t *info, void *ni){
 	map<int, pthread_t>::iterator it;
 
+	cout << "Terminando procesos...." << endl;
 	for ( it = pidWaiters.begin() ; it != pidWaiters.end() ; it++ ){
 		kill(SIGTERM, it->first);
 		pthread_join( it->second, NULL );
+		cout << "Terminando proceso...." << "Pid: " << it->first << endl;
 	}
 
     cout << "Terminando Servidor..." << endl;
 
     cancelThreads();
 
+    cout << "Cerrando Socket de Escucha...................";
     Servidor.CloseSocket();
+	cout << "[OK]" << endl;
+
+	cout << "Cerrando Memoria Compartida..................";
+	Servidor.CloseMemC();
+	cout << "[OK]" << endl;
 
     exit(0);
+}
+
+void cTERMHijo(int iNumSen, siginfo_t *info, void *ni){
+	end();
+	exit(-1);
 }
 
 int main(int argc, const char *argv[]) {
@@ -132,7 +148,7 @@ int main(int argc, const char *argv[]) {
     term.sa_flags = SA_SIGINFO | SA_NODEFER;
     sigaction(SIGPIPE, &term, NULL);
 
-    term.sa_sigaction = cTERM;
+    term.sa_sigaction = cTERMPadre;
     sigaction(SIGINT, &term, NULL);
     sigaction(SIGTERM, &term, NULL);
     sigaction(SIGQUIT, &term, NULL);
@@ -163,6 +179,13 @@ int main(int argc, const char *argv[]) {
 		childPid = fork();
 
 		if ( childPid == 0 ){/*hijo*/
+
+			term.sa_sigaction = cTERMHijo;
+			sigaction(SIGINT, &term, NULL);
+			sigaction(SIGTERM, &term, NULL);
+			sigaction(SIGQUIT, &term, NULL);
+			sigaction(SIGABRT, &term, NULL);
+			sigaction(SIGSEGV, &term, NULL);
 
 			cout << "[OK] (Pid: " << getpid() << ")" << endl;
 
@@ -202,21 +225,15 @@ int main(int argc, const char *argv[]) {
 
 			pthread_join( senderThread, NULL );
 
-			cout << "Terminando Partida (Pid: " << getpid() << ")" << endl;
-
 		    end();
-
-		    map<int, pthread_t>::iterator it;
-
-			for ( it = recvJugadores.begin() ; it != recvJugadores.end() ; it++ ){
-				pthread_join( it->second, NULL );
-				recvJugadores.erase(it);
-			}
-
 
 			exit(0);
 
 		}else{
+
+			if ( hayJugadorLocal == true )
+				jugadorLocalPid = childPid;
+
 			Servidor.Reset();
 
 			pthread_create(&pidWaiters[childPid], NULL, pidWaiter, (void *) (&childPid));
@@ -228,7 +245,7 @@ int main(int argc, const char *argv[]) {
 			pthread_create(&timeOutThread, NULL, timeOut, NULL );
 			cout << "[OK]" << endl;
 
-			pthread_cond_broadcast(&JugLocalCond);
+
 		}
 
     }
@@ -294,6 +311,8 @@ void * nuevoJugadorLocal(void * args){
 			cout << "Conectado espectador local " << numJugador << endl;
 		}
 
+		hayJugadorLocal = true;
+
 		pthread_cond_wait(&JugLocalCond, &JugLocalMutex);
 
 	}
@@ -308,6 +327,15 @@ void * pidWaiter( void * args ){
 	waitpid( chPid, NULL, 0 );
 
 	cout << "Termino Partida (Pid: " << chPid << ")" << endl;
+
+	if ( hayJugadorLocal == true && chPid == jugadorLocalPid ){
+		Servidor.CloseMemC();
+		hayJugadorLocal = false;
+		jugadorLocalPid = 0;
+		pthread_cond_broadcast(&JugLocalCond);
+	}
+
+	pidWaiters.erase(pthread_self());
 
 	return NULL;
 }
@@ -596,11 +624,17 @@ t_protocolo popQEnviar() {
 }
 
 void end(){
-    cout << "Terminando Servidor..." << endl;
+	cout << "Terminando Partida...Pid: " << getpid() << endl;
 
     cancelThreads();
 
+    cout << "Cerrando Sockets..." << endl;
     Servidor.Close();
+    cout << "[OK]" << endl;
+
+    cout << "Cerrando Memoria Compartida..." << endl;
+    Servidor.CloseMemC();
+    cout << "[Ok]" << endl;
 
 }
 

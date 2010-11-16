@@ -71,6 +71,10 @@ void Jugador::setNumero( int num ){
 	this->Numero = num;
 }
 
+int Jugador::getTipo(){
+	return this->Tipo;
+}
+
 bool Jugador::puedePonerBomba() {
     return (BombasColocadas < BombasMax);
 }
