@@ -124,7 +124,7 @@ class Bomberman {
         vector<Coordenada> ParedesDestruibles;
 
         Comm<char> * Socket;
-        MemCompartida * MemC;
+        MemCompartida MemC;
 
         int VidaInicial;
         int MaxBombInicial;

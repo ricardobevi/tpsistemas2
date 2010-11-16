@@ -18,51 +18,61 @@
 class Jugador {
 
     public:
+        int getVida();
+        int restarVida();
+        int sumarVida();
 
-        Jugador();
+        void sumarVelocidad();
+        int getVelocidad();
+        void sumarBombMax();
+        void sumarTipoBomba();
 
-        ~Jugador();
+        Coordenada moverArriba();
+        Coordenada moverAbajo();
+        Coordenada moverIzquierda();
+        Coordenada moverDerecha();
 
-        virtual int getVida() = 0;
-        virtual int restarVida() = 0;
-        virtual int sumarVida() = 0;
+        void setPosicion( Coordenada Posicion );
 
-        virtual void sumarVelocidad() = 0;
-        virtual int getVelocidad() = 0;
-        virtual void sumarBombMax() = 0;
-        virtual void sumarTipoBomba() = 0;
-
-        virtual Coordenada moverArriba() = 0;
-        virtual Coordenada moverAbajo() = 0;
-        virtual Coordenada moverIzquierda() = 0;
-        virtual Coordenada moverDerecha() = 0;
-
-        virtual void setPosicion( Coordenada Posicion ) = 0;
-
-        virtual Coordenada getPosicion() = 0;
-        virtual int getNumero() = 0;
-        virtual void setNumero( int num ) = 0;
+        Coordenada getPosicion();
+        int getNumero();
+        void setNumero( int num );
 
         virtual int send( t_protocolo data ) = 0;
 
         virtual t_protocolo recv() = 0;
 
-        virtual bool puedePonerBomba() = 0;
-        virtual Bomba ponerBomba(unsigned numBomba) = 0;
-        virtual void explotoBomba() = 0;
+        bool puedePonerBomba();
+        Bomba ponerBomba(unsigned numBomba);
+        void explotoBomba();
 
-        virtual void setEnvioEscenario( bool envio ) = 0;
-        virtual bool getEnvioEscenario() = 0;
+        void setEnvioEscenario( bool envio );
+        bool getEnvioEscenario();
 
-        virtual void eliminar() = 0;
-        virtual bool eliminado() = 0;
+        void eliminar();
+        bool eliminado();
 
-        virtual void setEspectador(bool espectador) = 0;
-        virtual bool isEspectador() = 0;
+        void setEspectador(bool espectador);
+        bool isEspectador();
 
-        virtual bool isClosed() = 0;
+        bool isClosed();
 
         virtual void Close() = 0;
+
+    protected:
+        int Numero;
+		int Vida;
+		Coordenada Posicion;
+		int Velocidad;
+		int BombasColocadas;
+		int BombasMax;
+		int TipoBomba;
+
+		bool EnvioEscenario;
+
+		bool Espectador;
+
+		bool Closed;
 
 
 };
