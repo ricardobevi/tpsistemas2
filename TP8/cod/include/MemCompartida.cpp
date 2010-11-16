@@ -6,6 +6,7 @@
  */
 
 #include "MemCompartida.h"
+#include <signal.h>
 
 MemCompartida :: MemCompartida()
 {
@@ -183,10 +184,14 @@ int MemCompartida :: esperarUsuario()
      }
      //else
      //        cout << endl << "Exito al habilitar el CAS cliente";
-
+     
+        
+     this -> obtenerPid( SERVIDOR );
+     
      return 1;
 
 }
+
 
 
 
@@ -231,7 +236,10 @@ int  MemCompartida :: conectarce()
      }
      //else
      //       cout << endl << "Exito al habilitar el SAC servidor";
-
+     
+     
+     this -> obtenerPid( CLIENTE );
+     
      return 1;
 }
 
@@ -240,35 +248,46 @@ int  MemCompartida :: conectarce()
 void  MemCompartida :: enviarAServidor( t_protocolo& datoAServidor)
 {
 
-    semaforos.P(  S_BLOCK_CLI_CAS );
+    if ( semaforos.P(  S_BLOCK_CLI_CAS )  == -1 )
+                this -> eliminarMemoriaCompartida( CLIENTE );
 
     *MemoriaCAS =  datoAServidor;
 
-    semaforos.V( S_BLOCK_SERV_CAS );
+    if ( semaforos.V( S_BLOCK_SERV_CAS )  == -1 )
+                this -> eliminarMemoriaCompartida( CLIENTE );
 
 }
 
 
+  
 // envio de datos ( datoACliente ) desde el servidor  al cliente a travez de el area de memoria compartida SAC
 void  MemCompartida :: enviarACliente( t_protocolo& datoACliente)
 {
 
-    semaforos.P(   S_BLOCK_SERV_SAC  );
+ 
+    if (  semaforos.P(   S_BLOCK_SERV_SAC  )  == -1 )
+                this -> eliminarMemoriaCompartida( CLIENTE );
 
     *MemoriaSAC =  datoACliente;
 
-    semaforos.V(  S_BLOCK_CLI_SAC  );
+    if (  semaforos.V(  S_BLOCK_CLI_SAC  )  == -1 )
+                this -> eliminarMemoriaCompartida( CLIENTE );
 }
+
 
 // recepcion de datos ( datoAServidor ) desde el servidor  al cliente a travez de el area de memoria compartida SAC
 void MemCompartida :: recibirDeServidor( t_protocolo& datoAServidor)
 {
 
-    semaforos.P(   S_BLOCK_CLI_SAC   );
+    if ( semaforos.P(   S_BLOCK_CLI_SAC   )   == -1 )
+                this -> eliminarMemoriaCompartida( CLIENTE );
+    
 
     datoAServidor = *MemoriaSAC ;
-
-    semaforos.V(  S_BLOCK_SERV_SAC );
+    
+    if ( semaforos.V(  S_BLOCK_SERV_SAC )  == -1 )
+                this -> eliminarMemoriaCompartida( CLIENTE );
+    
 
 }
 
@@ -277,16 +296,42 @@ void MemCompartida :: recibirDeServidor( t_protocolo& datoAServidor)
 void MemCompartida :: recibirDeCliente( t_protocolo& datoACliente)
 {
 
-
-    semaforos.P(  S_BLOCK_SERV_CAS   );
+    if (  semaforos.P(  S_BLOCK_SERV_CAS   )  == -1 )
+                this -> eliminarMemoriaCompartida( CLIENTE );
+   
 
     datoACliente = *MemoriaCAS;
 
-    semaforos.V(  S_BLOCK_CLI_CAS  );
+    if ( semaforos.V(  S_BLOCK_CLI_CAS  )   == -1 )
+                this -> eliminarMemoriaCompartida( CLIENTE );
+    
 
 
 }
 
+
+int MemCompartida :: obtenerPid( int tipoDeAplicacion ){
+    
+     t_protocolo miPid , pidRecibido ;
+     
+     miPid.x =  getpid();
+     
+     if ( tipoDeAplicacion == SERVIDOR )
+     {
+        this -> enviarACliente(miPid);
+        this -> recibirDeCliente(pidRecibido);
+     }
+     else
+     {
+          this -> enviarAServidor(miPid);
+          this -> recibirDeServidor(pidRecibido);
+     }
+     
+     pidDestino = pidRecibido.x;
+     
+     return 1;
+     
+}
 
 //metodo que elimina de forma limpia los semaforos y memorias compartidas
 int MemCompartida :: eliminarMemoriaCompartida( int tipoDeAplicacion )
@@ -311,8 +356,16 @@ int MemCompartida :: eliminarMemoriaCompartida( int tipoDeAplicacion )
     if (tipoDeAplicacion == SERVIDOR )
     {
         
-        semaforos.P( S_CLIENTE_INACTIVO);
+        semaforos.P(CLIENTE_INACTIVO);
         
+        
+        if ( semaforos.rmSem() == -1 ) 
+        {
+            perror("MemCompartida.h: eliminarMemoriaCompartida() : semaforos.rmSem : ");
+            exito = -1;
+        }
+        
+
         if ( shmctl( IdMemSac , IPC_RMID , (struct shmid_ds *)NULL)  == -1 )
         {
             perror("MemCompartida.h: eliminarMemoriaCompartida() : MemSac : ");
@@ -327,19 +380,16 @@ int MemCompartida :: eliminarMemoriaCompartida( int tipoDeAplicacion )
         }
        
        
-        if ( semaforos.rmSem() ) 
-        {
-            perror("MemCompartida.h: eliminarMemoriaCompartida() : semaforos.rmSem : ");
-            exito = -1;
-        }
-        
+
         
     }
     else
     {    
-        semaforos.V( S_CLIENTE_INACTIVO); 
+        semaforos.V(CLIENTE_INACTIVO); 
     }
     
+    
+    kill( pidDestino ,  SIGUSR1 );
     
     return exito;
 }

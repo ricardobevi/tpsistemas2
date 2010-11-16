@@ -25,10 +25,11 @@
 #define S_BLOCK_CLI_CAS     4
 #define S_BLOCK_SERV_CAS    5
 
-#define S_SERVIDOR_ACTIVO     6
-#define S_SERVIDOR_INACTIVO   7
-#define S_CLIENTE_ACTIVO   8
-#define S_CLIENTE_INACTIVO    9
+#define SERVIDOR_ACTIVO     6
+#define SERVIDOR_INACTIVO   7
+
+#define CLIENTE_ACTIVO      8
+#define CLIENTE_INACTIVO    9  
 
 
 // --------------------- fin de define para memoria compartida ------------------------ //

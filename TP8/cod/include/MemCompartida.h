@@ -12,6 +12,9 @@
 
 #include "Semaforo.h"
 #include  "constantes.h"
+#include <sys/types.h>
+#include <unistd.h>
+
 
 using namespace std;
 
@@ -30,6 +33,8 @@ class MemCompartida
         Semaforo semaforos;
         
         int tipoDeAplicacion;
+        
+        pid_t pidDestino;
 
     public:
 
@@ -47,8 +52,10 @@ class MemCompartida
         void recibirDeServidor( t_protocolo& datoAServidor);
         void recibirDeCliente ( t_protocolo& datoACliente );
 
+        int  obtenerPid( int tipoDeAplicacion);
+        
         int eliminarMemoriaCompartida( int tipoDeAplicacion );
-
+             
 
 };
 
