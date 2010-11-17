@@ -1,8 +1,14 @@
-cli: cliente.o ../include/Coordenada.o ../include/MemCompartida.o ../include/Semaforo.o
+remoto: cliente.o ../include/Coordenada.o ../include/MemCompartida.o ../include/Semaforo.o
 	g++ -Wall -lpthread -lncurses -ggdb -o cli cliente.o ../include/Coordenada.o ../include/MemCompartida.o ../include/Semaforo.o
+
+local: clienteLocal.o ../include/Coordenada.o ../include/MemCompartida.o ../include/Semaforo.o
+	g++ -Wall -lpthread -lncurses -ggdb -o cliLocal clienteLocal.o ../include/Coordenada.o ../include/MemCompartida.o ../include/Semaforo.o
 
 cliente.o: cliente.cpp c_Bomberman.h c_escenario.h entorno.h ../include/Connection.h
 	g++ -Wall -lpthread -lncurses -ggdb -c -o cliente.o cliente.cpp
+	
+clienteLocal.o: clienteLocal.cpp c_BombermanLocal.h c_escenario.h entorno.h ../include/Connection.h
+	g++ -Wall -lpthread -lncurses -ggdb -c -o clienteLocal.o clienteLocal.cpp
 
 ../include/Coordenada.o: ../include/Coordenada.cpp ../include/Coordenada.h
 	g++ -Wall -ggdb -lpthread -c -o ../include/Coordenada.o ../include/Coordenada.cpp
@@ -16,4 +22,4 @@ cliente.o: cliente.cpp c_Bomberman.h c_escenario.h entorno.h ../include/Connecti
 clean:
 	rm ../include/Coordenada.o cliente.o ../include/MemCompartida.o ../include/Semaforo.o ./cli 
 	
-all: clean cli
+all: local remoto
