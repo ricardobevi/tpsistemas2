@@ -371,7 +371,7 @@ void * recver(void * args) {
     pthread_mutex_unlock(&CrearNuevoThreadMutex);
     //pthread_cond_broadcast(&CrearNuevoThreadCond);
 
-    cout << "* Creado thread de jugador " << numJugador << endl;
+    cout << "* Creado thread de jugador " << jugador << endl;
 
     t_protocolo recibido;
 
