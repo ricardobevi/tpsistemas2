@@ -220,6 +220,8 @@ int main(int argc, const char *argv[]) {
 				escenarioAEnviar.pop();
 			}
 
+			pthread_mutex_lock(&CrearNuevoThreadMutex);
+
 			while( !QNumJugadores.empty() ){
 				pthread_t newRecver;
 				int numJugador = QNumJugadores.front();
