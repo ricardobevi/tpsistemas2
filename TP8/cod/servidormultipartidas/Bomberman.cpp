@@ -486,7 +486,7 @@ queue<t_protocolo> Bomberman::procesarAccion(t_protocolo recibido) {
     queue<t_protocolo> procesado;
     t_protocolo enviar = { 0, 0, 0, 0 };
 
-    if ( TipoJugador != JUGADOR_INACTIVO ) {
+    if ( TipoJugador[recibido.posicion] != JUGADOR_INACTIVO ) {
 
         char accion = 0;
 
