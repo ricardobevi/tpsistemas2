@@ -16,6 +16,9 @@
 
 using namespace std;
 
+
+string tipoDeCliente;
+
 //nombres de hilos de ejecucion
 void * sender (void * args);
 void * screen (void * args);
@@ -44,9 +47,11 @@ pthread_t sender_t,                                               // creo los hi
 // o cerrar correctamente el cliente ante un control + c
 void finalizarCliente(int iNumSen, siginfo_t  * info, void *ni)
 {
-    pthread_cancel(sender_t);
-    pthread_cancel(recver_t);
+    
     pthread_cancel(screen_t);
+    pthread_cancel(recver_t);
+    pthread_cancel(sender_t);
+    
     clienteBomberman.finalizarBomberman();
     
     system("reset");
@@ -56,11 +61,12 @@ void finalizarCliente(int iNumSen, siginfo_t  * info, void *ni)
         cout << endl  << endl <<"ERROR: Fallo la conexion al socket" << endl << " El servidor no esta activo o termino abruptamente. "  << endl;
     }
     
-     
+    /* 
     if (iNumSen == SIGUSR1)
     {
         cout << endl  << endl <<"ERROR: Fallo la comunicacion al segmento de memoria compartida" << endl << " El servidor no esta activo o termino abruptamente. "  << endl;
     }
+    */
     
     cout << endl << "El cliente ha finalizado" << endl << endl ;
     exit (0);
@@ -82,10 +88,14 @@ int main(int argc, const char *argv[]){
     sigaction(SIGQUIT , &term, NULL);
     sigaction(SIGABRT , &term, NULL);
     sigaction(SIGSEGV , &term, NULL);    
-    sigaction(SIGUSR1 , &term, NULL);   
+    //sigaction(SIGUSR1 , &term, NULL);   
 
     srand(unsigned(time(NULL)));
            
+    if( argc == 1 )
+       clienteBomberman.set_tipoDeCliente( "vacio" );
+    else
+        clienteBomberman.set_tipoDeCliente( argv[1] );
               
         // mediante estos mutex freno a los hilos de emision y pantalla    
         // hasta q comience la partida (inicio) o haya q actualizar la pantalla (pantalla)
@@ -307,7 +317,8 @@ void * screen(void * args)
                     
                    finDePartida =  clienteBomberman.actualizarNovedades( &accion ); 
                     
-                    clienteBomberman.dibujarPantalla();
+                   if ( !finDePartida )
+                        clienteBomberman.dibujarPantalla();
                     
                     
                     
@@ -318,7 +329,7 @@ void * screen(void * args)
                     pthread_mutex_unlock( &SemColaNovedades );
                     
           
-         }while ( !colaVacia &&  !finDePartida );
+         }while ( !finDePartida && !colaVacia  );
          
          
         // espero a que me avise el hilo de recepcion que se ha modificado la cola          
