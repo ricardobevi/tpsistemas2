@@ -245,7 +245,7 @@ Bomberman :: Bomberman()
             }
             else
             {
-                 memCompartida.obtenerPid( CLIENTE );
+                 //memCompartida.obtenerPid( CLIENTE );
                  conexionExitosa = 1;
             }
     }
@@ -616,7 +616,12 @@ int Bomberman :: actualizarNovedades( t_protocolo * accion )
                   case 'F':
                         
                         entornoCliente.finDePartida( puestos );
-                        getchar();
+                        
+                        if ( !this -> jugadorLocal() )
+                            getchar();
+                        else
+                            sleep(3);
+                        
                         devolucion = 1;
                         
                         break;        
