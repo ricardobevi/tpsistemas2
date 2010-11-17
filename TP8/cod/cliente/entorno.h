@@ -253,7 +253,7 @@ void Entorno ::  dibujarTimeOut(int timeout)
          
             wattron(pantalla,COLOR_PAIR(10));
             mvwprintw(pantalla, 13, 25, "ESPERANDO A JUGADORES" );
-            mvwprintw(pantalla, 15, 35, "% d" , timeout);
+            mvwprintw(pantalla, 15, 35, "%0.2d" , timeout);
             wattroff(pantalla,COLOR_PAIR(10));
             
             wattron(pantalla,COLOR_PAIR(11));
@@ -372,7 +372,7 @@ void Entorno :: actualizarPantalla( void )
     }
     
     attron(COLOR_PAIR(1));
-    mvprintw(0,2,"Jug 1: % d", (escenarioActual->vidas).at(0) );
+    mvprintw(0,2,"Jug 1: %0.2d", (escenarioActual->vidas).at(0) );
     attroff(COLOR_PAIR(1));
     
 
@@ -387,10 +387,10 @@ void Entorno :: actualizarPantalla( void )
     
     // jugador3 : Azul
     attron(COLOR_PAIR(2));
-    mvprintw(0,16,"Jug 2: % d" ,(escenarioActual->vidas).at(1) );
+    mvprintw(0,16,"Jug 2: %0.2d" ,(escenarioActual->vidas).at(1) );
     attroff(COLOR_PAIR(2));
    
-    mvprintw(0,36,"Time % d", escenarioActual->tiempo);
+    mvprintw(0,36,"Time %0.2d", escenarioActual->tiempo);
          
     
     if ( idJugador == 2)
@@ -404,7 +404,7 @@ void Entorno :: actualizarPantalla( void )
     
     // jugador3 : Amarillo
     attron(COLOR_PAIR(3));
-    mvprintw(0,53,"Jug 3: % d" ,(escenarioActual->vidas).at(2));
+    mvprintw(0,53,"Jug 3: %0.2d" ,(escenarioActual->vidas).at(2));
     attroff(COLOR_PAIR(3));
 
     
@@ -418,7 +418,7 @@ void Entorno :: actualizarPantalla( void )
     }
     // jugador4 : Verde 
     attron(COLOR_PAIR(4));
-    mvprintw(0,68,"Jug 4: % d", (escenarioActual->vidas).at(3));
+    mvprintw(0,68,"Jug 4: %0.2d", (escenarioActual->vidas).at(3));
     attroff(COLOR_PAIR(4));
     
     //------------------------------------------ FIN Cabecera de pantalla ( vidas y tiempo de juego ) --------------------------------------//
