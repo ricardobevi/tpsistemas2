@@ -35,16 +35,14 @@ class Bomberman
                 tecla_derecha,
                 tecla_bomba;
         
-                
-        string  tipoDeCliente;
-    
+        
         int idJugador;
         
     public:
          
          Escenario escenarioCliente;                           // Objeto que identifica el estado actual de la pantalla
                                                                // (posicion de todos sus elementos)
-         Bomberman();
+          Bomberman();
          ~Bomberman();
          
          int  leerTeclado( int tipoTeclado = 1);
@@ -64,29 +62,19 @@ class Bomberman
          
          int get_timeout();
          
-         int set_tipoDeCliente( string Cliente);
          
          int jugadorLocal();
                    
 };
 
-int Bomberman :: set_tipoDeCliente( string Cliente)
-{
-    tipoDeCliente = Cliente;
-    
-    return 1;
-}
 
 
 int Bomberman :: jugadorLocal()
 {
-    bool local = false;
+      
+    return true ;
     
-    
-    if (  tipoDeCliente == "local" )
-    {
-       local = true;
-    }
+}   
 /*
     if( tipoDeCliente == "vacio")
     {
@@ -121,9 +109,11 @@ int Bomberman :: jugadorLocal()
     {
         local = true ;
     }
-  */  
-    return local;
+  
+
 }
+ */ 
+
 
 // Carga la configuracion del archivo de configuracion en el objeto 
 // e inicializa el entorno y la conexion con sus valores correspondientes
@@ -270,7 +260,6 @@ Bomberman :: Bomberman()
             }
             else
             {
-                 //memCompartida.obtenerPid( CLIENTE );
                  conexionExitosa = 1;
             }
     }
@@ -301,7 +290,7 @@ void Bomberman :: finalizarBomberman( void )
     
     sleep(1);
     
-    if(  this -> jugadorLocal() )
+    if(  this -> jugadorLocal()  )
         memCompartida.eliminarMemoriaCompartida( CLIENTE );
     else
         connectionCliente.Close();
@@ -367,7 +356,7 @@ void Bomberman :: recibirAccion(t_protocolo * accion, size_t tam  )
 {
     
     // aca va el recv de tipo protocolo
-    if ( ! this->jugadorLocal() )
+    if ( !  this -> jugadorLocal()  )
             connectionCliente.Recv( (char*) accion, tam );
     else
             memCompartida.recibirDeServidor( *accion );
@@ -404,7 +393,7 @@ void  Bomberman :: enviarSolicitud ( int teclaPresionada )
         solicitud.posicion = 0 ;
 
         //send de tipo protocolo
-        if ( ! this->jugadorLocal() )
+        if ( !  this -> jugadorLocal()  )
             connectionCliente.Send( (char*) &solicitud, sizeof(t_protocolo) );
         else
             memCompartida.enviarAServidor( solicitud );
