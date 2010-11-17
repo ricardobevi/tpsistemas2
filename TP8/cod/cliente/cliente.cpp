@@ -177,7 +177,7 @@ void * recver(void * args)
     
     pthread_mutex_unlock(&SemColaNovedades); 
     
-    while ( true )
+    while ( accion.id != 'F' )
     {   
             
                 clienteBomberman.recibirAccion( &accion, sizeof(t_protocolo) );
