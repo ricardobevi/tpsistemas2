@@ -346,13 +346,13 @@ int MemCompartida :: eliminarMemoriaCompartida( int tipoDeAplicacion )
              if ( Activo == true  )
             {
 
-                    if( pidDestino != 0 ){
+                    //if( pidDestino != 0 ){
                         //cout << "enviando senial al proceso " << pidDestino << endl;
                         //kill( pidDestino ,  SIGUSR1 );
 
                         //semaforos.P(CLIENTE_INACTIVO);
                         
-                    }
+                    //}
                     
                     if ( semaforos.rmSem() == -1 ) 
                     {
@@ -374,7 +374,7 @@ int MemCompartida :: eliminarMemoriaCompartida( int tipoDeAplicacion )
                             exito = -1;
                     }
                     
-                    sleep(1);
+                    sleep(10);
 
                     if ( shmctl( IdMemSac , IPC_RMID , (struct shmid_ds *)NULL)  == -1 )
                     {
@@ -389,9 +389,6 @@ int MemCompartida :: eliminarMemoriaCompartida( int tipoDeAplicacion )
                         exito = -1;
                     }
                     
-                    
-
-                   
                     
                     Activo = false;
             }
