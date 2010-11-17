@@ -11,10 +11,10 @@
 
 #define CANT_SEM          10
 
-#define PATH_KEY         "/bin/bash"
-#define SEM_KEY          's'
-#define MEM_SAC_KEY      'S'
-#define MEM_CAS_KEY      'C'
+#define PATH_KEY         "/bin"
+#define SEM_KEY          'U'
+#define MEM_SAC_KEY      'Y'
+#define MEM_CAS_KEY      'Z'
 
 #define S_INICIO_SERV       0
 #define S_INICIO_CLI        1
