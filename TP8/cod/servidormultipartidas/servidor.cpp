@@ -118,8 +118,9 @@ void cTERMPadre(int iNumSen, siginfo_t *info, void *ni){
 	cout << "Terminando procesos...." << endl;
 	for ( it = pidWaiters.begin() ; it != pidWaiters.end() ; it++ ){
 		kill(SIGTERM, it->first);
+		cout << "Terminando proceso...." << "Pid: " << it->first;
 		pthread_join( it->second, NULL );
-		cout << "Terminando proceso...." << "Pid: " << it->first << endl;
+		cout << "[TERMINADO]" << endl;
 	}
 
     cout << "Terminando Servidor..." << endl;
@@ -226,19 +227,20 @@ int main(int argc, const char *argv[]) {
 
 				retorno = pthread_create(&newRecver, NULL, recver, (void *) (&numJugador));
 
-				cout << retorno << " Creado thread de jugador " << numJugador << endl;
-
-				recvJugadores[numJugador] = newRecver;
-
-				QNumJugadores.pop();
-
 				/*
 				 * Tengo que esperar de lo contrario el valor de la variable
 				 * numJugador puede cambiar antes de que internamente el thread
 				 * guarde de que jugador tiene que recibir datos.
 				 */
 
-				pthread_cond_wait(&CrearNuevoThreadCond, &CrearNuevoThreadMutex);
+				pthread_mutex_lock(&CrearNuevoThreadMutex);
+
+				cout << retorno << " Creado thread de jugador " << numJugador << endl;
+
+				recvJugadores[numJugador] = newRecver;
+
+				QNumJugadores.pop();
+
 			}
 
 			pthread_cond_broadcast(&ClockStartCond);
@@ -368,7 +370,8 @@ void * recver(void * args) {
     int * jugPtr = (int *) args;
     int jugador = *jugPtr;
 
-    pthread_cond_broadcast(&CrearNuevoThreadCond);
+    pthread_mutex_unlock(&CrearNuevoThreadMutex);
+    //pthread_cond_broadcast(&CrearNuevoThreadCond);
 
     t_protocolo recibido;
 
@@ -522,7 +525,7 @@ void * timer(void * args) {
 
         reset = false;
         pthread_cond_wait(&ClockStartCond, &ClockStartMutex);
-
+        cout << "Inicia Timer" << endl;
         pthread_mutex_lock(&ClockMutex);
         clock = Servidor.clockTick();
         pthread_mutex_unlock(&ClockMutex);

@@ -42,12 +42,12 @@ int JugadorRemoto::send(t_protocolo data) {
     int enviado = -1;
 
     if ( !Closed ) {
-         /*
+    	/*
          cout << "Enviando a jugador " << this->Numero << endl;
 
          cout << "id = " << data.id << endl << "posicion = " << data.posicion << endl << "x = "
          << data.x << endl << "y = " << data.y << endl;
-        */
+    	 */
         enviado = (int) Socket.Send((char*) &data, sizeof(t_protocolo));
 
         if ( enviado <= -1 )
@@ -78,7 +78,7 @@ t_protocolo JugadorRemoto::recv() {
 
          cout << "    id = " << recibido.id << endl << "    posicion = " << recibido.posicion
          << endl << "    x = " << recibido.x << endl << "    y = " << recibido.y << endl;
-         */
+		*/
     }
 
     return recibido;
