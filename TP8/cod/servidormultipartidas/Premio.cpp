@@ -34,6 +34,7 @@ Premio :: Premio(Coordenada Pos , unsigned long int id, int ProbPremio){
 
         case 3:
             this->Tipo = 'R'; //Rapido (velocidad)
+            break;
 
         default:
             this->Tipo = 'N'; //NADA
