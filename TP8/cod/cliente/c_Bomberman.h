@@ -72,7 +72,7 @@ class Bomberman
 int Bomberman :: jugadorLocal()
 {
       
-    return true ;
+    return false ;
     
 }   
 /*
