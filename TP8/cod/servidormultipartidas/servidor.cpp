@@ -232,6 +232,12 @@ int main(int argc, const char *argv[]) {
 
 				QNumJugadores.pop();
 
+				/*
+				 * Tengo que esperar de lo contrario el valor de la variable
+				 * numJugador puede cambiar antes de que internamente el thread
+				 * guarde de que jugador tiene que recibir datos.
+				 */
+
 				pthread_cond_wait(&CrearNuevoThreadCond, &CrearNuevoThreadMutex);
 			}
 
