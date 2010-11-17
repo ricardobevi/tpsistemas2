@@ -326,16 +326,20 @@ void * pidWaiter( void * args ){
 
 	waitpid( chPid, NULL, 0 );
 
-	cout << "Termino Partida (Pid: " << chPid << ")" << endl;
-
 	if ( hayJugadorLocal == true && chPid == jugadorLocalPid ){
+
+		cout << "Cerrando Memoria Compartida...";
 		Servidor.CloseMemC();
+		cout << "[Ok]" << endl;
+
 		hayJugadorLocal = false;
 		jugadorLocalPid = 0;
 		pthread_cond_broadcast(&JugLocalCond);
 	}
 
 	pidWaiters.erase(pthread_self());
+
+	cout << "Termino Partida (Pid: " << chPid << ")" << endl;
 
 	return NULL;
 }
@@ -627,9 +631,7 @@ void end(){
     Servidor.Close();
     cout << "[OK]" << endl;
 
-    cout << "Cerrando Memoria Compartida...";
-    Servidor.CloseMemC();
-    cout << "[Ok]" << endl;
+    sleep(10);
 
 }
 
@@ -684,7 +686,9 @@ void cancelThreads(){
 		pthread_cancel( it->second );
 	}
 
+    /*
     cout << "Cerrando thread de envio de datos.......";
     pthread_cancel(senderThread);
     cout << "[OK]" << endl;
+    */
 }
