@@ -64,6 +64,9 @@ bool hayJugadorLocal = false;
 pthread_mutex_t JugLocalMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t JugLocalCond = PTHREAD_COND_INITIALIZER;
 
+pthread_mutex_t CrearNuevoThreadMutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t CrearNuevoThreadCond = PTHREAD_COND_INITIALIZER;
+
 pthread_mutex_t ProcesadorMutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t ProcesadorCond = PTHREAD_COND_INITIALIZER;
 
@@ -228,6 +231,8 @@ int main(int argc, const char *argv[]) {
 				recvJugadores[numJugador] = newRecver;
 
 				QNumJugadores.pop();
+
+				pthread_cond_wait(&CrearNuevoThreadCond, &CrearNuevoThreadMutex);
 			}
 
 			pthread_cond_broadcast(&ClockStartCond);
@@ -346,7 +351,7 @@ void * pidWaiter( void * args ){
 		pthread_cond_broadcast(&JugLocalCond);
 	}
 
-	pidWaiters.erase(pthread_self());
+	pidWaiters.erase(chPid);
 
 	cout << "Termino Partida (Pid: " << chPid << ")" << endl;
 
@@ -356,6 +361,8 @@ void * pidWaiter( void * args ){
 void * recver(void * args) {
     int * jugPtr = (int *) args;
     int jugador = *jugPtr;
+
+    pthread_cond_broadcast(&CrearNuevoThreadCond);
 
     t_protocolo recibido;
 
