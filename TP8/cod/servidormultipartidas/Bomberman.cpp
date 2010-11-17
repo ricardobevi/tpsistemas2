@@ -423,8 +423,13 @@ queue<t_protocolo> Bomberman::iniciarPartida() {
         while ( i < JUGADORES_MAX && TipoJugador[i] != JUGADOR_INACTIVO )
             i++;
 
-        Jugadores[i] = new JugadorAutomatico(Escenario, i, this->VidaInicial, Coordenada(X_MAX, 0),
-                0, MaxBombInicial, VelocidadJugadorAutomatico);
+        Jugadores[i] = new JugadorAutomatico(Escenario,
+        		                             i,
+        		                             this->VidaInicial,
+        		                             Coordenada(X_MAX, 0),
+        		                             0,
+        		                             MaxBombInicial,
+        		                             VelocidadJugadorAutomatico);
 
         TipoJugador[i] = JUGADOR_ARTIFICIAL;
 

@@ -631,7 +631,7 @@ void end(){
     Servidor.Close();
     cout << "[OK]" << endl;
 
-    sleep(10);
+    //sleep(10);
 
 }
 
@@ -686,9 +686,13 @@ void cancelThreads(){
 		pthread_cancel( it->second );
 	}
 
-    /*
-    cout << "Cerrando thread de envio de datos.......";
-    pthread_cancel(senderThread);
+
+    cout << "Cerrando thread de recepcion de jugadores locales.......";
+    pthread_cancel(nuevoJugadorLocalThread);
     cout << "[OK]" << endl;
-    */
+
+    cout << "Cerrando thread de recepcion de jugadores remotos.......";
+	pthread_cancel(nuevosJugadoresRemotosThread);
+	cout << "[OK]" << endl;
+
 }
