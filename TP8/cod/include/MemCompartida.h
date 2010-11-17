@@ -34,7 +34,7 @@ class MemCompartida
         
         int tipoDeAplicacion;
         
-        pid_t pidDestino;
+        //pid_t pidDestino;
         
         bool Activo;
 
@@ -54,7 +54,7 @@ class MemCompartida
         void recibirDeServidor( t_protocolo& datoAServidor);
         void recibirDeCliente ( t_protocolo& datoACliente );
 
-        int  obtenerPid( int tipoDeAplicacion);
+        //int  obtenerPid( int tipoDeAplicacion);
         
         int eliminarMemoriaCompartida( int tipoDeAplicacion );
              

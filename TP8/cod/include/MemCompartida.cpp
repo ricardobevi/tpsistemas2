@@ -8,9 +8,9 @@
 #include "MemCompartida.h"
 #include <signal.h>
 
+
 MemCompartida :: MemCompartida()
 {
-    pidDestino = 0;
 }
 
 
@@ -312,7 +312,7 @@ void MemCompartida :: recibirDeCliente( t_protocolo& datoACliente)
 
 }
 
-
+/*
 int MemCompartida :: obtenerPid( int tipoDeAplicacion ){
     
      t_protocolo miPid , pidRecibido ;
@@ -335,6 +335,7 @@ int MemCompartida :: obtenerPid( int tipoDeAplicacion ){
      return 1;
      
 }
+*/
 
 //metodo que elimina de forma limpia los semaforos y memorias compartidas
 int MemCompartida :: eliminarMemoriaCompartida( int tipoDeAplicacion )
