@@ -34,7 +34,9 @@ class Bomberman
                 tecla_izquierda,
                 tecla_derecha,
                 tecla_bomba;
-    
+        
+                
+        string  tipoDeCliente;
     
         int idJugador;
         
@@ -62,41 +64,58 @@ class Bomberman
          
          int get_timeout();
          
+         int set_tipoDeCliente( string Cliente);
+         
          int jugadorLocal();
                    
 };
+
+int Bomberman :: set_tipoDeCliente( string Cliente)
+{
+    tipoDeCliente = Cliente;
+    
+    return 1;
+}
 
 
 int Bomberman :: jugadorLocal()
 {
     bool local = false;
 
-    char hostname[128];
-    struct hostent *he;
-    struct in_addr **addrs;
+    if( tipoDeCliente == "vacio")
+    {
+            char hostname[128];
+            struct hostent *he;
+            struct in_addr **addrs;
 
-    for(int i = 0; this->ipServidor[i] != '\0'; i++){
-        this->ipServidor[i] = tolower(this->ipServidor[i]);
+            for(int i = 0; this->ipServidor[i] != '\0'; i++){
+                this->ipServidor[i] = tolower(this->ipServidor[i]);
+            }
+
+            gethostname(hostname, sizeof hostname);
+
+            string hname(hostname);
+
+            hname += ".local";
+
+            he = gethostbyname( hname.c_str() );
+
+            addrs = (struct in_addr **) he->h_addr_list;
+
+            //cout << "Host = " << this->ipServidor << endl;
+
+            if ( this->ipServidor == "localhost" ||
+                this->ipServidor == "127.0.0.1" ||
+                this->ipServidor == hostname    ||
+                this->ipServidor == inet_ntoa(*addrs[0]) )
+                local = true;
     }
-
-    gethostname(hostname, sizeof hostname);
-
-    string hname(hostname);
-
-    hname += ".local";
-
-    he = gethostbyname( hname.c_str() );
-
-    addrs = (struct in_addr **) he->h_addr_list;
-
-    //cout << "Host = " << this->ipServidor << endl;
-
-    if ( this->ipServidor == "localhost" ||
-         this->ipServidor == "127.0.0.1" ||
-         this->ipServidor == hostname    ||
-         this->ipServidor == inet_ntoa(*addrs[0]) )
-        local = true;
-
+    
+    else if (  tipoDeCliente == "local" )
+    {
+        local = true ;
+    }
+    
     return local;
 }
 
@@ -273,12 +292,18 @@ Bomberman :: ~Bomberman()
 void Bomberman :: finalizarBomberman( void )
 {
     this->enviarSolicitud(-1);
-    entornoCliente.finalizarPantalla(); 
-     
+    
+    sleep(1);
+    
     if(  this -> jugadorLocal() )
         memCompartida.eliminarMemoriaCompartida( CLIENTE );
     else
         connectionCliente.Close();
+    
+    
+    entornoCliente.finalizarPantalla(); 
+     
+    
     
 }
 
@@ -617,10 +642,10 @@ int Bomberman :: actualizarNovedades( t_protocolo * accion )
                         
                         entornoCliente.finDePartida( puestos );
                         
-                        if ( !this -> jugadorLocal() )
+                        //if ( !this -> jugadorLocal() )
                             getchar();
-                        else
-                            sleep(3);
+                        //else
+                        //    sleep(3);
                         
                         devolucion = 1;
                         
