@@ -197,9 +197,7 @@ Jugador * Bomberman::esperarJugadorLocal(){
 
 	MemC.esperarUsuario();
 
-	MemC.obtenerPid(SERVIDOR);
-
-	Jugador * Player = new JugadorLocal(-1,
+    Jugador * Player = new JugadorLocal(-1,
 										 this->VidaInicial,
 										 Coordenada(-1,-1),
 										 &MemC,
