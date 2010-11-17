@@ -92,10 +92,10 @@ int main(int argc, const char *argv[]){
 
     srand(unsigned(time(NULL)));
            
-    if( argc == 1 )
-       clienteBomberman.set_tipoDeCliente( "vacio" );
+    if( argc > 1 )
+         clienteBomberman.set_tipoDeCliente( argv[1] );
     else
-        clienteBomberman.set_tipoDeCliente( argv[1] );
+         clienteBomberman.set_tipoDeCliente( "vacio" );
               
         // mediante estos mutex freno a los hilos de emision y pantalla    
         // hasta q comience la partida (inicio) o haya q actualizar la pantalla (pantalla)
