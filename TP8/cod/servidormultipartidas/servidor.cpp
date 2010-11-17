@@ -235,8 +235,6 @@ int main(int argc, const char *argv[]) {
 
 				pthread_mutex_lock(&CrearNuevoThreadMutex);
 
-				cout << retorno << " Creado thread de jugador " << numJugador << endl;
-
 				recvJugadores[numJugador] = newRecver;
 
 				QNumJugadores.pop();
@@ -372,6 +370,8 @@ void * recver(void * args) {
 
     pthread_mutex_unlock(&CrearNuevoThreadMutex);
     //pthread_cond_broadcast(&CrearNuevoThreadCond);
+
+    cout << "* Creado thread de jugador " << numJugador << endl;
 
     t_protocolo recibido;
 
