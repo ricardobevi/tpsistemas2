@@ -127,7 +127,7 @@ Bomberman :: Bomberman()
     if( !configuracion.good() )
     {
         cout<< endl << "ERROR: error de apertura en el archivo" << endl;
-        getch();
+        getchar();
         exit(1);
     }
 
@@ -226,7 +226,7 @@ Bomberman :: Bomberman()
         else
         {
             cout<< endl << "ERROR: error en el formato del archivo de configuracion" << endl;
-            getch();
+            getchar();
             exit(1);
         }
         
@@ -240,7 +240,7 @@ Bomberman :: Bomberman()
     if( cantParametros != atoi ( valor.c_str() ) )
     {
             cout<< endl << "ERROR: error en la cantidad de parametros del archivo de configuracion" << endl;
-            getch();
+            getchar();
             exit(1);
     }
 
@@ -637,10 +637,10 @@ int Bomberman :: actualizarNovedades( t_protocolo * accion )
                         
                         entornoCliente.finDePartida( puestos );
                         
-                        //if ( !this -> jugadorLocal() )
+                        if ( !this -> jugadorLocal() )
                             getchar();
-                        //else
-                        //    sleep(3);
+                        else
+                            sleep(3);
                         
                         devolucion = 1;
                         
