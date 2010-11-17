@@ -80,8 +80,8 @@ int Bomberman :: set_tipoDeCliente( string Cliente)
 
 int Bomberman :: jugadorLocal()
 {
-    bool local = false;
-
+    bool local = true;
+/*
     if( tipoDeCliente == "vacio")
     {
             char hostname[128];
@@ -115,7 +115,7 @@ int Bomberman :: jugadorLocal()
     {
         local = true ;
     }
-    
+  */  
     return local;
 }
 
