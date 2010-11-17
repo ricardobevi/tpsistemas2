@@ -17,8 +17,6 @@
 using namespace std;
 
 
-string tipoDeCliente;
-
 //nombres de hilos de ejecucion
 void * sender (void * args);
 void * screen (void * args);
@@ -76,7 +74,8 @@ void finalizarCliente(int iNumSen, siginfo_t  * info, void *ni)
 // hilo principal de ejecucion ( main )
 
 int main(int argc, const char *argv[]){
-   
+
+    
     struct sigaction term;
 
     term.sa_sigaction = finalizarCliente;
@@ -92,15 +91,13 @@ int main(int argc, const char *argv[]){
 
     srand(unsigned(time(NULL)));
            
-    if( argc > 1 )
-         clienteBomberman.set_tipoDeCliente( argv[1] );
-    else
-         clienteBomberman.set_tipoDeCliente( "vacio" );
               
         // mediante estos mutex freno a los hilos de emision y pantalla    
         // hasta q comience la partida (inicio) o haya q actualizar la pantalla (pantalla)
         
+          
 
+          
         pthread_mutex_lock(&inicioPantalla); 
         pthread_mutex_lock(&inicioTeclado);   
                                                                           
