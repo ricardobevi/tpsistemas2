@@ -374,7 +374,7 @@ int MemCompartida :: eliminarMemoriaCompartida( int tipoDeAplicacion )
                             exito = -1;
                     }
                     
-                    sleep(10);
+                    sleep(1);
 
                     if ( shmctl( IdMemSac , IPC_RMID , (struct shmid_ds *)NULL)  == -1 )
                     {
