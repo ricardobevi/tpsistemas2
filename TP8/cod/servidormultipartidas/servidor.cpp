@@ -123,6 +123,15 @@ void cTERMPadre(int iNumSen, siginfo_t *info, void *ni){
 
     cancelThreads();
 
+    cout << "Cerrando thread de recepcion de jugadores locales.......";
+	pthread_cancel(nuevoJugadorLocalThread);
+	cout << "[OK]" << endl;
+
+	cout << "Cerrando thread de recepcion de jugadores remotos.......";
+	pthread_cancel(nuevosJugadoresRemotosThread);
+	cout << "[OK]" << endl;
+
+
     cout << "Cerrando Socket de Escucha...................";
     Servidor.CloseSocket();
 	cout << "[OK]" << endl;
@@ -627,11 +636,12 @@ void end(){
 
     cancelThreads();
 
+    if(hayJugadorLocal == true)
+        	sleep(10);
+
     cout << "Cerrando Sockets...";
     Servidor.Close();
     cout << "[OK]" << endl;
-
-    //sleep(10);
 
 }
 
@@ -685,14 +695,5 @@ void cancelThreads(){
     for ( it = recvJugadores.begin() ; it != recvJugadores.end() ; it++ ){
 		pthread_cancel( it->second );
 	}
-
-
-    cout << "Cerrando thread de recepcion de jugadores locales.......";
-    pthread_cancel(nuevoJugadorLocalThread);
-    cout << "[OK]" << endl;
-
-    cout << "Cerrando thread de recepcion de jugadores remotos.......";
-	pthread_cancel(nuevosJugadoresRemotosThread);
-	cout << "[OK]" << endl;
 
 }

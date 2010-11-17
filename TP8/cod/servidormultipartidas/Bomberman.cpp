@@ -433,6 +433,8 @@ queue<t_protocolo> Bomberman::iniciarPartida() {
 
         TipoJugador[i] = JUGADOR_ARTIFICIAL;
 
+        cout << "Jugador artificial???" << endl;
+
         this->NumJugadores++;
 
     }
