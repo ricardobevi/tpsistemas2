@@ -60,7 +60,7 @@ void * comprobador(void * args){
 
         }
     
-    }while( vec[TAM - 1] < 50 );
+    }while( vec[TAM - 1] < MAXNUM );
     
     return 0;
 }
