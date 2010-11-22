@@ -15,7 +15,8 @@
 #include <stdio.h>
 #include <pthread.h>
 
-#define TAM 500000
+#define TAM 50000
+#define MAXNUM 50
 
 unsigned int vec[TAM];
 pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
@@ -25,7 +26,7 @@ void * llenador(void * args){
     long int i;
     int num = 0;
     
-    for( num = 0 ; num <= 50 ; num++ ){
+    for( num = 0 ; num <= MAXNUM ; num++ ){
         pthread_mutex_lock(&mutex1);
         
         for( i = 0 ; i < TAM ; i++)
@@ -50,13 +51,27 @@ void * comprobador(void * args){
         
         pthread_mutex_unlock(&mutex1);
         
-        if( i >= (TAM - 1) )
+        if( i >= (TAM - 1) ) {
             printf("El vector tiene los mismos numeros. Numero: %d\n", num);
-        else
-            printf("ERROR!\n");
+        } else {
+            long int vCantidad[MAXNUM + 1];
+
+            for( i = 0 ; i < MAXNUM ; i++)
+                vCantidad[i] = 0;
+
+            for( i = 0 ; i < TAM ; i++)
+                vCantidad[vec[i]]++;
+
+            printf("\nERROR! El vector contiene:\n");
+
+            for( i = 0 ; i < MAXNUM ; i++ )
+                if( vCantidad[i] > 0 )
+                    printf("    %ld veces el numero: %ld\n", vCantidad[i], i );
+
+            printf("\n");
+        }
         
-        
-    }while( num < 50 );
+    }while( num < MAXNUM );
     
     return 0;
 }
@@ -66,7 +81,10 @@ int main(){
     pthread_t tid1,
               tid2;
 
-    pthread_create( &tid1, NULL, llenadora, NULL);
+    pthread_mutex_lock(&mutex2);
+    pthread_mutex_unlock(&mutex1);
+
+    pthread_create( &tid1, NULL, llenador, NULL);
     
     pthread_create( &tid2, NULL, comprobador, NULL);
     
