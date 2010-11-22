@@ -1,16 +1,24 @@
-/************************************/
-/* Nombre: Comm.h                   */
-/* Trabajo: Threads y Sockets       */
-/* Numero de ejercicio: 4           */
-/* Entrega: Primer Entrega          */
-/*                                  */
-/* Grupo N 63                       */
-/* D'Aranno Facundo      34.842.320 */
-/* Marcela A. Uslenghi   26.920.315 */
-/* Bevilacqua Ricardo    34.304.983 */
-/************************************/
+/*
+ * Clase Comm
+ * Version: 0.2
+ * Ultima revision: 19-10-2010
+ *
+ */
 
-
+/* Descripcion:
+ *
+ * Esta clase se encarga del manejo de comuniaciones de parte del servidor.
+ * Crea un socket que lo pone a la escucha de nuevas conexiones por parte de
+ * clientes y guarda estas conexiones en un vector. Luego, se puede acceder
+ * a cada una de las posiciones del vector para comunicar con un cliente
+ * particular. Los clientes se manejan con objetos Connection los cuales son
+ * bidireccionales e implementan los metodos para enviar y recibir datos.
+ *
+ * Hay un objeto Connection del lado del cliente y uno de lado del servidor,
+ * de esta forma el cliente se comunica con el servidor a travez de este objeto
+ * y viceversa.
+ *
+ */
 
 #ifndef COMM_H
 #define COMM_H
@@ -43,6 +51,7 @@ class Comm{
         
         Connection<T> getConn(unsigned index);
         
+        void CloseCons();
         void Close();
         
     private:
@@ -58,6 +67,17 @@ class Comm{
 
 
 };
+
+/*
+ * Comm(long int port)
+ *
+ * Contructor que crea un socket de escucha en el puerto pasado
+ * por parametro.
+ *
+ * Recibe:
+ * long int port        Puerto en el cual setear el socket de escucha.
+ *
+ */
 
 template <class T>
 Comm<T> :: Comm(long int port){
@@ -79,44 +99,36 @@ Comm<T> :: Comm(long int port){
     
     if ( bind(this->in_socket,
               (struct sockaddr *)& this->in_address,
-              sizeof(struct sockaddr)) == -1 ){
+              sizeof(struct sockaddr)) == -1 )
         perror("error: Comm.h: Comm(long int port): bind()");
-
-        if ( errno == EADDRINUSE ){
-            int tr = 1;
-            
-            cout << "Trying to reuse the address...";
-            
-            if ( setsockopt( this->in_socket,
-                             SOL_SOCKET,
-                             SO_REUSEADDR,
-                             &tr,
-                             sizeof(int) ) == -1 ) {
-                
-                perror("error: Comm.h: Comm(long int port): setsockopt()");
-                exit(1);
-            
-            }else{
-
-                if ( bind(this->in_socket,
-                          (struct sockaddr *)& this->in_address,
-                          sizeof(struct sockaddr)) == -1 ){
-                    perror("error: Comm.h: Comm(long int port): bind()");
-                    exit(1);
-                }
-                else
-                    cout << "Success!" << endl;
-                
-            }
-        }
-    }
     
 }
+
+/*
+ * ~Comm()
+ * Destructor de la clase, como no se pide memoria dinamicamente, este no
+ * realiza ninguna accion.
+ *
+ */
 
 template <class T>
 Comm<T> :: ~Comm(){
    // close(in_socket);
 }
+
+/*
+ * Listen(int backlog)
+ *
+ * Da la orden al socket para que empiece a escuchar conexiones entrantes.
+ * Setea el socket en escucha.
+ *
+ * Recibe:
+ * int backlog        Cantidad de conexiones que se pueden acumular en la cola
+ *                    de espera.
+ * Devuelve:
+ * El valor de retorno de la funcion listen(). 0 en caso de exito, -1 en caso
+ * de error.
+ */
 
 template <class T>
 int Comm<T> :: Listen(int backlog){
@@ -130,7 +142,16 @@ int Comm<T> :: Listen(int backlog){
     return retVal;
 }
 
-
+/*
+ * Accept()
+ *
+ * Acepta una nueva conexion de un cliente, crea un objeto Connection y lo
+ * agrega al vector de conexiones.
+ *
+ * Devuelve:
+ * El objeto Connection creado, este tiene toda la informacion de la conexion
+ * asi como tambien metodos para enviar y recibir datos y/o archivos.
+ */
 template <class T>
 unsigned Comm<T> :: Accept(){
     struct sockaddr_in addr;
@@ -155,21 +176,51 @@ unsigned Comm<T> :: Accept(){
     return this->cons.size() - 1;
 }
 
+
+/*
+ * getConn(unsigned index)
+ *
+ * Devuelve un objeto conexion que este en una posicion del vector de
+ * conexiones.
+ *
+ * Recibe:
+ * unsigned index        El indice del vector de conexiones.
+ *
+ * Devuelve:
+ * En caso de que el indice exista, retorna el objeto Connection en esa
+ * posicion. Caso contrario, devuelve un objeto Connection vacio.
+ */
 template <class T>
 Connection<T> Comm<T> :: getConn(unsigned index){
-    if ( index <= cons.size() )
+    if ( index < cons.size() )
         return cons[index];
     else
         return *(new Connection<T>);
 }
 
+/*
+ * CloseCons()
+ *
+ * Cierra todas las conexiones de los clientes.
+ */
+template <class T>
+void Comm<T> :: CloseCons(){
+    for( unsigned i = 0 ; i < cons.size() ; i++ )
+            cons[i].Close();
+
+    cons.clear();
+}
 
 
+/*
+ * Close()
+ *
+ * Cierra todas las conexiones al servidor y el socket de escucha del propio
+ * servidor.
+ */
 template <class T>
 void Comm<T> :: Close(){
-    for( unsigned i = 0 ; i < cons.size() ; i++ )
-        cons[i].Close();
-        
+    this->CloseCons();
     close(in_socket);
 }
 
@@ -178,7 +229,3 @@ void Comm<T> :: Close(){
 
 #endif
 
-
-/*******/
-/* FIN */
-/*******/
