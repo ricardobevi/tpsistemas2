@@ -68,15 +68,6 @@ else
 
 fi
 
-# Compruebo que los permisos sean un numero y no otra cosa.
-# Con el 'grep' le indico con la exprecion regular "[^0-9]" que
-# me liste todo lo que NO sea un numero. Si no muestra nada, o sea
-# que es un numero lo que se ingreso, el grep devuelve 1, sino 0.
-if test `echo $permisos | grep "[^0-9]" > /dev/null; echo $?` -eq 0; then
-    echo "Error en los permisos."
-    ayuda
-    exit 1
-fi 
 
 # El primer argumento es la opcion, en el case evaluo este de
 # manera de determinar que opcion se paso por parametro.
@@ -137,6 +128,7 @@ case $1 in
 esac
 
 # Paso por la lista de archivos cambiando los permisos uno por uno.
+IFS=$'\n'
 for archivo in $archivos
 do
         
@@ -144,6 +136,7 @@ do
     chmod $permisos $archivo 2> /dev/null
     
 done
+IFS=' '
 
 exit 0
 
