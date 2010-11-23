@@ -1,0 +1,12 @@
+compilar: compCli compServ
+	
+compCli: cliente.c Comm.h Connection.h
+	g++  -lpthread -o cli cliente.c 
+
+
+compServ: servidor.c Comm.h Connection.h
+	g++  -lpthread -o serv servidor.c
+	
+
+clean:
+	rm -R serv cli
