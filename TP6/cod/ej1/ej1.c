@@ -32,7 +32,7 @@ int main()
         }
         else
         {
-                if((int)(vector=shmat(shmid, 0, 0)) == -1)
+                if( (vector=shmat(shmid, 0, 0)) ==  NULL )
                 {
                   // El segmento de MC apunta a vector. Usando la funcion shmat se logra que todos puedan acceder a la memoria en común.       
                         printf("Error en la conexion"); // No se puede conectar. Sale del programa.
