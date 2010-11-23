@@ -36,7 +36,7 @@ class ServidorBbs
 	     ServidorBbs();
 	     ~ServidorBbs();
 	     
-	     int ActivarServidor( string RutaDescarga, string RutaNovedades , int CantUsuarios ,int timeOut);
+	     int ActivarServidor( string archivoConfiguracion );
 	     string EsperarCliente();
 	     
          Usuario& getUsuario(string Login);
@@ -57,10 +57,15 @@ class ServidorBbs
      
   private:
          int timeOut;
+         int CantUsuarios;
 	     string RutaDescarga;
 	     string RutaNovedades;
+         string ArchConf;
+         long int Puerto;
 	     map < string, Usuario >  Usuarios;
-	     Comm<char> Socket;
+	     Comm<char> * Socket;
+
+         int validacion( const char* DESCARGAS ,const char* NOVEDADES,int CANT_USER, int TIMEOUT);
   
 };
 
@@ -70,17 +75,66 @@ ServidorBbs :: ServidorBbs(){
 ServidorBbs :: ~ServidorBbs(){
 }
 
-int ServidorBbs :: ActivarServidor( string RutaDescarga, string RutaNovedades , int CantUsuarios ,int timeOut){
-  this->RutaNovedades = RutaNovedades;
-  this->timeOut = timeOut * 60;
-  this->Socket.Listen(CantUsuarios);
+int ServidorBbs :: ActivarServidor( string archivoConfiguracion ){
+    int retorno = 1;
 
-  if( RutaDescarga[ RutaDescarga.size() - 1 ] != '\\' &&
-      RutaDescarga[ RutaDescarga.size() - 1 ] != '/' ) RutaDescarga += "/";
+    this->ArchConf = archivoConfiguracion;
 
-  this->RutaDescarga = RutaDescarga;
-  
-  return 0;
+    cout << "Archivo de Configuracion: " << archivoConfiguracion << endl;
+
+    ifstream archConf(archivoConfiguracion.c_str());
+
+    string parametro;
+
+    archConf >> parametro;
+
+    while ( !archConf.eof() ) {
+
+        if ( parametro == "RutaDescarga" ) {
+
+            archConf >> RutaDescarga;
+            
+            if( RutaDescarga[ RutaDescarga.size() - 1 ] != '\\' &&
+                RutaDescarga[ RutaDescarga.size() - 1 ] != '/' ) RutaDescarga += "/";
+            
+            cout << "RutaDescarga = " << RutaDescarga << endl;
+
+        } else if ( parametro == "RutaNovedades" ) {
+            archConf >> RutaNovedades;          
+            cout << "RutaNovedades = " << RutaNovedades << endl;
+
+        } else if ( parametro == "CantUsuarios" ) {
+            archConf >> this->CantUsuarios;
+            cout << "CantUsuarios = " << CantUsuarios << endl;
+
+        } else if ( parametro == "timeOut" ) {
+            archConf >> this->timeOut;
+            cout << "timeOut = " << timeOut << endl;
+
+        } else if ( parametro == "Puerto" ) {
+            archConf >> Puerto;
+            cout << "Puerto = " << Puerto << endl;
+
+        } else if ( 1 ) {
+            cerr << archivoConfiguracion << ": Error en archivo de configuracion." << endl;
+            cerr << "Caracter " << archConf.tellg() << endl;
+            exit(-1);
+        }
+
+        archConf >> parametro;
+
+    }
+
+    archConf.close();
+
+    retorno = validacion( RutaDescarga.c_str(), RutaNovedades.c_str(), CantUsuarios, timeOut );
+
+    if( retorno == 0 ){
+        this->Socket = new Comm<char>(this->Puerto);
+        this->Socket->Listen(CantUsuarios);
+    }
+    
+    return retorno;
 }
 
 string ServidorBbs :: EsperarCliente(){
@@ -88,15 +142,15 @@ string ServidorBbs :: EsperarCliente(){
   char Login[TAM_LOGIN],
        ret;
   
-  numConnection = this->Socket.Accept();
+  numConnection = this->Socket->Accept();
   
-  Socket.getConn(numConnection).Recv(Login, TAM_LOGIN);
+  Socket->getConn(numConnection).Recv(Login, TAM_LOGIN);
   
   if( Usuarios.find( Login ) == Usuarios.end() ){
       cout << Login << " inicia sesion."
-           << "[IP: " << Socket.getConn(numConnection).getIp() << "]" << endl;
+           << "[IP: " << Socket->getConn(numConnection).getIp() << "]" << endl;
 
-      Usuario usr( Login, Socket.getConn(numConnection) );
+      Usuario usr( Login, Socket->getConn(numConnection) );
 
       this->Usuarios[Login]= usr;
 
@@ -107,7 +161,7 @@ string ServidorBbs :: EsperarCliente(){
       Login[0] = '\0';
   }
 
-  Socket.getConn(numConnection).Send( &ret, TAM_RETURN);
+  Socket->getConn(numConnection).Send( &ret, TAM_RETURN);
   
   return string(Login);
   
@@ -203,7 +257,7 @@ void ServidorBbs :: Close(){
     for( it = Usuarios.begin() ; it != Usuarios.end() ; it++ )
         this->CloseUsuario( (*it).first );
 
-    Socket.Close();
+    Socket->Close();
 }
 
 void ServidorBbs :: timeoutSignal( ){
@@ -240,6 +294,51 @@ int ServidorBbs :: getTimeOut(){
 const char *  ServidorBbs :: getRutaNovedades(){
 
     return (this->RutaNovedades).c_str();
+}
+
+int ServidorBbs :: validacion( const char* DESCARGAS ,const char* NOVEDADES,int CANT_USER, int TIMEOUT)
+{
+    int error = 0;
+
+    char * rutaActual = get_current_dir_name();
+
+    if( chdir( DESCARGAS ) == -1 ){
+
+        cout << endl << "ERROR: la ruta de directorio de descargas no es valida"  <<endl;
+        chdir ( rutaActual);
+        error = 1;
+    }
+    else
+    {
+        chdir ( rutaActual);
+    }
+
+
+
+    ifstream  testNovedad(NOVEDADES);
+
+    if( !testNovedad.good() ){
+
+        cout << endl << "ERROR: El archivo novedades no existe o la ruta no es valida, verifique la ruta o cree el archivo" <<endl;
+        error = 1;
+    }
+
+     if( CANT_USER < 0 ){
+
+        cout << endl << "ERROR: la cantidad de usuarios debe ser mayor a cero " <<endl;
+        error = 1;
+    }
+
+
+    if( TIMEOUT < 0 ){
+
+        cout << endl << "ERROR: el timeout debe ser mayor a cero " <<endl;
+        error = 1;
+    }
+
+    cout << endl;
+    return error;
+
 }
 
 #endif
