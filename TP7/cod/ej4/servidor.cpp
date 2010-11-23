@@ -35,7 +35,6 @@ void * sendFile(void * args);
 void cTERM(int iNumSen, siginfo_t *info, void *ni);
 
 void help(void);
-int validacion( const char* DESCARGAS ,const char* NOVEDADES,int CANT_USER, int TIMEOUT);
 
 ServidorBbs ServerBbs;
 
@@ -45,10 +44,10 @@ map< string, queue<string*> > downQueue;
 
 int main(int argc, const char *argv[]){
     
-    if ( validacion( argv[1], argv[2], atoi(argv[3]) ,atoi(argv[4]) ) ||  strcmp(argv[1], "--help") == 0   )
+    if ( argc == 1 && strcmp(argv[1], "--help") == 0 )
     {
           help();
-          exit(1);
+          exit(0);
     }
         
     vector<pthread_t> threads;
@@ -62,7 +61,10 @@ int main(int argc, const char *argv[]){
     sigaction(SIGTERM, &term, NULL);
     sigaction(SIGINT, &term, NULL);
 
-    ServerBbs.ActivarServidor(argv[1], argv[2], atoi(argv[3]) ,atoi(argv[4]) );
+    if ( ServerBbs.ActivarServidor( argv[1] ) != 0){
+        printf("Error al chequear parametros.\n");
+        exit(-1);
+    }
 
     pthread_create( &tTimer, NULL, timer, (void * ) NULL );
 
@@ -72,7 +74,9 @@ int main(int argc, const char *argv[]){
 
         pthread_t newSender,
                   newRecver;
-
+                  
+        cout << "Esperando usuarios..." << endl;
+        
         Login = ServerBbs.EsperarCliente();
 
         if ( Login != "" ){
@@ -178,16 +182,27 @@ void * recver(void * args){
                 {                    
                     ifstream archivoNovedadesSalida( ServerBbs.getRutaNovedades()  );
                     char novedad[TAM_MAX_NOVEDAD];
+                    string novedades;
+
+                    novedades += "\nNovedades: \n";
                     
                     archivoNovedadesSalida.getline( novedad ,  TAM_MAX_NOVEDAD , '\n');
-                   
-                    ServerBbs.getUsuario(Login).sendString(   "\nNovedades: \n"  );
+                    
+                    //ServerBbs.getUsuario(Login).sendString(   "\nNovedades: \n"  );
+                    novedades += novedad;
                     while ( !archivoNovedadesSalida.eof() )
                     {    
-                            ServerBbs.getUsuario(Login).sendString(  novedad  );
+                            //ServerBbs.getUsuario(Login).sendString(  novedad  );
+                            novedades += novedad;
                             archivoNovedadesSalida.getline( novedad ,  TAM_MAX_NOVEDAD , '\n');
+                            novedades += '\n';
                     }
-                    ServerBbs.getUsuario(Login).sendString(   "\n"  );
+                    //ServerBbs.getUsuario(Login).sendString(   "\n"  );
+                    
+                    novedades += '\n';
+
+                    ServerBbs.getUsuario(Login).sendString( novedades.c_str() );
+                    
                     
                     archivoNovedadesSalida.close();
                     
@@ -202,6 +217,8 @@ void * recver(void * args){
                      
                     cout << endl <<"Nueva novedad: " <<  nuevaNovedad << endl;
                     archivoNovedades  << nuevaNovedad << endl;
+
+                    ServerBbs.getUsuario(Login).sendString( "Agregada nueva novedad!" );
                     
                     archivoNovedades.close();
  
@@ -326,58 +343,12 @@ void * timer( void * ){
 
 void help(void){
     
-    cout << "MODO DE USO:" << endl << "\t\t ./serv  ruta_directorio_archivos_servidor  archivo_novedades  cantidad_usuarios  tiempo_limite" << endl << endl;
-    cout << "ruta_directorio_archivos_servidor:  ruta del directorio donde se almacenan los archivos del servidor"<< endl<< endl;
-    cout << "archivo_novedades:  ruta del archivo donde se almacenan las novedades del servidor"<< endl<< endl;
-    cout << "cantidad_usuarios:  especificacion de cuantos usuarios simultaneos pueden estar conectados al servidor al mismo tiempo"<< endl<< endl;
-    cout << "tiempo_limite:   tiempo en minutos en el que se desconectara a un usuario inactivo ( que no esta realizando ninguna operacion )"<< endl<< endl;
+    cout << "MODO DE USO:" << endl << "        ./serv  [ruta_archivo_configuracion]" << endl << endl;
+    cout << "ruta_archivo_configuracion: Ruta al archivo de configuracion del servidor."  << endl;
     
 }
 
-int validacion( const char* DESCARGAS ,const char* NOVEDADES,int CANT_USER, int TIMEOUT)
-{
-    int error = 0;
-    
-    char * rutaActual = get_current_dir_name();  
-    
-    if( chdir( DESCARGAS ) == -1 ){
-    
-        cout << endl << "ERROR: la ruta de directorio de descargas no es valida"  <<endl;
-        chdir ( rutaActual);
-        error = 1;
-    }
-    else
-    {
-        chdir ( rutaActual);
-    }
-       
-    
-    
-    ifstream  testNovedad(NOVEDADES);
-     
-    if( !testNovedad.good() ){
-     
-        cout << endl << "ERROR: El archivo novedades no existe o la ruta no es valida, verifique la ruta o cree el archivo" <<endl;
-        error = 1;
-    }
-    
-     if( CANT_USER < 0 ){
-     
-        cout << endl << "ERROR: la cantidad de usuarios debe ser mayor a cero " <<endl;
-        error = 1;
-    }
-   
-    
-    if( TIMEOUT < 0 ){
-     
-        cout << endl << "ERROR: el timeout debe ser mayor a cero " <<endl;
-        error = 1;
-    }
-    
-    cout << endl;
-    return error;
-    
-}
+
 
 /*******/
 /* FIN */

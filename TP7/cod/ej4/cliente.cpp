@@ -86,19 +86,20 @@ void * sender(void * args){
 
     do{
        
-       pthread_mutex_lock(&screenMutex1);
-       
-       cout << "-> ";
-       cin.getline( Command,TAM_COMMAND,'\n');
+       pthread_mutex_lock(&screenMutex1);       
 
+       cout << "-> ";
+       
        pthread_mutex_unlock(&screenMutex2);
        
+       cin.getline( Command,TAM_COMMAND,'\n');
+
+              
        if ( strcmp( Command, "" ) != 0 )
            sock.Send(Command, TAM_COMMAND);
-
-       /*Demaciado bruto, lo se, pero efectivo y rapido.*/
-
-       if ( Command[0] == 's' &&  Command[1] == 'u' &&
+           
+       if ( Command[0] == 's' && /*Demaciado bruto, lo se, pero efectivo y rapido.*/
+            Command[1] == 'u' &&
             Command[2] == 'b' &&
             Command[3] == 'i' &&
             Command[4] == 'r'){
@@ -108,7 +109,8 @@ void * sender(void * args){
            sock.SendFile(&Command[6]);
 
            cout << "Enviado!" << endl;
-           
+
+           pthread_mutex_unlock(&screenMutex1);
        }
     }while(  strcmp(Command,"fin") != 0 );
 
@@ -186,13 +188,13 @@ int validacion( const char* IP_SERVIDOR ,int PUERTO_DE_ENLACE,const char*  NOMBR
 {
     int error = 0;
     
-     
+    /* 
     if(  PUERTO_DE_ENLACE != 50000){
      
         cout << endl << "ERROR: el puerto debe ser 50000"  <<endl;
         error = 1;
     }
-        
+    */
         
     if( strlen(NOMBRE_DE_USUARIO) > TAM_LOGIN ){
      
