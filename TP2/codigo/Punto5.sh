@@ -44,7 +44,7 @@ fi
 
 #Extraigo el directorio pasado por parametro y el nombre base sin
 #la ruta absoluta o relativa del directorio.
-directorio=$1
+directorio=`echo $1 | sed -e 's;[\/]$;;g' | sed -e 's;.$;&\/*;g'`
 dirName="`basename $1`"
 
 #Chequeo que exista el archivo bkup.conf en el directorio donde se ejecuta el script.
@@ -83,14 +83,14 @@ fi
 
 # Formato de archivo de Back Up: nombredirectorio%fecha%.tar.gz
 #Obtengo el nombre del archivo del Back Up.
-bkupName="$dirName%`date +%d-%m-%y-%H:%M`%.tar.gz"
+bkupName="$dirName`date +%d%m%y%H%M%S`.tar.gz"
 
 #Compruebo si hay Back Ups anteriores.
 if [ `ls $bkupDir | grep "$dirName" > /dev/null ; echo $?` = "0" ]; then
     #Rescato el nombre del ultimo Back Up.
     ultimoBkUp="$bkupDir/`echo $(ls -t $bkupDir) | cut -d" " -f1`"
     #Busco los archivos modificados desde el ultimo Back Up.
-    archMod="`find $directorio -newer $ultimoBkUp`"
+    archMod="`find $directorio \( -cnewer $ultimoBkUp -a \( -type f \) -o \( -type d -a -empty \) \)`"
     
     #Chequeo si hay algun archivo modificado.
     if [ ! "$archMod" = "" ]; then
