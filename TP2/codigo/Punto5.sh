@@ -81,7 +81,7 @@ else #Si no existe el archivo de configuracion, pregunto si desea crearlo.
     fi
 fi
 
-# Formato de archivo de Back Up: nombredirectorio%fecha%.tar.gz
+# Formato de archivo de Back Up: [nombredirectorio][fecha].tar.gz
 #Obtengo el nombre del archivo del Back Up.
 bkupName="$dirName`date +%d%m%y%H%M%S`.tar.gz"
 
@@ -90,26 +90,29 @@ if [ `ls $bkupDir | grep "$dirName" > /dev/null ; echo $?` = "0" ]; then
     #Rescato el nombre del ultimo Back Up.
     ultimoBkUp="$bkupDir/`echo $(ls -t $bkupDir) | cut -d" " -f1`"
     #Busco los archivos modificados desde el ultimo Back Up.
-    archMod="`find $directorio \( -cnewer $ultimoBkUp -a \( -type f \) -o \( -type d -a -empty \) \)`"
+    archMod="`find $directorio \( -cnewer $ultimoBkUp -a \( -type f \) -o \( -type d -a -empty \) \) -print`"
     
     #Chequeo si hay algun archivo modificado.
     if [ ! "$archMod" = "" ]; then
+        IFS=$'\n'
         #Creo el nuevo Back Up.
         tar -caf "$bkupDir/$bkupName" $archMod
+        IFS=' '
         
         #Informo al usuario.
         echo "Creado Back Up $bkupName"
         echo "Archivos:"
-        echo $archMod | sed 's/ /\n/g'
+        echo $archMod
     else
         #Si no hay archivos modificados, no se hace Back Up.
         echo "No hay archivos modificados. No se crea Back Up."
     fi
     
 else
+    IFS=$'\n'
     #Creo el Back Up de todo el directorio.
     tar -caf "$bkupDir/$bkupName" $directorio
-    
+    IFS=' '
     #Informo al usuario los archivos agregados al Back Up.
     echo "Creado Back Up $bkupName"
     echo -e "Archivos: \n" ; find $directorio
